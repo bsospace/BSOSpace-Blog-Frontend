@@ -2,32 +2,121 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+/* Additional Custom Styles for Consistency */
+.content {
+  @apply prose prose-lg prose-gray max-w-none pt-12;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+/* Default styles for headings */
+.content h1 {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+.content h2 {
+  @apply text-2xl font-semibold text-gray-800;
+}
+
+.content h3 {
+  @apply text-xl font-medium text-gray-700;
+}
+
+.content h4 {
+  @apply text-lg font-normal text-gray-600;
+}
+
+/* Dark mode styles for headings */
+.dark .content h1 {
+  @apply text-3xl font-bold text-gray-300;
+}
+
+.dark .content h2 {
+  @apply text-2xl font-semibold text-gray-200;
+}
+
+.dark .content h3 {
+  @apply text-xl font-medium text-gray-200;
+}
+
+.dark .content h4 {
+  @apply text-lg font-normal text-gray-100;
+}
+
+.content blockquote {
+  @apply border-l-4 pl-4 italic text-gray-800;
+}
+
+/* Dark mode styles */
+.dark .content blockquote {
+  @apply border-l-4 pl-4 italic text-gray-300;
+}
+
+.content code {
+  @apply px-1 py-0.5 rounded;
+}
+
+.content pre {
+  @apply bg-gray-800 text-gray-200 p-4 rounded-lg overflow-x-auto relative;
+}
+
+/* Dark mode styles */
+.dark .content pre {
+  @apply bg-gray-900 text-gray-400;
+}
+
+.content .copy-btn {
+  @apply  text-white px-2 py-1 rounded absolute top-2 right-2 opacity-70 hover:opacity-100 transition-opacity;
+}
+
+/* Dark mode styles */
+.dark .content .copy-btn {
+  @apply text-gray-100;
+}
+
+/* Default styles */
+.toc-link {
+    text-decoration: none;
   }
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  
+  .toc-link:hover {
+    text-decoration: underline;
   }
-}
+  
+  /* Dark mode styles */
+  .dark .toc-link {
+    color: #93c5fd; /* Customize as needed */
+  }
+  
+  .dark .toc-link:hover {
+    text-decoration: underline;
+  }
+  .copy-btn {
+    @apply bg-white text-white p-2 rounded-md absolute top-2 right-2 opacity-70 hover:opacity-100 transition-opacity;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .copy-btn svg {
+    width: 1.25rem; /* adjust size as needed */
+    height: 1.25rem;
+  }
+
+  /* HTML: <div class="loader"></div> */
+.loader {
+    width: 50px;
+    padding: 8px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #25b09b;
+    --_m: 
+      conic-gradient(#0000 10%,#000),
+      linear-gradient(#000 0 0) content-box;
+    -webkit-mask: var(--_m);
+            mask: var(--_m);
+    -webkit-mask-composite: source-out;
+            mask-composite: subtract;
+    animation: l3 1s infinite linear;
+  }
+  @keyframes l3 {to{transform: rotate(1turn)}}
