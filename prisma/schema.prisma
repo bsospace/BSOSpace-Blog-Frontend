@@ -1,48 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Post {
   id         Int       @id @default(autoincrement())
   title      String
+  slug       String    @unique
   content    String
-  author     String
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  Author     User?     @relation(fields: [authorId], references: [id])
   authorId   Int?
-  Category   Category? @relation(fields: [categoryId], references: [id])
   categoryId Int?
   Comment    Comment[]
+  Author     User?     @relation(fields: [authorId], references: [id])
+  Category   Category? @relation(fields: [categoryId], references: [id])
+  tags       Tag[]     @relation("PostTags")
 }
 
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
-  posts     Post[]
+  password  String
+  role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  posts     Post[]
 }
 
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
-  posts     Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  posts     Post[]
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
   postId    Int
-  post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]   @relation("PostTags")
 }
