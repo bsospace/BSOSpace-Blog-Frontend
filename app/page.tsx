@@ -1,14 +1,25 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import BlogCard from "./components/Blog";
 import { Post } from "./interfaces";
 
-const HomePage = async () => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`);
+function HomePage() {
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch posts");
-  }
+  const fetchPosts = async () => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/posts`
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch posts");
+    }
+    setPosts(await response.json());
+  };
 
-  const posts: Post[] = await response.json();
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <>
@@ -39,6 +50,6 @@ const HomePage = async () => {
       </div>
     </>
   );
-};
+}
 
 export default HomePage;
