@@ -23,7 +23,6 @@ export async function fetchPosts(): Promise<Post[] | []> {
       `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
       {
         next: { revalidate: 60 },
-        cache: "no-store",
       }
     );
     return response.json();
