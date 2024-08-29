@@ -1,36 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Post } from "@/app/interfaces";
-import { FaCopy } from "react-icons/fa";
-type PageProps = {
-  params: { id: string };
-};
+import { fetchPostBySlug } from "@/app/_action/posts.action";
 
-export default function PostPage({ params }: PageProps) {
+
+export default function PostPage({ params }: { params: { slug: string } }) {
   const [post, setPost] = useState<Post | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
   const [toc, setToc] = useState<string[]>([]);
 
-  const fetchPost = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${params.id}`
-      );
-      if (!res.ok) {
-        throw new Error("Post not found");
-      }
-      const data = await res.json();
-      setPost(data);
-      generateTableOfContents(data.content);
-    } catch (error) {
-      setError("Error fetching post");
-    }
-  };
-
   useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const fetchedPost = await fetchPostBySlug(params.slug);
+        if (fetchedPost) {
+          generateTableOfContents(fetchedPost.content);
+          console.log(fetchedPost);
+          setPost(fetchedPost);
+        }
+      } catch (err) {
+        setError("Failed to load the post.");
+      }
+    };
     fetchPost();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [params.slug]);
 
   const generateTableOfContents = (content: string) => {
     const headingTags = ["h2", "h3", "h4", "h5"];
@@ -82,11 +76,6 @@ export default function PostPage({ params }: PageProps) {
       });
     });
   };
-
-  useEffect(() => {
-    fetchPost();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (post) {
