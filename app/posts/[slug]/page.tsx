@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Post } from "@/app/interfaces";
 import { fetchPostBySlug } from "@/app/_action/posts.action";
 
-
 export default function PostPage({ params }: { params: { slug: string } }) {
   const [post, setPost] = useState<Post | null>(null);
   const [error, setError] = useState<string>("");
@@ -80,6 +79,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   useEffect(() => {
     if (post) {
       addCopyButtons();
+      document.title = post?.title || "Post";
     }
   }, [post]);
 
