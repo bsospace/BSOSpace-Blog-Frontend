@@ -6,7 +6,7 @@ export async function fetchPostBySlug(slug: string): Promise<Post | null> {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${slug}`,
       {
-        next: { revalidate: 60 },
+        cache: "no-cache",
       }
     );
     const data: Post = await res.json();
@@ -22,7 +22,7 @@ export async function fetchPosts(): Promise<Post[] | []> {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
       {
-        next: { revalidate: 60 },
+        cache: "no-cache",
       }
     );
     return response.json();
