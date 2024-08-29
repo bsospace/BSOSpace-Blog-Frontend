@@ -44,6 +44,11 @@ export async function GET(req: NextRequest) {
               name: true,
             },
           },
+          tags: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
 
