@@ -3,12 +3,12 @@ import { Post } from "@/app/interfaces";
 
 export async function fetchPostBySlug(slug: string): Promise<Post | null> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/posts/${slug}`,
-      {
-        cache: "no-cache",
-      }
-    );
+    const res = await fetch(`${process.env.PRODUCTION_URL}/api/posts/${slug}`, {
+      next: {
+        revalidate: 0,
+      },
+      method: "GET",
+    });
     const data: Post = await res.json();
     return data;
   } catch (error) {
@@ -20,9 +20,12 @@ export async function fetchPostBySlug(slug: string): Promise<Post | null> {
 export async function fetchPosts(): Promise<Post[] | []> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/posts`,
+      `${process.env.PRODUCTION_URL}/api/posts/all`,
       {
-        cache: "no-cache",
+        next: {
+          revalidate: 0,
+        },
+        method: "GET",
       }
     );
     return response.json();

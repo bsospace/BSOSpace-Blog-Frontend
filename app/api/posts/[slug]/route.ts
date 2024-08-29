@@ -3,7 +3,7 @@ import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 // GET handler to fetch a single post by ID
-export async function GET(req: NextRequest & { params: { id: string } }) {
+export async function GET(req: NextRequest) {
   const slug = req.nextUrl.pathname.split("/").pop();
 
   if (!slug) {
@@ -14,19 +14,44 @@ export async function GET(req: NextRequest & { params: { id: string } }) {
   }
 
   try {
-    const post = await prisma.post.findUnique({
-      where: { slug: slug },
-      include: {
-        Author: true,
-        Category: true,
-        tags: true,
-      },
-    });
+    if (slug !== "all") {
+      const post = await prisma.post.findUnique({
+        where: { slug: slug },
+        include: {
+          Author: {
+            select: { name: true },
+          },
+          Category: true,
+          tags: true,
+        },
+      });
 
-    if (post) {
-      return NextResponse.json(post);
+      if (post) {
+        return NextResponse.json(post);
+      } else {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      }
     } else {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      const post = await prisma.post.findMany({
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          createdAt: true,
+          Category: true,
+          Author: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      if (post) {
+        return NextResponse.json(post);
+      } else {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      }
     }
   } catch (error) {
     console.log(error);
