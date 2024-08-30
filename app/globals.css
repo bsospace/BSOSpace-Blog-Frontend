@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+
+html {
+  scroll-behavior: smooth;
+}
 /* Additional Custom Styles for Consistency */
 .content {
   @apply prose prose-lg prose-gray max-w-none pt-12;
