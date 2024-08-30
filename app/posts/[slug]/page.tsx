@@ -5,6 +5,7 @@ import { fetchPostBySlug } from "@/app/_action/posts.action";
 
 export default function PostPage({ params }: { params: { slug: string } }) {
   const [post, setPost] = useState<Post | null>(null);
+  const [formattedContent, setFormattedContent] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [toc, setToc] = useState<string[]>([]);
 
@@ -14,7 +15,6 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         const fetchedPost = await fetchPostBySlug(params.slug);
         if (fetchedPost) {
           generateTableOfContents(fetchedPost.content);
-          console.log(fetchedPost);
           setPost(fetchedPost);
         }
       } catch (err) {
@@ -36,19 +36,26 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         const index = headings.length;
         const title = match[1];
         headings.push(
-          `<li><a href="#section-${index}" class="toc-link">${title}</a></li>`
+          `<li><a href="#section-${title}" class="toc-link">${title}</a></li>`
         );
 
         content = content.replace(
           match[0],
-          `<${tag} id="section-${index}">${title}</${tag}>`
+          `
+          <section id="section-${title}">
+            <${tag}">${title}</${tag}>
+          </section>
+          `
         );
+        setFormattedContent(content);
       }
     });
 
     setToc(headings);
 
-    setPost((prevPost) => (prevPost ? { ...prevPost, content } : null));
+    console.log(content);
+
+    console.log(post?.content);
   };
 
   const addCopyButtons = () => {
@@ -92,8 +99,8 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="max-w-4xl sm:w-full mx-auto p-4 flex">
-      <aside className="w-1/4 pr-4 hidden md:block">
+    <div className="sm:w-full p-4 flex">
+      <aside className="pr-4 hidden md:block">
         <div className="sticky top-4">
           <h2 className="text-2xl font-semibold mb-2">สารบัญ</h2>
           <ul
@@ -111,7 +118,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           {new Date(post.createdAt).toLocaleDateString()}
         </p>
         <div
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: formattedContent }}
           className="mt-6"
         />
       </main>
