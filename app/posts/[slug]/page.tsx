@@ -42,7 +42,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         content = content.replace(
           match[0],
           `
-            <${tag}>${title}</${tag}>
+            <${tag} id="section-${title}">${title}</${tag}>
           `
         );
         setFormattedContent(content);
