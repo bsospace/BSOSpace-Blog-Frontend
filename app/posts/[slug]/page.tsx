@@ -42,9 +42,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         content = content.replace(
           match[0],
           `
-          <section id="section-${title}">
-            <${tag}">${title}</${tag}>
-          </section>
+            <${tag}>${title}</${tag}>
           `
         );
         setFormattedContent(content);
@@ -52,10 +50,6 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     });
 
     setToc(headings);
-
-    console.log(content);
-
-    console.log(post?.content);
   };
 
   const addCopyButtons = () => {
@@ -100,7 +94,8 @@ export default function PostPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="sm:w-full p-4 flex">
-      <aside className="pr-4 hidden md:block">
+      {/* {JSON.stringify(formattedContent)} */}
+      <aside className="w-1/4 pr-4 hidden md:block">
         <div className="sticky top-4">
           <h2 className="text-2xl font-semibold mb-2">สารบัญ</h2>
           <ul
