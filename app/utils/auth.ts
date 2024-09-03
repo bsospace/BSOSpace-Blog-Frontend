@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -17,7 +18,7 @@ export const generateToken = (user: Object) => {
 
 export const verifyToken = (token: string) => {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as { user: Object };
+    const decoded = jwt.verify(token, SECRET_KEY) as { user: User };
     return decoded.user;
   } catch (error) {
     console.log(error);
