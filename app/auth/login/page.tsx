@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthContext } from "@/app/contexts/authContext";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -8,6 +9,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  const { setIsFetching } = useContext(AuthContext);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -21,7 +23,8 @@ export default function Login() {
       });
 
       if (response.ok) {
-        router.push("/admin/posts/create");
+        setIsFetching(true);
+        router.push("/admin/posts");
       } else {
         const data = await response.json();
         setError(data.error as string);

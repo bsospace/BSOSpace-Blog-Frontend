@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 interface AuthContextProps {
   isLoggedIn: boolean;
   isFecthing: boolean;
+  setIsFetching: (isFecthing: boolean) => void;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   isLoggedIn: false,
   isFecthing: true,
+  setIsFetching: () => {},
   setIsLoggedIn: () => {},
 });
 
@@ -48,7 +50,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, isFecthing }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, setIsLoggedIn, isFecthing, setIsFetching }}
+    >
       {children}
     </AuthContext.Provider>
   );
