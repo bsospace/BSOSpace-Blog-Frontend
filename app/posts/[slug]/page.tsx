@@ -26,7 +26,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   }, [params.slug]);
 
   const generateTableOfContents = (content: string) => {
-    const headingTags = ["h2", "h3", "h4", "h5"];
+    const headingTags = ["h2"];
     const headings: string[] = [];
 
     headingTags.forEach((tag, level) => {
@@ -93,7 +93,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="sm:w-full p-4 flex">
+    <div className="sm:w-full flex">
       {/* {JSON.stringify(formattedContent)} */}
       <aside className="w-1/4 pr-4 hidden md:block">
         <div className="sticky top-4">
@@ -104,7 +104,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           />
         </div>
       </aside>
-      <main className="md:w-3/4 content">
+      <main className="w-full content bg-white rounded-md p-2">
         <h1 className="text-3xl font-bold mb-4 dark:text-white">
           {post.title}
         </h1>
@@ -114,7 +114,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         </p>
         <div
           dangerouslySetInnerHTML={{ __html: formattedContent }}
-          className="mt-6"
+          className="mt-6 "
         />
       </main>
     </div>
