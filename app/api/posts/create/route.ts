@@ -23,13 +23,27 @@ export async function POST(req: NextRequest) {
     token?.value as unknown as string
   ) as User | null;
 
+  if (!decoded) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const tagsArray = tagIds || [];
 
   // Check if the title contains non-English characters
   const isNonEnglish = /[^\x00-\x7F]/.test(title);
 
-  // Generate slug based on the title or UUID if non-English
-  const slug = isNonEnglish ? uuidv4() : title.toLowerCase().replace(/ /g, "-");
+  // Generate initial slug based on the title or UUID if non-English
+  let slug = isNonEnglish ? uuidv4() : title.toLowerCase().replace(/ /g, "-");
+
+  // Validate if the slug already exists in the database
+  let existingPost = await prisma.post.findUnique({
+    where: { slug },
+  });
+
+  // If the slug exists, append a UUID to ensure uniqueness
+  if (existingPost) {
+    slug = `${slug}-${uuidv4()}`;
+  }
 
   try {
     const newPost = await prisma.post.create({
