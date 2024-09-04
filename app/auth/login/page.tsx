@@ -30,7 +30,7 @@ export default function Login() {
         setError(data.error as string);
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login errorr:", error);
       setError(error as string);
     }
   };
