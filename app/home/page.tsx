@@ -59,7 +59,7 @@ export default async function HomePage() {
           {posts.length > 0 ? (
             posts.map((post) => (
               <BlogCard
-                key={post.id}
+                key={post.id.toString()}
                 slug={post.slug}
                 id={post.id}
                 title={post.title}
@@ -71,6 +71,7 @@ export default async function HomePage() {
                 updatedAt={post.updatedAt}
                 authorId={post.authorId}
                 categoryId={post.categoryId}
+                published={false}
               />
             ))
           ) : (
