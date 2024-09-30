@@ -207,6 +207,21 @@ export default function EditPost({ params }: { params: { id: number } }) {
         </div>
 
         <div>
+          <label htmlFor="slug" className="block text-gray-700">
+            key (ถ้าใส่ key โพสต์จะไม่เป็นสาธารณะ)
+          </label>
+          <input
+            type="text"
+            name="key"
+            id="key"
+            placeholder="Enter key"
+            value={postData.key}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        <div>
           <label htmlFor="categoryId" className="block text-gray-700">
             Category <span className="text-red-500">*</span>
           </label>

@@ -14,7 +14,7 @@ export async function PUT(
   }
 
   try {
-    const { title, content, categoryId, tagIds } = await req.json();
+    const { title, content, categoryId, tagIds, key } = await req.json();
 
     if (!title || !content || !categoryId) {
       return NextResponse.json(
@@ -32,6 +32,8 @@ export async function PUT(
         title,
         content,
         slug,
+        published: key != null || key != undefined ? false : true,
+        key: key || null,
         categoryId: parseInt(categoryId),
         tags: {
           set: [],
