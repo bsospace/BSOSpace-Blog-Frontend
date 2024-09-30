@@ -48,7 +48,7 @@ export default async function HomePage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            ดูเราที่ยูทูป
+            👉🏻 ดูเราที่ยูทูป
           </a>
         </span>
       </header>

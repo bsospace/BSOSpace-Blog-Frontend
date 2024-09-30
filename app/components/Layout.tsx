@@ -42,7 +42,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
       <footer className="bg-gray-800 text-white p-1">
         <div className="container mx-auto text-center text-sm">
-          &copy; 2024 BSO Space Blog. All rights reserved.
+          Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights reserved.
         </div>
       </footer>
     </div>
