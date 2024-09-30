@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
   }
 
-  const { title, content, categoryId, tagIds } = await req.json();
+  const { title, content, categoryId, tagIds, key } = await req.json();
 
   const token = req.cookies.get("auth-token");
 
@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
       data: {
         title,
         slug,
+        published: key !== null ? false : true,
+        key: key || null,
         content,
         authorId: decoded?.id,
         categoryId: parseInt(categoryId),
