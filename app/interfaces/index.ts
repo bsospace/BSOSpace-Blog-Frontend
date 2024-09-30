@@ -30,6 +30,8 @@ export interface Post {
   authorId: number;
   categoryId: number;
   Author: Author;
+  published: boolean;
+  key: string;
   Category: Category;
   tags: Tag[];
 }
