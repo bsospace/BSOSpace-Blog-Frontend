@@ -14,6 +14,8 @@ export default function CreatePost() {
     title: "",
     slug: "",
     content: "",
+    key: "",
+    published: false,
     Category: { id: 0, name: "", createdAt: "", updatedAt: "" },
     tags: [],
     authorId: 0,
@@ -67,9 +69,16 @@ export default function CreatePost() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
+    const { name, value: originalValue } = e.target;
+    let value = originalValue;
+
+    // Modify the value if the field is "key"
+    if (name === "key" && value !== "") {
+      value = value.replace(/[^a-zA-Z0-9]/g, "-");
+    }
+
     setPostData((prevData) => ({
-      ...prevData,
+      ...prevData!,
       [name]: value,
     }));
   };
@@ -205,6 +214,20 @@ export default function CreatePost() {
           )}
         </div>
 
+        <div>
+          <label htmlFor="slug" className="block text-gray-700">
+            key (ถ้าใส่ key โพสต์จะไม่เป็นสาธารณะ)
+          </label>
+          <input
+            type="text"
+            name="key"
+            id="key"
+            placeholder="Enter key"
+            value={postData.key}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
         <div>
           <label htmlFor="categoryId" className="block text-gray-700">
             Category <span className="text-red-500">*</span>
