@@ -16,6 +16,8 @@ model Post {
   updatedAt  DateTime  @updatedAt
   authorId   Int?
   categoryId Int?
+  key        String?
+  published  Boolean   @default(false)
   Comment    Comment[]
   Author     User?     @relation(fields: [authorId], references: [id])
   Category   Category? @relation(fields: [categoryId], references: [id])
