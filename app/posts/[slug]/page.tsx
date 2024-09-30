@@ -1,21 +1,44 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Post } from "@/app/interfaces";
 import { fetchPostBySlug } from "@/app/_action/posts.action";
+import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
+import { useSearchParams } from "next/navigation";
+import { FaLock } from "react-icons/fa";
 
 export default function PostPage({ params }: { params: { slug: string } }) {
-  const [post, setPost] = useState<Post | null>(null);
+  const [post, setPost] = useState<Post>();
   const [formattedContent, setFormattedContent] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [toc, setToc] = useState<string[]>([]);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const fetchedPost = await fetchPostBySlug(params.slug);
+        const fetchedPost = await fetchPostBySlug(
+          params.slug,
+          searchParams.get("key") || ""
+        );
+
         if (fetchedPost) {
-          generateTableOfContents(fetchedPost.content);
-          setPost(fetchedPost);
+          generateTableOfContents(fetchedPost?.post.content);
+
+          const post = fetchedPost?.post;
+
+          setPost(post);
+        }
+        if (fetchedPost?.error) {
+          window.alert(fetchedPost.error);
+          const userKey = window.prompt("กรุณาใส่คีย์เพื่อเข้าถึงบทความ");
+          // If userKey is not null, set the key in the URL
+          if (userKey) {
+            const newSearchParams = new URLSearchParams(
+              searchParams.toString()
+            );
+            newSearchParams.set("key", userKey);
+            window.location.search = newSearchParams.toString();
+          }
         }
       } catch (err) {
         setError("Failed to load the post.");
@@ -92,6 +115,16 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     );
   }
 
+  const viewPrivatePost = () => {
+    const userKey = window.prompt("กรุณาใส่คีย์เพื่อเข้าถึงโพสต์");
+    // If userKey is not null, set the key in the URL
+    if (userKey) {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set("key", userKey);
+      window.location.search = newSearchParams.toString();
+    }
+  };
+
   return (
     <div className="sm:w-full flex">
       {/* {JSON.stringify(formattedContent)} */}
@@ -104,19 +137,45 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           />
         </div>
       </aside>
-      <main className="w-full content bg-white rounded-md p-2">
-        <h1 className="text-3xl font-bold mb-4 dark:text-white">
-          {post.title}
-        </h1>
-        <p className="text-sm mt-6">
-          ผู้เขียน {post.Author.name} | เผยแพร่เมื่อ{" "}
-          {new Date(post.createdAt).toLocaleDateString()}
-        </p>
-        <div
-          dangerouslySetInnerHTML={{ __html: formattedContent }}
-          className="mt-6 "
-        />
-      </main>
+
+      {!post.published && (
+        <main className="w-full content bg-white rounded-md p-2 ">
+          <h1 className="text-3xl font-bold mb-4 dark:text-white">
+            {post.title}
+          </h1>
+          <p className="text-sm mt-6">
+            ผู้เขียน {post?.Author?.name} | เผยแพร่เมื่อ{" "}
+            {new Date(post?.createdAt).toLocaleDateString()}
+          </p>
+          <p>โพสต์นี้ไม่ได้เผยแพร่เป็นสาธารณะ กรุณาใส่คีย์เพื่อเข้าถึงโพสต์</p>
+          <div className=" flex justify-center">
+            <button
+              onClick={() => viewPrivatePost()}
+              type="submit"
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              <FaLock className="mr-2" />
+              ดูโพสต์
+            </button>
+          </div>
+        </main>
+      )}
+
+      {post.published && (
+        <main className="w-full content bg-white rounded-md p-2">
+          <h1 className="text-3xl font-bold mb-4 dark:text-white">
+            {post.title}
+          </h1>
+          <p className="text-sm mt-6">
+            ผู้เขียน {post?.Author?.name} | เผยแพร่เมื่อ{" "}
+            {new Date(post?.createdAt).toLocaleDateString()}
+          </p>
+          <div
+            dangerouslySetInnerHTML={{ __html: formattedContent }}
+            className="mt-6 "
+          />
+        </main>
+      )}
     </div>
   );
 }
