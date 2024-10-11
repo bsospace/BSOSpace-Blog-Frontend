@@ -1,21 +1,57 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import { fetchPosts } from "../_action/posts.action";
 import BlogCard from "../components/Blog";
 import { Post } from "../interfaces";
-
 interface Props {
   posts: Post[];
   error?: string;
 }
 
-export default async function HomePage() {
-  let posts: Post[] = [];
+export default function HomePage() {
+  const [posts, setPosts] = useState<Post[]>([]);
   let error: string | undefined;
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
+  const [nextPage, setNextPage] = useState<number | null>(null);
+  const [prevPage, setPrevPage] = useState<number | null>(null);
+  const [indexStart, setIndexStart] = useState(0);
+  const [indexEnd, setIndexEnd] = useState(5);
+  const [total, setTotal] = useState(0);
 
-  try {
-    posts = await fetchPosts();
-  } catch (err) {
-    error = "Failed to load posts.";
+  async function getPosts() {
+    try {
+      let temp = await fetchPosts(page, limit);
+
+      setPosts(temp.data);
+      setIndexStart((page - 1) * limit + 1);
+      setIndexEnd((page * limit > temp.pagination.total_records) ? temp.pagination.total_records : page * limit);
+      setTotal(temp.pagination.total_records);
+      setNextPage(temp.pagination.next_page);
+      setPrevPage(temp.pagination.prev_page);
+    } catch (err) {
+      error = "Failed to load posts.";
+    }
   }
+
+  const handleNext = () => {    
+    if (nextPage == null) return;
+    setPage(page + 1);
+  }
+
+  const handlePrevious = () => {
+    if (prevPage == null) return;
+    setPage(page - 1);
+  }
+
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLimit(parseInt(e.target.value));
+  }
+
+  useEffect(() => {
+    getPosts();
+  }, [limit, page]);
 
   if (error) {
     return (
@@ -55,6 +91,31 @@ export default async function HomePage() {
 
       <section>
         <h3 className="text-3xl font-bold text-gray-800 mb-6">Blogs</h3>
+        {/* pagination for blog */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <select className="border border-gray-300 rounded-md px-2 py-1" onChange={handleLimitChange}>
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+          <div>
+            {/* 1 of n posts */}
+            <p className="text-gray-500 text-sm">
+              {indexStart} - {indexEnd} of {total} posts
+            </p>
+          </div>
+          <div>
+            <button onClick={handlePrevious} className={`${prevPage ? "bg-blue-500 text-white" : "bg-[#bfdbfe] text-[#808390]"} px-4 py-2 rounded-md`}>
+              Previous
+            </button>
+            <button onClick={handleNext} className={`${nextPage ? "bg-blue-500 text-white" : "bg-[#bfdbfe] text-[#808390]"} px-4 py-2 rounded-md ml-2`}>
+              Next
+            </button>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts.length > 0 ? (
             posts.map((post) => (
