@@ -23,7 +23,7 @@ COPY . .
 RUN ls -la ./prisma/
 
 # Generate Prisma client using the schema file
-RUN npx prisma generate --schema=./prisma/schema.prisma
+RUN npx prisma generate
 
 # Build the Next.js application
 RUN npm run build

@@ -22,4 +22,3 @@ services:
       NEXT_PUBLIC_TINYMCE_API_KEY: ${NEXT_PUBLIC_TINYMCE_API_KEY}
     volumes:
       - .:/usr/src/app
-      - /app/node_modules
