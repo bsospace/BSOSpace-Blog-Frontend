@@ -21,5 +21,4 @@ services:
       PRODUCTION_URL: ${PRODUCTION_URL}
       NEXT_PUBLIC_TINYMCE_API_KEY: ${NEXT_PUBLIC_TINYMCE_API_KEY}
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/usr/src/app
