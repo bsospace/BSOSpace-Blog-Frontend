@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "npx prisma migrate deploy",
-    "postinstall": "prisma generate",
     "test": "jest",
     "prisma": "prisma --schema ./prisma/schema.prisma"
   },
