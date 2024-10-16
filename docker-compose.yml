@@ -21,6 +21,6 @@ services:
       PRODUCTION_URL: ${PRODUCTION_URL}
       NEXT_PUBLIC_TINYMCE_API_KEY: ${NEXT_PUBLIC_TINYMCE_API_KEY}
     volumes:
-      - ./app:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./app:/bsoblog
+      - /bsoblog/node_modules
     command: npm start
