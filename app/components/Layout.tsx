@@ -1,52 +1,41 @@
 "use client";
 import { ReactNode } from "react";
-import { FaSun, FaMoon } from "react-icons/fa";
-import { useTheme } from "../contexts/ThemeContext";
+import ThemeSwitcher from "./ThemeSwitcher";
 
-const Layout = ({ children }: { children: ReactNode }) => {
-  const { darkMode, toggleDarkMode } = useTheme();
+interface LayoutProps {
+  children: ReactNode;
+}
 
+export default function Layout({ children }: LayoutProps) {
   return (
-    <div
-      className={`flex flex-col min-h-screen ${
-        darkMode ? "bg-space-dark text-white" : "bg-space-light text-black"
-      }`}
-    >
-      <header className="bg-gray-800 text-white p-4 top-0 z-50">
-        <div className="md:max-w-screen-lg sm:w-full mx-auto flex justify-between items-center">
+    <div className="flex flex-col min-h-screen">
+      {/* Header */}
+      <header className="bg-gray-900 text-white p-4 sticky top-0 z-50">
+        <div className="container mx-auto flex justify-between items-center ">
           <h1
             onClick={() => (window.location.href = "/")}
             className="text-xl font-bold cursor-pointer"
           >
             BSO Space Blog
           </h1>
-          {/* <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors"
-            aria-label={
-              darkMode ? "Switch to light mode" : "Switch to dark mode"
-            }
-          >
-            {darkMode ? (
-              <FaSun className="text-yellow-500 w-6 h-6" />
-            ) : (
-              <FaMoon className="text-gray-800 w-6 h-6" />
-            )}
-          </button> */}
+          <div className="flex items-center">
+            <ThemeSwitcher />
+          </div>
         </div>
       </header>
 
-      <main className="flex-grow container max-w-screen-lg mx-auto p-4">
+      {/* Main Content */}
+      <main className="flex-grow w-full max-w-screen-xl border mx-auto p-6">
         {children}
       </main>
 
-      <footer className="bg-gray-800 text-white p-1">
-        <div className="container mx-auto text-center text-sm">
-          Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights reserved.
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-4">
+        <div className="container mx-auto text-center">
+          Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights
+          reserved.
         </div>
       </footer>
     </div>
   );
-};
-
-export default Layout;
+}
