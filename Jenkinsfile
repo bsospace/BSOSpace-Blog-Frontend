@@ -2,7 +2,7 @@ pipeline{
     agent any
     environment{
         APP_PORT='3000'
-        GIT_URL='https://github.com/BSO-Space/bso-space-blog'
+        GIT_URL='https://github.com/BSO-Space/BSOSpace-Blog-Frontend'
     }
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch name for the build')
