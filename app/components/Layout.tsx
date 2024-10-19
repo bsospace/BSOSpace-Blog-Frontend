@@ -8,7 +8,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-space-light dark:bg-space-dark">
       {/* Header */}
       <header className="bg-gray-900 text-white p-4 sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center ">
@@ -25,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-screen-xl border mx-auto p-6">
+      <main className="flex-grow w-full max-w-screen-xl mx-auto p-6">
         {children}
       </main>
 
