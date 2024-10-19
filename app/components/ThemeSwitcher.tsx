@@ -15,11 +15,18 @@ export default function ThemeSwitcher() {
   if (!mounted) return null;
 
   return (
-    <button
-      className="p-2 bg-gray-300 dark:bg-gray-700 rounded-md"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-    >
-      {theme === "light" ? <MoonIcon /> : <SunIcon />}
-    </button>
+    <div className="flex items-center space-x-2">
+      {theme === "dark" ? (
+        <MoonIcon
+          onClick={() => setTheme("light")}
+          className="w-6 h-6 text-white ml-2 cursor-pointer hover:scale-105 transition-transform"
+        />
+      ) : (
+        <SunIcon
+          onClick={() => setTheme("dark")}
+          className="w-6 h-6 text-yellow-500 ml-2 cursor-pointer hover:scale-105 transition-transform"
+        />
+      )}
+    </div>
   );
 }
