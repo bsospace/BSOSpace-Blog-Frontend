@@ -7,6 +7,10 @@ html {
   scroll-behavior: smooth;
 }
 
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
 * {
   font-family: "IBM Plex Sans Thai", sans-serif;
 }
@@ -201,4 +205,21 @@ ul li::before {
 
 .scroller:hover::-webkit-scrollbar-track {
   background: #e5e7eb; /* สีของ scrollbar track เมื่อ hover */
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 60px;
+  aspect-ratio: 4;
+  background: radial-gradient(circle closest-side, #ff7e5f 90%, #ff7e5f00) 0/calc(100%/3) 100% space, /* Gradient 1 */
+              radial-gradient(circle closest-side, #feb47b 90%, #feb47b00) 33.33%/calc(100%/3) 100% space, /* Gradient 2 */
+              radial-gradient(circle closest-side, #86a8e7 90%, #86a8e700) 66.66%/calc(100%/3) 100% space; /* Gradient 3 */
+  clip-path: inset(0 100% 0 0);
+  animation: l1 1s steps(4) infinite;
+}
+
+@keyframes l1 {
+  to {
+    clip-path: inset(0 -34% 0 0);
+  }
 }
