@@ -121,7 +121,7 @@ export default function HomePage() {
   return (
     <div className="container mx-auto">
       <header className="mb-12 h-64 flex justify-center items-center flex-col">
-        <h1 className="text-heading-2-medium my-4 md:text-[64px] font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
+        <h1 className="text-heading-2-medium my-4 md:text-hero-bold font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
           Be Simple but Outstanding
         </h1>
 
@@ -205,7 +205,7 @@ export default function HomePage() {
             </span>
             Popular
           </h3>
-          <div className="cursor-pointer bg-white rounded-lg shadow-md p-6 hover:shadow-lg  text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
+          <div className="cursor-pointer bg-white rounded-lg shadow-sm p-6  text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
             {loadingPopular ? (
               <div className="text-center min-h-36 py-10 w-full flex justify-center">
                 <div className="loader"></div>
