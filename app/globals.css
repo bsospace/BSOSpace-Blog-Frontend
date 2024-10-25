@@ -186,7 +186,7 @@ ul li::before {
 
 /* HTML: <div class="loader"></div> */
 .loader {
-  width: 60px;
+  width: 40px;
   aspect-ratio: 4;
   background: radial-gradient(circle closest-side, #ff7e5f 90%, #ff7e5f00) 0/calc(100%/3) 100% space, /* Gradient 1 */
               radial-gradient(circle closest-side, #feb47b 90%, #feb47b00) 33.33%/calc(100%/3) 100% space, /* Gradient 2 */
