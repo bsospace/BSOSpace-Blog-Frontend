@@ -27,7 +27,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
 
   const handleImageClick = (src: string | null) => {
     if (src) {
-      console.log("hi hi ohm")
+      console.log("hi hi ohm");
       setZoomedImage(src);
       setIsModalOpen(true);
     }
@@ -45,7 +45,9 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     images.forEach((img) => {
       const imageElement = img as HTMLImageElement;
       imageElement.style.cursor = "pointer"; // Set cursor to pointer for all images
-      imageElement.addEventListener("click", () => handleImageClick(imageElement.src));
+      imageElement.addEventListener("click", () =>
+        handleImageClick(imageElement.src)
+      );
     });
 
     // return () => {
@@ -54,11 +56,9 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     //     imageElement.removeEventListener("click", () => handleImageClick(imageElement.src));
     //   });
     // };
-  }, [formattedContent])
+  }, [formattedContent]);
 
-  useEffect(() => {
-
-  })
+  useEffect(() => {});
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -174,7 +174,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="block md:flex">
-      {/* {JSON.stringify(formattedContent)} */}      
+      {/* {JSON.stringify(formattedContent)} */}
       <aside className="w-2/4 pr-4 hidden md:block">
         <div className="sticky top-[88px]">
           <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh]">
@@ -188,17 +188,42 @@ export default function PostPage({ params }: { params: { slug: string } }) {
       </aside>
 
       <div className="flex md:hidden justify-center max-w-full">
-        <Popover placement="bottom" open={isOpen} handler={setIsOpen} animate={{
-          mount: { opacity: 1 },
-          unmount: { opacity: 0 },
-        }}>
+        <Popover
+          placement="bottom"
+          open={isOpen}
+          handler={setIsOpen}
+          animate={{
+            mount: { opacity: 1 },
+            unmount: { opacity: 0 },
+          }}
+        >
           <PopoverHandler>
-            <Button placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} className="w-full md:hidden mb-4 dark:bg-[#1f1f1f] bg-[#ffffff] text-[#1f1f1f] dark:text-[#ffffff] rounded-sm shadow-sm p-2 flex items-center justify-center"> สารบัญ{isOpen ? <IoChevronDown className="ml-2" /> : <IoChevronForward className="ml-2" /> }</Button>
+            <Button
+              placeholder={undefined}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              className="w-full md:hidden mb-4 dark:bg-[#1f1f1f] bg-[#ffffff] text-[#1f1f1f] dark:text-[#ffffff] rounded-sm shadow-sm p-2 flex items-center justify-center"
+            >
+              {" "}
+              สารบัญ
+              {isOpen ? (
+                <IoChevronDown className="ml-2" />
+              ) : (
+                <IoChevronForward className="ml-2" />
+              )}
+            </Button>
           </PopoverHandler>
-          <PopoverContent placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} className="dark:bg-[#1f1f1f] bg-[#ffffff] p-0 rounded-lg shadow-lg w-[95%]" >
+          <PopoverContent
+            placeholder={undefined}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
+            className="dark:bg-[#1f1f1f] bg-[#ffffff] p-0 rounded-lg shadow-lg w-[95%]"
+          >
             <div className="sticky top-[88px]">
               <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh-80px]">
-                <h2 className="text-2xl font-semibold mb-2 dark:text-[#ffffff] text-[#1f1f1f]">สารบัญ</h2>
+                <h2 className="text-2xl font-semibold mb-2 dark:text-[#ffffff] text-[#1f1f1f]">
+                  สารบัญ
+                </h2>
                 <ul
                   className="space-y-2 max-h-[calc(70vh)] scroller py-4"
                   dangerouslySetInnerHTML={{ __html: toc.join("") }}
