@@ -10,7 +10,7 @@ declare global {
 }
 
 import dynamic from "next/dynamic"; // ใช้ dynamic เพื่อลดปัญหาการโหลด
-import "react-quill/dist/quill.snow.css"; // นำเข้าธีมของ React Quill
+import "quill/dist/quill.snow.css";
 import hljs from "highlight.js"; // นำเข้า highlight.js
 import "highlight.js/styles/github.css"; // นำเข้าธีมของ highlight.js
 import { Post, Tag, Category } from "@/app/interfaces";

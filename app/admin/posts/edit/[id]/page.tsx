@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css";
+import "quill/dist/quill.snow.css";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css"; // You can change the theme if needed
 import { Post, Tag, Category } from "@/app/interfaces";
