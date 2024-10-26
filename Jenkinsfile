@@ -12,7 +12,8 @@ pipeline {
                     // Use the branch from GitHub push (GIT_BRANCH)
                     def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
 
-                    if (branchName ==~ /^pre-release.*/) {
+                    // Match any branch starting with "pre-" including "pre-production"
+                    if (branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
                         DOCKER_NAME = "pre-${branchName}"
                     } else if (branchName == 'develop') {
@@ -22,7 +23,7 @@ pipeline {
                         APP_PORT = '9009'
                         DOCKER_NAME = 'default'
                     } else {
-                        error("This pipeline only supports main, develop, or pre* branches. Current branch: ${branchName}")
+                        error("This pipeline only supports main, develop, or pre-* branches. Current branch: ${branchName}")
                     }
                 }
             }
@@ -41,7 +42,7 @@ pipeline {
                     sh "git branch --set-upstream-to=origin/${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
 
                     // Pull the latest changes from the remote branch
-                    sh "git pull"
+                    sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
                 }
             }
             post {
