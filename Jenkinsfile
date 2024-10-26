@@ -10,7 +10,7 @@ pipeline {
         string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag')
     }
     stages {
-        stage("Setup Environment") {
+        stage('Setup Environment') {
             steps {
                 script {
                     if (params.BRANCH_NAME ==~ /^pre-release.*/) {
@@ -18,21 +18,24 @@ pipeline {
                         DOCKER_NAME = "pre-${params.BRANCH_NAME}"
                     } else if (params.BRANCH_NAME == 'develop') {
                         APP_PORT = '3000'
-                        DOCKER_NAME = "develop"
+                        DOCKER_NAME = 'develop'
                     } else if (params.BRANCH_NAME == 'main') {
                         APP_PORT = '9009'
-                        DOCKER_NAME = "default"
+                        DOCKER_NAME = 'default'
                     } else {
                         error("This pipeline only supports main, develop, or pre-release branches. Current branch: ${params.BRANCH_NAME}")
                     }
                 }
             }
         }
-        
+
         stage("Checkout & Pulling") {
             steps {
                 script {
-                    git branch: "${params.BRANCH_NAME}", url: "${GIT_URL}"
+                    // Checkout the branch using the BRANCH_NAME parameter
+                    checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH_NAME}"]], userRemoteConfigs: [[url: "${GIT_URL}"]]])
+                    
+                    // Pull the branch to get the latest changes
                     sh "git pull origin ${params.BRANCH_NAME}"
                 }
             }
@@ -49,21 +52,21 @@ pipeline {
             }
         }
 
-        stage("Install Dependencies") {
+        stage('Install Dependencies') {
             steps {
                 script {
                     sh 'npm install'
                 }
             }
         }
-        stage("Testing with Jest") {
+        stage('Testing with Jest') {
             steps {
                 script {
                     sh 'npm test'
                 }
             }
         }
-        stage("Code Analysis") {
+        stage('Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
                     sh '''
@@ -76,7 +79,7 @@ pipeline {
                 }
             }
         }
-        stage("Docker Deployment") {
+        stage('Docker Deployment') {
             steps {
                 script {
                     // Use environment variables in Docker Compose
@@ -89,13 +92,13 @@ pipeline {
     }
     post {
         always {
-            echo "Pipeline finished"
+            echo 'Pipeline finished'
         }
         success {
-            echo "Pipeline success"
+            echo 'Pipeline success'
         }
         failure {
-            echo "Pipeline error"
+            echo 'Pipeline error'
         }
     }
 }
