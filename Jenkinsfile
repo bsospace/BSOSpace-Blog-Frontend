@@ -9,10 +9,9 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 script {
-                    // Use the branch from GitHub push (GIT_BRANCH)
                     def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
 
-                    // Match any branch starting with "pre-" including "pre-production"
+                    // Set APP_PORT and DOCKER_NAME based on the branch name
                     if (branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
                         DOCKER_NAME = "pre-${branchName}"
@@ -41,8 +40,11 @@ pipeline {
                     sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
                     sh "git branch --set-upstream-to=origin/${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
 
-                    // Pull the latest changes from the remote branch
-                    sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
+                    // Set pull strategy to merge and pull the latest changes
+                    sh """
+                    git config pull.rebase false  # set merge as default
+                    git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}
+                    """
                 }
             }
             post {
@@ -50,10 +52,10 @@ pipeline {
                     echo "In Processing"
                 }
                 success {
-                    echo "Successful"
+                    echo "Successfully checked out and pulled branch: ${env.GIT_BRANCH}"
                 }
                 failure {
-                    echo "Failed"
+                    echo "Failed to checkout or pull the branch"
                 }
             }
         }
@@ -61,22 +63,24 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'npm install'
+                    sh 'npm install --silent'
                 }
             }
         }
+
         stage('Testing with Jest') {
             steps {
                 script {
-                    sh 'npm test'
+                    sh 'npm test --silent'
                 }
             }
         }
+
         stage('Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
                     sh '''
-                        npm install sonar-scanner
+                        npm install sonar-scanner --silent
                         npx sonar-scanner \
                         -Dsonar.projectKey=bso-space-app \
                         -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
@@ -85,12 +89,13 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Deployment') {
             steps {
                 script {
                     // Use environment variables in Docker Compose
                     sh """
-                    APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose up -d --build
+                    APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose up -d --build || { echo 'Docker deployment failed'; exit 1; }
                     """
                 }
             }
