@@ -28,29 +28,27 @@ pipeline {
                 }
             }
         }
-
-        stage("Checkout & Pulling") {
-            steps {
-                script {
-                    // Checkout the branch using the BRANCH_NAME parameter
-                    checkout([$class: 'GitSCM', branches: [[name: "*/${params.BRANCH_NAME}"]], userRemoteConfigs: [[url: "${GIT_URL}"]]])
-                    
-                    // Pull the branch to get the latest changes
-                    sh "git pull origin ${params.BRANCH_NAME}"
-                }
-            }
-            post {
-                always {
-                    echo "In Processing"
-                }
-                success {
-                    echo "Successful"
-                }
-                failure {
-                    echo "Failed"
-                }
+       stage("Checkout & Pulling") {
+        steps {
+            script {
+                checkout([$class: 'GitSCM',
+                        branches: [[name: "refs/heads/${params.BRANCH_NAME}"]],
+                        userRemoteConfigs: [[url: "${GIT_URL}"]]])
             }
         }
+        post {
+            always {
+                echo "In Processing"
+            }
+            success {
+                echo "Successful"
+            }
+            failure {
+                echo "Failed"
+            }
+        }
+    }
+
 
         stage('Install Dependencies') {
             steps {
