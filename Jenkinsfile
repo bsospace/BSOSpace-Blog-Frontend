@@ -22,7 +22,7 @@ pipeline {
                         APP_PORT = '9009'
                         DOCKER_NAME = 'default'
                     } else {
-                        error("This pipeline only supports main, develop, or pre-release branches. Current branch: ${branchName}")
+                        error("This pipeline only supports main, develop, or pre* branches. Current branch: ${branchName}")
                     }
                 }
             }
