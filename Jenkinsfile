@@ -5,55 +5,53 @@ pipeline {
         GIT_URL = 'https://github.com/BSO-Space/BSOSpace-Blog-Frontend'
         DOCKER_NAME = ''
     }
-    parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch name for the build')
-        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag')
-    }
     stages {
         stage('Setup Environment') {
             steps {
                 script {
-                    if (params.BRANCH_NAME ==~ /^pre-release.*/) {
+                    // Use the branch from GitHub push (GIT_BRANCH)
+                    def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
+
+                    if (branchName ==~ /^pre-release.*/) {
                         APP_PORT = '3002'
-                        DOCKER_NAME = "pre-${params.BRANCH_NAME}"
-                    } else if (params.BRANCH_NAME == 'develop') {
+                        DOCKER_NAME = "pre-${branchName}"
+                    } else if (branchName == 'develop') {
                         APP_PORT = '3000'
                         DOCKER_NAME = 'develop'
-                    } else if (params.BRANCH_NAME == 'main') {
+                    } else if (branchName == 'main') {
                         APP_PORT = '9009'
                         DOCKER_NAME = 'default'
                     } else {
-                        error("This pipeline only supports main, develop, or pre-release branches. Current branch: ${params.BRANCH_NAME}")
+                        error("This pipeline only supports main, develop, or pre-release branches. Current branch: ${branchName}")
                     }
                 }
             }
         }
-       stage('Checkout & Pulling') {
-        steps {
-            script {
-                checkout([$class: 'GitSCM',
-                        branches: [[name: "${params.BRANCH_NAME}"]],
-                        userRemoteConfigs: [[url: "${GIT_URL}"]]])
 
+        stage('Checkout & Pulling') {
+            steps {
+                script {
+                    // Checkout the branch that triggered the push
+                    checkout([$class: 'GitSCM',
+                              branches: [[name: "${env.GIT_BRANCH}"]],
+                              userRemoteConfigs: [[url: "${GIT_URL}"]]])
 
-                sh "git checkout ${params.BRANCH_NAME}"
-                sh "git pull origin ${params.BRANCH_NAME}"
+                    // Confirm the correct branch
+                    sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
+                }
+            }
+            post {
+                always {
+                    echo "In Processing"
+                }
+                success {
+                    echo "Successful"
+                }
+                failure {
+                    echo "Failed"
+                }
             }
         }
-        post {
-            always {
-                echo "In Processing"
-            }
-            success {
-                echo "Successful"
-            }
-            failure {
-                echo "Failed"
-            }
-        }
-    }
-
-
 
         stage('Install Dependencies') {
             steps {
