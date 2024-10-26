@@ -46,7 +46,7 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-screen-xl mx-auto p-6">
+      <main className="flex-grow w-full max-w-screen-xl mx-auto md:p-6 p-1">
         {children}
       </main>
 
