@@ -176,7 +176,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     <div className="block md:flex">
       {/* {JSON.stringify(formattedContent)} */}
       <aside className="w-2/4 pr-4 hidden md:block">
-        <div className="sticky top-[88px]">
+        <div className="sticky top-[88px] md:top-[61px]">
           <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh]">
             <h2 className="text-2xl font-semibold mb-2">สารบัญ</h2>
             <ul
