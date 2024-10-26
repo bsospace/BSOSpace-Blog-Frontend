@@ -1,57 +1,110 @@
-'use client';
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { fetchPosts } from "../_action/posts.action";
 import BlogCard from "../components/Blog";
 import { Post } from "../interfaces";
-interface Props {
-  posts: Post[];
-  error?: string;
-}
+import { FiSearch } from "react-icons/fi";
 
 export default function HomePage() {
+  // Posts data
   const [posts, setPosts] = useState<Post[]>([]);
+
+  // Popular posts data
+  const [popularPosts, setPopularPosts] = useState<Post[]>([]);
+
+  // Loading states
+  const [loading, setLoading] = useState(true);
+
+  // Loading states for popular posts
+  const [loadingPopular, setLoadingPopular] = useState(true);
+
+  // Loading state for infinite scrolling
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Search query state
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Error state
   let error: string | undefined;
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [prevPage, setPrevPage] = useState<number | null>(null);
-  const [indexStart, setIndexStart] = useState(0);
-  const [indexEnd, setIndexEnd] = useState(5);
   const [total, setTotal] = useState(0);
 
-  async function getPosts() {
-    try {
-      let temp = await fetchPosts(page, limit);
+  // Ref for observing the loader at the bottom
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
-      setPosts(temp.data);
-      setIndexStart((page - 1) * limit + 1);
-      setIndexEnd((page * limit > temp.pagination.total_records) ? temp.pagination.total_records : page * limit);
-      setTotal(temp.pagination.total_records);
-      setNextPage(temp.pagination.next_page);
-      setPrevPage(temp.pagination.prev_page);
+  // Debounced getPosts function for smoother fetching
+  const getPosts = useCallback(
+    async (newPage = page) => {
+      try {
+        if (newPage === 1) setLoading(true);
+        else setLoadingMore(true);
+
+        let temp = await fetchPosts(newPage, limit);
+
+        if (newPage === 1) {
+          // Set the new posts if it's the first page
+          setPosts(temp.data);
+        } else {
+          // Append new posts to the existing posts array
+          setPosts((prevPosts) => [...prevPosts, ...temp.data]);
+        }
+
+        setTotal(temp.pagination.total_records);
+        setNextPage(temp.pagination.next_page);
+        setPrevPage(temp.pagination.prev_page);
+      } catch (err) {
+        error = "Failed to load posts.";
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [page, limit]
+  );
+
+  async function getPopularPosts() {
+    try {
+      setLoadingPopular(true);
+      const tempPopular = await fetchPosts(1, 5);
+      setPopularPosts(tempPopular.data);
     } catch (err) {
-      error = "Failed to load posts.";
+      console.error("Failed to load popular posts.");
+    } finally {
+      setLoadingPopular(false);
     }
   }
 
-  const handleNext = () => {    
-    if (nextPage == null) return;
-    setPage(page + 1);
-  }
+  // Intersection Observer to detect when the loader at the bottom becomes visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && nextPage !== null && !loadingMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      { threshold: 1.0 }
+    );
 
-  const handlePrevious = () => {
-    if (prevPage == null) return;
-    setPage(page - 1);
-  }
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
 
-  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLimit(parseInt(e.target.value));
-  }
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [nextPage, loadingMore]);
 
   useEffect(() => {
     getPosts();
-  }, [limit, page]);
+    getPopularPosts();
+  }, [page, limit]);
 
   if (error) {
     return (
@@ -61,83 +114,122 @@ export default function HomePage() {
     );
   }
 
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto">
-      <header className="mb-12">
-        <h2 className="text-4xl font-bold mb-4">สวัสดีครับ!</h2>
-        <p className="text-lg text-gray-700 mb-6">
-          บล็อกนี้เกิดมาจากความอยากทำของ{" "}
-          <span className="font-semibold">BSO</span>
-        </p>
-        <p className="text-lg text-gray-700">
-          <span className="font-semibold">B</span> = Bom |{" "}
-          <span className="font-semibold">S</span> = Smart |{" "}
-          <span className="font-semibold">O</span> = Ohm
-        </p>
-        <br />
-        <span className="text-lg ">
-          แค่บล็อกๆนึงที่เอาไว้ลงสิ่งที่เรารู้แล้วกลัวลืมเฉยๆ
-          ไว้ให้เพื่อนๆในสาขาได้อ่านกันด้วย และเรายังมีช่องยูทูปด้วยนะ&nbsp;
-          <a
-            href="https://www.youtube.com/@BSOSpace"
-            className="hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            👉🏻 ดูเราที่ยูทูป
-          </a>
-        </span>
-      </header>
+      <header className="mb-12 h-64 flex justify-center items-center flex-col">
+        <h1 className="text-heading-2-medium my-4 md:text-hero-bold font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
+          Be Simple but Outstanding
+        </h1>
 
-      <section>
-        <h3 className="text-3xl font-bold text-gray-800 mb-6">Blogs</h3>
-        {/* pagination for blog */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <select className="border border-gray-300 rounded-md px-2 py-1" onChange={handleLimitChange}>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-            </select>
-          </div>
-          <div>
-            {/* 1 of n posts */}
-            <p className="text-gray-500 text-sm">
-              {indexStart} - {indexEnd} of {total} posts
-            </p>
-          </div>
-          <div>
-            <button onClick={handlePrevious} className={`${prevPage ? "bg-blue-500 text-white" : "bg-[#bfdbfe] text-[#808390]"} px-4 py-2 rounded-md`}>
-              Previous
-            </button>
-            <button onClick={handleNext} className={`${nextPage ? "bg-blue-500 text-white" : "bg-[#bfdbfe] text-[#808390]"} px-4 py-2 rounded-md ml-2`}>
-              Next
-            </button>
+        {/* Search Bar */}
+        <div className="relative mt-6 w-full max-w-lg">
+          <input
+            type="text"
+            placeholder="ค้นหาบทความ"
+            className="w-full p-3 pl-10 rounded-md dark:bg-[#4A4A4A] dark:text-gray-100 focus:outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {/* Magnifying Glass Icon */}
+          <div className="absolute left-3 top-4">
+            <FiSearch
+              className="w-4 h-4"
+              style={{
+                background: "linear-gradient(90deg, #9499FF 0%, #E7AF65 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.length > 0 ? (
-            posts.map((post) => (
-              <BlogCard
-                key={post.id.toString()}
-                slug={post.slug}
-                id={post.id}
-                title={post.title}
-                content={post.content}
-                Author={post.Author}
-                tags={post.tags}
-                Category={post.Category}
-                createdAt={post.createdAt}
-                updatedAt={post.updatedAt}
-                authorId={post.authorId}
-                categoryId={post.categoryId}
-                published={false}
-              />
-            ))
-          ) : (
-            <p className="text-lg text-gray-500">No posts available.</p>
-          )}
+      </header>
+
+      <section className="flex gap-4 w-full">
+        <div className="md:w-3/4 w-full">
+          <h3 className="md:text-heading-4-medium py-4">
+            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
+              #
+            </span>
+            Latest From the BSO Blog
+          </h3>
+
+          <div className="w-full justify-between flex gap-4">
+            <div className="w-full flex gap-4 flex-col transition-all">
+              {/* Show custom loader if loading */}
+              {loading ? (
+                <div className="text-center py-10 w-full flex justify-center  border-b dark:border-none shadow-sm  rounded-md min-h-48 h-full bg-white  p-6 text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
+                  <div className="loader"></div>
+                </div>
+              ) : filteredPosts.length > 0 ? (
+                filteredPosts.map((post) => (
+                  <BlogCard
+                    key={post.id.toString()}
+                    slug={post.slug}
+                    id={post.id}
+                    title={post.title}
+                    content={post.content}
+                    Author={post.Author}
+                    tags={post.tags}
+                    Category={post.Category}
+                    createdAt={post.createdAt}
+                    updatedAt={post.updatedAt}
+                    authorId={post.authorId}
+                    categoryId={post.categoryId}
+                    published={false}
+                  />
+                ))
+              ) : (
+                <p className="text-lg text-gray-500 text-center">
+                  No posts available.
+                </p>
+              )}
+              {/* Bottom loader for infinite scrolling */}
+              <div
+                ref={observerRef}
+                className="text-center py-10 w-full flex justify-center"
+              >
+                {loadingMore && <div className="loader smooth-loader"></div>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-1/4 hidden md:block">
+          <h3 className="text-heading-4-medium py-4">
+            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
+              #
+            </span>
+            Popular
+          </h3>
+          <div className="cursor-pointer bg-white rounded-lg shadow-sm p-6  text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
+            {loadingPopular ? (
+              <div className="text-center min-h-36 py-10 w-full flex justify-center">
+                <div className="loader"></div>
+              </div>
+            ) : popularPosts.length > 0 ? (
+              <ul>
+                {popularPosts.map((post) => (
+                  <li key={post.id.toString()} className="mb-4">
+                    <a
+                      href={`/posts/${post.slug}`}
+                      className="text-blue-600 dark:text-blue-400 hover:underline line-clamp-2"
+                    >
+                      {post.title}
+                    </a>
+                    <p className="text-sm text-gray-500">{post.Author.name}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-lg text-gray-500">
+                No popular posts available.
+              </p>
+            )}
+          </div>
         </div>
       </section>
     </div>

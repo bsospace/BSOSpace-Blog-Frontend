@@ -1,52 +1,62 @@
 "use client";
 import { ReactNode } from "react";
-import { FaSun, FaMoon } from "react-icons/fa";
-import { useTheme } from "../contexts/ThemeContext";
+import ThemeSwitcher from "./ThemeSwitcher";
+import Image from "next/image";
+import logo from "../../public/BSO LOGO.svg";
+import Link from "next/link";
 
-const Layout = ({ children }: { children: ReactNode }) => {
-  const { darkMode, toggleDarkMode } = useTheme();
+interface LayoutProps {
+  children: ReactNode;
+}
 
+export default function Layout({ children }: LayoutProps) {
   return (
-    <div
-      className={`flex flex-col min-h-screen ${
-        darkMode ? "bg-space-dark text-white" : "bg-space-light text-black"
-      }`}
-    >
-      <header className="bg-gray-800 text-white p-4 top-0 z-50">
-        <div className="md:max-w-screen-lg sm:w-full mx-auto flex justify-between items-center">
-          <h1
-            onClick={() => (window.location.href = "/")}
-            className="text-xl font-bold cursor-pointer"
-          >
-            BSO Space Blog
-          </h1>
-          {/* <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors"
-            aria-label={
-              darkMode ? "Switch to light mode" : "Switch to dark mode"
-            }
-          >
-            {darkMode ? (
-              <FaSun className="text-yellow-500 w-6 h-6" />
-            ) : (
-              <FaMoon className="text-gray-800 w-6 h-6" />
-            )}
-          </button> */}
+    <div className="flex flex-col min-h-screen dark:bg-space-dark bg-space-light">
+      {/* Header */}
+      <header className="sticky top-0 p-2 z-50 bg-white dark:bg-[#1F1F1F] shadow-md">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          {/* Logo */}
+          <Link href="/">
+            <Image src={logo} alt="BSO logo" width={40} height={40} />
+          </Link>
+
+          {/* Navigation Links and Theme Switcher */}
+          <div className="w-full flex justify-end">
+            <div className="flex gap-4 w-full justify-end items-center">
+              <a
+                href="https://github.com/BSO-Space"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                GitHub
+              </a>
+              <a
+                href="https://www.youtube.com/@BSOSpace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                YouTube
+              </a>
+              <ThemeSwitcher />
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="flex-grow container max-w-screen-lg mx-auto p-4">
+      {/* Main Content */}
+      <main className="flex-grow w-full max-w-screen-xl mx-auto md:p-6 p-1">
         {children}
       </main>
 
-      <footer className="bg-gray-800 text-white p-1">
-        <div className="container mx-auto text-center text-sm">
-          Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights reserved.
+      {/* Footer */}
+      <footer className="bg-white dark:bg-[#1F1F1F] py-4">
+        <div className="container mx-auto text-center md:text-body-15pt-medium text-[10px]">
+          Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights
+          reserved.
         </div>
       </footer>
     </div>
   );
-};
-
-export default Layout;
+}

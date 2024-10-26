@@ -4,7 +4,15 @@ import { Post } from "@/app/interfaces";
 import { fetchPostBySlug } from "@/app/_action/posts.action";
 import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { useSearchParams } from "next/navigation";
-import { FaLock } from "react-icons/fa";
+import { FaBars, FaLock } from "react-icons/fa";
+import {
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  Button,
+  PopoverContentProps,
+} from "@material-tailwind/react";
+import { IoChevronDown, IoChevronForward } from "react-icons/io5";
 
 export default function PostPage({ params }: { params: { slug: string } }) {
   const [post, setPost] = useState<Post>();
@@ -12,6 +20,45 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   const [error, setError] = useState<string>("");
   const [toc, setToc] = useState<string[]>([]);
   const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string>("");
+
+  const handleImageClick = (src: string | null) => {
+    if (src) {
+      console.log("hi hi ohm");
+      setZoomedImage(src);
+      setIsModalOpen(true);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setZoomedImage("");
+  };
+
+  useEffect(() => {
+    const images = document.querySelectorAll(".content img");
+
+    console.log(images);
+    images.forEach((img) => {
+      const imageElement = img as HTMLImageElement;
+      imageElement.style.cursor = "pointer"; // Set cursor to pointer for all images
+      imageElement.addEventListener("click", () =>
+        handleImageClick(imageElement.src)
+      );
+    });
+
+    // return () => {
+    //   images.forEach((img) => {
+    //     const imageElement = img as HTMLImageElement;
+    //     imageElement.removeEventListener("click", () => handleImageClick(imageElement.src));
+    //   });
+    // };
+  }, [formattedContent]);
+
+  useEffect(() => {});
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -59,7 +106,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         const index = headings.length;
         const title = match[1];
         headings.push(
-          `<li><a href="#section-${title}" class="toc-link">${title}</a></li>`
+          `<li><a href="#section-${title}" class="toc-link text-[#1f1f1f] dark:text-[#ffffff]">${title}</a></li>`
         );
 
         content = content.replace(
@@ -126,29 +173,95 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   };
 
   return (
-    <div className="sm:w-full flex">
+    <div className="block md:flex">
       {/* {JSON.stringify(formattedContent)} */}
-      <aside className="w-1/4 pr-4 hidden md:block">
-        <div className="sticky top-4">
-          <h2 className="text-2xl font-semibold mb-2">สารบัญ</h2>
-          <ul
-            className="list-disc pl-5 space-y-2"
-            dangerouslySetInnerHTML={{ __html: toc.join("") }}
-          />
+      <aside className="w-2/4 pr-4 hidden md:block">
+        <div className="sticky top-[88px] md:top-[61px]">
+          <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh]">
+            <h2 className="text-2xl font-semibold mb-2">สารบัญ</h2>
+            <ul
+              className="space-y-2 max-h-[calc(50vh-80px)] scroller py-4"
+              dangerouslySetInnerHTML={{ __html: toc.join("") }}
+            />
+          </div>
         </div>
       </aside>
 
+      <div className="flex md:hidden justify-center max-w-full">
+        <Popover
+          placement="bottom"
+          open={isOpen}
+          handler={setIsOpen}
+          animate={{
+            mount: { opacity: 1 },
+            unmount: { opacity: 0 },
+          }}
+        >
+          <PopoverHandler>
+            <Button
+              placeholder={undefined}
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
+              className="w-full text-body-12pt-thin md:hidden mb-4 dark:bg-[#1f1f1f] bg-[#ffffff] text-[#1f1f1f] dark:text-[#ffffff] rounded-sm shadow-sm p-2 flex items-center justify-center"
+            >
+              {" "}
+              <div>สารบัญ</div>
+              {isOpen ? (
+                <IoChevronDown className="ml-2" />
+              ) : (
+                <IoChevronForward className="ml-2" />
+              )}
+            </Button>
+          </PopoverHandler>
+          <PopoverContent
+            placeholder={undefined}
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
+            className="dark:bg-[#1f1f1f] bg-[#ffffff] p-0 rounded-lg shadow-lg w-[95%]"
+          >
+            <div className="sticky top-[88px]">
+              <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh-80px]">
+                <h2 className="text-2xl font-semibold mb-2 dark:text-[#ffffff] text-[#1f1f1f]">
+                  สารบัญ
+                </h2>
+                <ul
+                  className="space-y-2 max-h-[calc(70vh)] scroller py-4"
+                  dangerouslySetInnerHTML={{ __html: toc.join("") }}
+                  onClick={() => setIsOpen(false)}
+                />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
       {!post.published && (
-        <main className="w-full content bg-white rounded-md p-2 ">
+        <main className="w-full rounded-md p-8 dark:bg-[#1f1f1f] bg-[#ffffff]">
+          <div className="flex justify-between">
+            <p className="text-sm mb-4 dark:text-white">
+              <div className="flex items-center space-x-2">
+                <img
+                  src="https://raw.githubusercontent.com/LordEaster/ICON-LOGO/refs/heads/main/The%20Duck.png"
+                  alt={post?.Author?.name}
+                  className="w-6 h-6 rounded-full"
+                />
+                <span>{post?.Author?.name}</span>
+              </div>
+            </p>
+            <p className="text-sm mb-4 dark:text-white">
+              {new Date(post?.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
           <h1 className="text-3xl font-bold mb-4 dark:text-white">
             {post.title}
           </h1>
-          <p className="text-sm mt-6">
-            ผู้เขียน {post?.Author?.name} | เผยแพร่เมื่อ{" "}
-            {new Date(post?.createdAt).toLocaleDateString()}
-          </p>
+          <hr className="border-b-1 border-gray-300 mb-6" />
           <p>โพสต์นี้ไม่ได้เผยแพร่เป็นสาธารณะ กรุณาใส่คีย์เพื่อเข้าถึงโพสต์</p>
-          <div className=" flex justify-center">
+          <div className="mt-6 flex justify-center">
             <button
               onClick={() => viewPrivatePost()}
               type="submit"
@@ -162,18 +275,45 @@ export default function PostPage({ params }: { params: { slug: string } }) {
       )}
 
       {post.published && (
-        <main className="w-full content bg-white rounded-md p-2">
+        <main className="w-full rounded-md p-6 dark:bg-[#1f1f1f] bg-[#ffffff]">
+          <div className="flex justify-between">
+            <p className="text-sm mb-4 dark:text-white">
+              <div className="flex items-center space-x-2">
+                <img
+                  src="https://raw.githubusercontent.com/LordEaster/ICON-LOGO/refs/heads/main/The%20Duck.png"
+                  alt={post?.Author?.name}
+                  className="w-6 h-6 rounded-full"
+                />
+                <span>{post?.Author?.name}</span>
+              </div>
+            </p>
+            <p className="text-sm mb-4 dark:text-white">
+              {new Date(post?.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
           <h1 className="text-3xl font-bold mb-4 dark:text-white">
             {post.title}
           </h1>
-          <p className="text-sm mt-6">
-            ผู้เขียน {post?.Author?.name} | เผยแพร่เมื่อ{" "}
-            {new Date(post?.createdAt).toLocaleDateString()}
-          </p>
+          <hr className="border-b-1 border-gray-300 mb-6" />
           <div
             dangerouslySetInnerHTML={{ __html: formattedContent }}
-            className="mt-6 "
+            className="mt-6 content"
           />
+          {/* Modal for Zoomed Image */}
+          {isModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+              <img
+                src={zoomedImage}
+                alt="Zoomed"
+                className="max-w-full max-h-full"
+                onClick={closeModal}
+              />
+            </div>
+          )}
         </main>
       )}
     </div>
