@@ -28,12 +28,16 @@ pipeline {
                 }
             }
         }
-       stage("Checkout & Pulling") {
+       stage('Checkout & Pulling') {
         steps {
             script {
                 checkout([$class: 'GitSCM',
-                        branches: [[name: "refs/heads/${params.BRANCH_NAME}"]],
+                        branches: [[name: "${params.BRANCH_NAME}"]],
                         userRemoteConfigs: [[url: "${GIT_URL}"]]])
+
+
+                sh "git checkout ${params.BRANCH_NAME}"
+                sh "git pull origin ${params.BRANCH_NAME}"
             }
         }
         post {
@@ -48,6 +52,7 @@ pipeline {
             }
         }
     }
+
 
 
         stage('Install Dependencies') {
