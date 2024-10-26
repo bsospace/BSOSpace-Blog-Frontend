@@ -46,13 +46,13 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-screen-xl mx-auto p-6">
+      <main className="flex-grow w-full max-w-screen-xl mx-auto md:p-6 p-1">
         {children}
       </main>
 
       {/* Footer */}
       <footer className="bg-white dark:bg-[#1F1F1F] py-4">
-        <div className="container mx-auto text-center">
+        <div className="container mx-auto text-center md:text-body-15pt-medium text-[10px]">
           Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights
           reserved.
         </div>

@@ -49,7 +49,7 @@ body {
 }
 
 .content img {
-  border-radius: 8px
+  border-radius: 8px;
 }
 
 /* Dark mode styles for headings */
@@ -87,7 +87,7 @@ body {
 }
 
 .content pre {
-  @apply bg-gray-800 text-gray-200 p-4 rounded-lg overflow-x-auto relative;
+  @apply bg-gray-800 text-gray-200 p-4 rounded-lg overflow-x-auto relative max-w-screen-md;
 }
 
 /* Dark mode styles */
