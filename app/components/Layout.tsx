@@ -52,7 +52,7 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Footer */}
       <footer className="bg-white dark:bg-[#1F1F1F] py-4">
-        <div className="container mx-auto text-center">
+        <div className="container mx-auto text-center md:text-body-15pt-medium text-[10px]">
           Be Simple but Outstanding | &copy; 2024 BSO Space Blog. All rights
           reserved.
         </div>
