@@ -5,7 +5,8 @@ pipeline {
         DOCKER_COMPOSE_FILE = ''
         DOCKER_IMAGE_TAG = ''
         APP_PORT = ''
-        STACK_NAME = '' 
+        STACK_NAME = ''
+        SLACK_CHANNEL = '#jenkins-notifications'
     }
     stages {
         stage('Setup Environment') {
@@ -19,7 +20,7 @@ pipeline {
                         APP_PORT = '3002'
                         DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
                         DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
-                        STACK_NAME = "bso-blog-pre"  // ชื่อ Stack สำหรับ Pre-Production
+                        STACK_NAME = "bso-blog-pre"
                         echo "Setting up Pre-Production Environment: ${branchName}"
                     } else if (branchName == 'develop') {
                         APP_PORT = '3000'
@@ -31,7 +32,7 @@ pipeline {
                         APP_PORT = '9009'
                         DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
                         DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
-                        STACK_NAME = "bso-blog-production" 
+                        STACK_NAME = "bso-blog-production"
                         echo "Setting up Production Environment: ${branchName}"
                     } else {
                         error("This pipeline only supports main, develop, or pre-* branches. Current branch: ${branchName}")
@@ -95,18 +96,35 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        npm install sonar-scanner
-                        npx sonar-scanner \
-                        -Dsonar.projectKey=bso-space-app \
-                        -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
+                    script {
+                        def sonarResult = sh(
+                            script: '''
+                                npm install sonar-scanner
+                                npx sonar-scanner \
+                                -Dsonar.projectKey=bso-space-app \
+                                -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
+                                -Dsonar.login=$SONAR_TOKEN
+                            ''',
+                            returnStatus: true
+                        )
+
+                        if (sonarResult != 0) {
+                            error "SonarQube analysis failed. Halting deployment."
+                        } else {
+                            echo "SonarQube analysis passed successfully."
+                        }
+                    }
                 }
             }
         }
 
         stage('Docker Build & Deploy') {
+            when {
+                expression {
+                    // ทำ Deploy เฉพาะเมื่อ SonarQube ผ่านเท่านั้น
+                    return currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     sh """
@@ -120,12 +138,15 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished'
+            slackSend channel: "${SLACK_CHANNEL}", color: '#00FF00', message: "Pipeline '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' finished with status: ${currentBuild.currentResult}"
         }
         success {
             echo 'Pipeline success'
+            slackSend channel: "${SLACK_CHANNEL}", color: '#36A64F', message: "Pipeline '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' completed successfully!"
         }
         failure {
             echo 'Pipeline error'
+            slackSend channel: "${SLACK_CHANNEL}", color: '#FF0000', message: "Pipeline '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' failed."
         }
     }
 }
