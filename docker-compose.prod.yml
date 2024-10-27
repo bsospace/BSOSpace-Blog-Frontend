@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: bso-prod-image
+    container_name: bso-blog-production
+    environment:
+      NODE_ENV: production
+    ports:
+      - "9009:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./app-prod:/app
+      - /prod_app/node_modules
+    networks:
+      - production-network
+
+networks:
+  production-network:
+    driver: bridge

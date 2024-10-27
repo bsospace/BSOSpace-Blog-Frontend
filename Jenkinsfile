@@ -61,7 +61,8 @@ pipeline{
         }
         stage("Docker deployment"){
             steps{
-                sh 'docker-compose up -d --build'
+                sh 'docker-compose -p bso-blog-production -f docker-compose.prod.yml build --no-cache'
+                sh 'docker-compose -p bso-blog-production -f docker-compose.prod.yml up -d'
             }
         }
         }
