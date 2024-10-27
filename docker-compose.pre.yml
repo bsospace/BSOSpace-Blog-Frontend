@@ -8,7 +8,7 @@ services:
     image: bso-blog:pre-production
     container_name: bso-blog-pre
     ports:
-      - "3002:3002"
+      - "3002:3000"
     env_file:
       - .env.pre
     volumes:
