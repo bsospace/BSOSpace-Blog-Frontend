@@ -5,16 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-      args:
-        - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-    image: ${DOCKER_NAME}
+    image: bso-prod-image
     container_name: bso-blog-production
+    environment:
+      NODE_ENV: production
     ports:
       - "9009:3000"
     env_file:
       - .env
     volumes:
-      - ./app:/app
+      - ./app-prod:/app
       - /prod_app/node_modules
     networks:
       - production-network

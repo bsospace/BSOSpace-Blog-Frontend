@@ -5,16 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-      args:
-        - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-    image: ${DOCKER_NAME}
+    image: bso-dev-image
     container_name: bso-blog-develop
+    environment:
+      NODE_ENV: development
     ports:
       - "3000:3000"
     env_file:
       - .env.develop
     volumes:
-      - ./app:/app
+      - ./app-develop:/app
       - /develop_app/node_modules
     networks:
       - develop-network

@@ -5,16 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.pre
-      args:
-        - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-    image: ${DOCKER_NAME}
+    image: bso-pre-image
     container_name: bso-blog-pre
+    environment:
+      NODE_ENV: production
     ports:
       - "3002:3000"
     env_file:
       - .env.pre
     volumes:
-      - ./app:/app
+      - ./app-pre:/app
       - /pre_app/node_modules
     networks:
       - pre-production-network
