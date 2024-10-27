@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-    image: bso-blog:production
+    image: ${DOCKER_NAME}
     container_name: bso-blog-production
     ports:
       - "9009:3000"

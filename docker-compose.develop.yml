@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
       args:
         - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-    image: bso-blog:develop
+    image: ${DOCKER_NAME}
     container_name: bso-blog-develop
     ports:
       - "3000:3000"

@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.pre
       args:
         - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-    image: bso-blog:pre-production
+    image: ${DOCKER_NAME}
     container_name: bso-blog-pre
     ports:
       - "3002:3000"
