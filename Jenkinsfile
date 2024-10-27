@@ -62,17 +62,18 @@ pipeline {
                     // ยืนยัน branch และ pull การเปลี่ยนแปลงล่าสุด
                     sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
                     sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
-                }
-            }
-            post {
-                always {
-                    echo "In Processing"
-                }
-                success {
-                    echo "Successful"
-                }
-                failure {
-                    echo "Failed"
+
+                    // เก็บข้อมูลของ commit ล่าสุด
+                    def lastCommitAuthor = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    def lastCommitMessage = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+
+                    // แสดงข้อมูลของ commit ล่าสุดใน log
+                    echo "Last Commit Author: ${lastCommitAuthor}"
+                    echo "Last Commit Message: ${lastCommitMessage}"
+
+                    // เก็บข้อมูลไว้ใน environment variables
+                    env.LAST_COMMIT_AUTHOR = lastCommitAuthor
+                    env.LAST_COMMIT_MESSAGE = lastCommitMessage
                 }
             }
         }
@@ -138,15 +139,31 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished'
-            slackSend channel: "${SLACK_CHANNEL}", color: '#00FF00', message: "Pipeline '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' finished with status: ${currentBuild.currentResult}"
+            slackSend channel: "${SLACK_CHANNEL}", color: '#00FF00', message: """
+                *Pipeline Finished*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
+                *Status*: ${currentBuild.currentResult}
+                *Branch*: ${env.GIT_BRANCH}
+                *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
+                *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
+            """
         }
         success {
             echo 'Pipeline success'
-            slackSend channel: "${SLACK_CHANNEL}", color: '#36A64F', message: "Pipeline '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' completed successfully!"
+            slackSend channel: "${SLACK_CHANNEL}", color: '#36A64F', message: """
+                *Pipeline Success*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
+                *Branch*: ${env.GIT_BRANCH}
+                *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
+                *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
+            """
         }
         failure {
             echo 'Pipeline error'
-            slackSend channel: "${SLACK_CHANNEL}", color: '#FF0000', message: "Pipeline '${env.JOB_NAME} [#${env.BUILD_NUMBER}]' failed."
+            slackSend channel: "${SLACK_CHANNEL}", color: '#FF0000', message: """
+                *Pipeline Failed*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
+                *Branch*: ${env.GIT_BRANCH}
+                *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
+                *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
+            """
         }
     }
 }
