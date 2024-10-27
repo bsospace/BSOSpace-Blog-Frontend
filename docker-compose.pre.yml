@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bso-blog-pre
+    ports:
+      - "3002:3002"
+    env_file:
+      - .env.pre
+    volumes:
+      - ./app:/app
+      - /app/node_modules

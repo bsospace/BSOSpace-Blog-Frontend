@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bso-blog-production
+    ports:
+      - "9009:9009"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app
+      - /app/node_modules
