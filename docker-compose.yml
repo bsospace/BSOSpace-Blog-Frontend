@@ -5,7 +5,7 @@ services:
     build: .
     container_name: ${DOCKER_NAME:-bso-blog}
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "9009:3000"
     environment:
       APP_PORT: ${APP_PORT:-3000}
       DATABASE_URL: ${DATABASE_URL}
