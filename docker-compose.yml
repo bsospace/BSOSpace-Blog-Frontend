@@ -5,7 +5,7 @@ services:
     build: .
     container_name: bso-blog
     ports:
-      - "3000:3000"
+      - "9009:3000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       NODE_ENV: ${NODE_ENV}
