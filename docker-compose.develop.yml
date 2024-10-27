@@ -12,7 +12,7 @@ services:
       - .env.develop
     volumes:
       - ./app:/app
-      - /app/node_modules
+      - /develop_app/node_modules
     networks:
       - develop-network
 
