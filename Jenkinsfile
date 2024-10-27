@@ -81,6 +81,7 @@ pipeline {
                 }
             }
         }
+
         stage('Testing with Jest') {
             steps {
                 script {
@@ -88,6 +89,7 @@ pipeline {
                 }
             }
         }
+
         stage('Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
@@ -101,12 +103,13 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Deployment') {
             steps {
                 script {
-                    // Deploy using the selected Docker Compose file
+                    // Build without cache and then bring up containers
                     sh """
-                    APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose -f ${DOCKER_COMPOSE_FILE} up -d --build
+                    APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose -f ${DOCKER_COMPOSE_FILE} build --no-cache
                     APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
                     """
                 }
