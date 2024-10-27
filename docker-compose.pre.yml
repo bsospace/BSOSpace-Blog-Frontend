@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.pre
+    image: bso-blog:pre-production
     container_name: bso-blog-pre
     ports:
       - "3002:3002"

@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    image: bso-blog:develop
     container_name: bso-blog-develop
     ports:
       - "3000:3000"
