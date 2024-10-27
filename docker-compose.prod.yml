@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+    image: bso-blog:production
     container_name: bso-blog-production
     ports:
       - "9009:9009"
