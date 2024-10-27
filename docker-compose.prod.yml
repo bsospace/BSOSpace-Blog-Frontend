@@ -12,4 +12,10 @@ services:
       - .env
     volumes:
       - ./app:/app
-      - /app/node_modules
+      - /prod_app/node_modules
+    networks:
+      - production-network
+
+networks:
+  production-network:
+    driver: bridge

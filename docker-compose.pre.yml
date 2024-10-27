@@ -12,4 +12,10 @@ services:
       - .env.pre
     volumes:
       - ./app:/app
-      - /app/node_modules
+      - /pre_app/node_modules
+    networks:
+      - pre-production-network
+
+networks:
+  pre-production-network:
+    driver: bridge
