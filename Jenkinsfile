@@ -106,7 +106,7 @@ pipeline {
                 script {
                     // Deploy using the selected Docker Compose file
                     sh """
-                    APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose -f ${DOCKER_COMPOSE_FILE} up -d --build
+                    APP_PORT=${APP_PORT} DOCKER_NAME=${DOCKER_NAME} docker-compose -f ${DOCKER_COMPOSE_FILE} up -d --build --no-cache
                     """
                 }
             }
