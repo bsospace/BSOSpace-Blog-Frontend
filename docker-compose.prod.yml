@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+      args:
+        - DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
     image: bso-blog:production
     container_name: bso-blog-production
     ports:
