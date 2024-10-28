@@ -132,8 +132,10 @@ pipeline {
             }
             post {
                 always {
-                    def statusColor = currentBuild.result == 'SUCCESS' ? '#36A64F' : '#FF0000'
-                    slackSend channel: "${SLACK_CHANNEL}", color: statusColor, message: "SonarQube analysis completed for branch: ${env.GIT_BRANCH}"
+                    script {
+                        def statusColor = currentBuild.result == 'SUCCESS' ? '#36A64F' : '#FF0000'
+                        slackSend channel: "${SLACK_CHANNEL}", color: statusColor, message: "SonarQube analysis completed for branch: ${env.GIT_BRANCH}"
+                    }
                 }
             }
         }
