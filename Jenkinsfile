@@ -7,6 +7,7 @@ pipeline {
         APP_PORT = ''
         STACK_NAME = ''
         SLACK_CHANNEL = '#jenkins-notifications'
+        branchName = '' // Define branchName as a global environment variable
     }
     stages {
         stage('Setup Environment') {
@@ -14,31 +15,31 @@ pipeline {
                 script {
                     // Determine if the build is triggered by a PR
                     def isPullRequest = env.CHANGE_ID != null
-                    def branchName = isPullRequest ? env.CHANGE_BRANCH : env.GIT_BRANCH?.replaceFirst('origin/', '')
+                    env.branchName = isPullRequest ? env.CHANGE_BRANCH : env.GIT_BRANCH?.replaceFirst('origin/', '')
 
                     // Setup environment based on the branch
-                    if (branchName ==~ /^pre-.*/) {
+                    if (env.branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
-                        DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
+                        DOCKER_IMAGE_TAG = "pre-production-${env.branchName}-${BUILD_NUMBER}"
                         DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
                         STACK_NAME = "bso-blog-pre"
-                        echo "Setting up Pre-Production Environment: ${branchName}"
-                    } else if (branchName == 'develop') {
+                        echo "Setting up Pre-Production Environment: ${env.branchName}"
+                    } else if (env.branchName == 'develop') {
                         APP_PORT = '3000'
                         DOCKER_IMAGE_TAG = "develop-${BUILD_NUMBER}"
                         DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
                         STACK_NAME = "bso-blog-develop"
-                        echo "Setting up Development Environment: ${branchName}"
-                    } else if (branchName == 'main') {
+                        echo "Setting up Development Environment: ${env.branchName}"
+                    } else if (env.branchName == 'main') {
                         APP_PORT = '9009'
                         DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
                         DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
                         STACK_NAME = "bso-blog-production"
-                        echo "Setting up Production Environment: ${branchName}"
+                        echo "Setting up Production Environment: ${env.branchName}"
                     } else if (isPullRequest) {
                         echo "Testing Pull Request: ${env.CHANGE_TITLE} (ID: ${env.CHANGE_ID})"
                     } else {
-                        error("This pipeline only supports main, develop, pre-* branches, or PRs. Current branch: ${branchName}")
+                        error("This pipeline only supports main, develop, pre-* branches, or PRs. Current branch: ${env.branchName}")
                     }
 
                     // Display assigned environment variables
@@ -63,8 +64,8 @@ pipeline {
                               userRemoteConfigs: [[url: "${GIT_URL}"]]])
 
                     // Confirm branch or PR checkout and pull latest changes
-                    sh "git checkout ${branchName}"
-                    sh "git pull origin ${branchName}"
+                    sh "git checkout ${env.branchName}"
+                    sh "git pull origin ${env.branchName}"
 
                     // Store commit information
                     def lastCommitAuthor = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
@@ -128,7 +129,7 @@ pipeline {
                     expression {
                         // Deploy only if not a PR and the branch is main, develop, or pre-*
                         return (env.CHANGE_ID == null) &&
-                               (branchName == 'main' || branchName == 'develop' || branchName ==~ /^pre-.*/)
+                               (env.branchName == 'main' || env.branchName == 'develop' || env.branchName ==~ /^pre-.*/)
                     }
                     expression {
                         // Deploy only if SonarQube passed
@@ -152,7 +153,7 @@ pipeline {
             slackSend channel: "${SLACK_CHANNEL}", color: '#00FF00', message: """
                 *Pipeline Finished*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
                 *Status*: ${currentBuild.currentResult}
-                *Branch*: ${branchName}
+                *Branch*: ${env.branchName}
                 *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
                 *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
             """
@@ -161,7 +162,7 @@ pipeline {
             echo 'Pipeline success'
             slackSend channel: "${SLACK_CHANNEL}", color: '#36A64F', message: """
                 *Pipeline Success*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
-                *Branch*: ${branchName}
+                *Branch*: ${env.branchName}
                 *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
                 *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
             """
@@ -170,7 +171,7 @@ pipeline {
             echo 'Pipeline error'
             slackSend channel: "${SLACK_CHANNEL}", color: '#FF0000', message: """
                 *Pipeline Failed*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
-                *Branch*: ${branchName}
+                *Branch*: ${env.branchName}
                 *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
                 *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
             """
