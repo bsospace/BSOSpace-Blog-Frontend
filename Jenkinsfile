@@ -12,10 +12,11 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 script {
-                    // ระบุ branch ที่ใช้งาน
-                    def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
+                    // Determine if the build is triggered by a PR
+                    def isPullRequest = env.CHANGE_ID != null
+                    def branchName = isPullRequest ? env.CHANGE_BRANCH : env.GIT_BRANCH?.replaceFirst('origin/', '')
 
-                    // กำหนดค่าตาม environment
+                    // Setup environment based on the branch
                     if (branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
                         DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
@@ -34,11 +35,13 @@ pipeline {
                         DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
                         STACK_NAME = "bso-blog-production"
                         echo "Setting up Production Environment: ${branchName}"
+                    } else if (isPullRequest) {
+                        echo "Testing Pull Request: ${env.CHANGE_TITLE} (ID: ${env.CHANGE_ID})"
                     } else {
-                        error("This pipeline only supports main, develop, or pre-* branches. Current branch: ${branchName}")
+                        error("This pipeline only supports main, develop, pre-* branches, or PRs. Current branch: ${branchName}")
                     }
 
-                    // แสดงค่าตัวแปรที่กำหนด
+                    // Display assigned environment variables
                     echo "APP_PORT is set to ${APP_PORT}"
                     echo "DOCKER_IMAGE_TAG is set to ${DOCKER_IMAGE_TAG}"
                     echo "Using Docker Compose file: ${DOCKER_COMPOSE_FILE}"
@@ -50,28 +53,28 @@ pipeline {
         stage('Checkout & Pulling') {
             steps {
                 script {
-                    // ตั้งค่า Git configuration
+                    // Configure Git settings
                     sh 'git config --global user.name "bso.jenkins"'
                     sh 'git config --global user.email "bso.jenkins@bsospace.com"'
 
-                    // Checkout branch ที่ถูกเรียกใช้งาน
+                    // Checkout branch or PR
                     checkout([$class: 'GitSCM',
                               branches: [[name: "${env.GIT_BRANCH}"]],
                               userRemoteConfigs: [[url: "${GIT_URL}"]]])
 
-                    // ยืนยัน branch และ pull การเปลี่ยนแปลงล่าสุด
-                    sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
-                    sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
+                    // Confirm branch or PR checkout and pull latest changes
+                    sh "git checkout ${branchName}"
+                    sh "git pull origin ${branchName}"
 
-                    // เก็บข้อมูลของ commit ล่าสุด
+                    // Store commit information
                     def lastCommitAuthor = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
                     def lastCommitMessage = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
 
-                    // แสดงข้อมูลของ commit ล่าสุดใน log
+                    // Log the last commit info
                     echo "Last Commit Author: ${lastCommitAuthor}"
                     echo "Last Commit Message: ${lastCommitMessage}"
 
-                    // เก็บข้อมูลไว้ใน environment variables
+                    // Store the commit info in environment variables
                     env.LAST_COMMIT_AUTHOR = lastCommitAuthor
                     env.LAST_COMMIT_MESSAGE = lastCommitMessage
                 }
@@ -121,9 +124,16 @@ pipeline {
 
         stage('Docker Build & Deploy') {
             when {
-                expression {
-                    // ทำ Deploy เฉพาะเมื่อ SonarQube ผ่านเท่านั้น
-                    return currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                allOf {
+                    expression {
+                        // Deploy only if not a PR and the branch is main, develop, or pre-*
+                        return (env.CHANGE_ID == null) &&
+                               (branchName == 'main' || branchName == 'develop' || branchName ==~ /^pre-.*/)
+                    }
+                    expression {
+                        // Deploy only if SonarQube passed
+                        return currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    }
                 }
             }
             steps {
@@ -142,7 +152,7 @@ pipeline {
             slackSend channel: "${SLACK_CHANNEL}", color: '#00FF00', message: """
                 *Pipeline Finished*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
                 *Status*: ${currentBuild.currentResult}
-                *Branch*: ${env.GIT_BRANCH}
+                *Branch*: ${branchName}
                 *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
                 *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
             """
@@ -151,7 +161,7 @@ pipeline {
             echo 'Pipeline success'
             slackSend channel: "${SLACK_CHANNEL}", color: '#36A64F', message: """
                 *Pipeline Success*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
-                *Branch*: ${env.GIT_BRANCH}
+                *Branch*: ${branchName}
                 *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
                 *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
             """
@@ -160,7 +170,7 @@ pipeline {
             echo 'Pipeline error'
             slackSend channel: "${SLACK_CHANNEL}", color: '#FF0000', message: """
                 *Pipeline Failed*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
-                *Branch*: ${env.GIT_BRANCH}
+                *Branch*: ${branchName}
                 *Last Commit By*: ${env.LAST_COMMIT_AUTHOR}
                 *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
             """
