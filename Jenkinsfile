@@ -12,10 +12,8 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 script {
-                    // ระบุ branch ที่ใช้งาน
                     def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
 
-                    // กำหนดค่าตาม environment
                     if (branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
                         DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
@@ -35,14 +33,18 @@ pipeline {
                         STACK_NAME = "bso-blog-production"
                         echo "Setting up Production Environment: ${branchName}"
                     } else {
-                        error("This pipeline only supports main, develop, or pre-* branches. Current branch: ${branchName}")
+                        echo "Skipping deployment setup. Only scanning for branch: ${branchName}"
                     }
 
-                    // แสดงค่าตัวแปรที่กำหนด
                     echo "APP_PORT is set to ${APP_PORT}"
                     echo "DOCKER_IMAGE_TAG is set to ${DOCKER_IMAGE_TAG}"
                     echo "Using Docker Compose file: ${DOCKER_COMPOSE_FILE}"
                     echo "STACK_NAME is set to ${STACK_NAME}"
+                }
+            }
+            post {
+                always {
+                    slackSend channel: "${SLACK_CHANNEL}", color: '#FFA500', message: "Environment setup completed for branch: ${env.GIT_BRANCH}"
                 }
             }
         }
@@ -50,30 +52,29 @@ pipeline {
         stage('Checkout & Pulling') {
             steps {
                 script {
-                    // ตั้งค่า Git configuration
                     sh 'git config --global user.name "bso.jenkins"'
                     sh 'git config --global user.email "bso.jenkins@bsospace.com"'
 
-                    // Checkout branch ที่ถูกเรียกใช้งาน
                     checkout([$class: 'GitSCM',
                               branches: [[name: "${env.GIT_BRANCH}"]],
                               userRemoteConfigs: [[url: "${GIT_URL}"]]])
 
-                    // ยืนยัน branch และ pull การเปลี่ยนแปลงล่าสุด
                     sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
                     sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
 
-                    // เก็บข้อมูลของ commit ล่าสุด
                     def lastCommitAuthor = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
                     def lastCommitMessage = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
 
-                    // แสดงข้อมูลของ commit ล่าสุดใน log
                     echo "Last Commit Author: ${lastCommitAuthor}"
                     echo "Last Commit Message: ${lastCommitMessage}"
 
-                    // เก็บข้อมูลไว้ใน environment variables
                     env.LAST_COMMIT_AUTHOR = lastCommitAuthor
                     env.LAST_COMMIT_MESSAGE = lastCommitMessage
+                }
+            }
+            post {
+                always {
+                    slackSend channel: "${SLACK_CHANNEL}", color: '#FFA500', message: "Git checkout and pulling completed for branch: ${env.GIT_BRANCH}"
                 }
             }
         }
@@ -84,6 +85,11 @@ pipeline {
                     sh 'npm install'
                 }
             }
+            post {
+                always {
+                    slackSend channel: "${SLACK_CHANNEL}", color: '#00BFFF', message: "Dependencies installation completed for branch: ${env.GIT_BRANCH}"
+                }
+            }
         }
 
         stage('Testing with Jest') {
@@ -92,20 +98,27 @@ pipeline {
                     sh 'npm test'
                 }
             }
+            post {
+                always {
+                    slackSend channel: "${SLACK_CHANNEL}", color: '#00BFFF', message: "Jest testing completed for branch: ${env.GIT_BRANCH}"
+                }
+            }
         }
 
         stage('Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
                     script {
+                        def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
                         def sonarResult = sh(
-                            script: '''
+                            script: """
                                 npm install sonar-scanner
                                 npx sonar-scanner \
                                 -Dsonar.projectKey=bso-space-app \
                                 -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
-                                -Dsonar.login=$SONAR_TOKEN
-                            ''',
+                                -Dsonar.login=$SONAR_TOKEN \
+                                -Dsonar.branch.name=${branchName}
+                            """,
                             returnStatus: true
                         )
 
@@ -117,13 +130,19 @@ pipeline {
                     }
                 }
             }
+            post {
+                always {
+                    def statusColor = currentBuild.result == 'SUCCESS' ? '#36A64F' : '#FF0000'
+                    slackSend channel: "${SLACK_CHANNEL}", color: statusColor, message: "SonarQube analysis completed for branch: ${env.GIT_BRANCH}"
+                }
+            }
         }
 
         stage('Docker Build & Deploy') {
             when {
                 expression {
-                    // ทำ Deploy เฉพาะเมื่อ SonarQube ผ่านเท่านั้น
-                    return currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
+                    return (branchName == 'main' || branchName == 'develop' || branchName ==~ /^pre-.*/)
                 }
             }
             steps {
@@ -132,6 +151,11 @@ pipeline {
                     docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
                     docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} up -d
                     """
+                }
+            }
+            post {
+                always {
+                    slackSend channel: "${SLACK_CHANNEL}", color: '#00FF00', message: "Docker build and deployment completed for branch: ${env.GIT_BRANCH}"
                 }
             }
         }
