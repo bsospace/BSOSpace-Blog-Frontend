@@ -17,6 +17,11 @@ pipeline {
                     def isPullRequest = env.CHANGE_ID != null
                     env.branchName = isPullRequest ? env.CHANGE_BRANCH : env.GIT_BRANCH?.replaceFirst('origin/', '')
 
+                    // Ensure branchName is valid
+                    if (!env.branchName) {
+                        error("Unable to determine the branch name. Please check the Jenkins configuration.")
+                    }
+
                     // Setup environment based on the branch
                     if (env.branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
