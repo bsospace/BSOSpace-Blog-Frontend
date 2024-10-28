@@ -13,16 +13,24 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 script {
-                    // Determine if the build is triggered by a PR
-                    def isPullRequest = env.CHANGE_ID != null
-                    env.branchName = isPullRequest ? env.CHANGE_BRANCH : env.GIT_BRANCH?.replaceFirst('origin/', '')
+                    // Determine the branch name based on the available environment variables
+                    if (env.CHANGE_ID) {
+                        // For PR builds, use CHANGE_BRANCH
+                        env.branchName = env.CHANGE_BRANCH
+                    } else if (env.GIT_BRANCH) {
+                        // For regular branch builds, use GIT_BRANCH and remove 'origin/' prefix if present
+                        env.branchName = env.GIT_BRANCH.replaceFirst('origin/', '')
+                    } else {
+                        // Fallback if no branch information is available
+                        env.branchName = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                    }
 
-                    // Ensure branchName is valid
+                    // Ensure branchName is still valid after all attempts
                     if (!env.branchName) {
                         error("Unable to determine the branch name. Please check the Jenkins configuration.")
                     }
 
-                    // Setup environment based on the branch
+                    // Setup environment based on the detected branch
                     if (env.branchName ==~ /^pre-.*/) {
                         APP_PORT = '3002'
                         DOCKER_IMAGE_TAG = "pre-production-${env.branchName}-${BUILD_NUMBER}"
@@ -41,7 +49,7 @@ pipeline {
                         DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
                         STACK_NAME = "bso-blog-production"
                         echo "Setting up Production Environment: ${env.branchName}"
-                    } else if (isPullRequest) {
+                    } else if (env.CHANGE_ID) {
                         echo "Testing Pull Request: ${env.CHANGE_TITLE} (ID: ${env.CHANGE_ID})"
                     } else {
                         error("This pipeline only supports main, develop, pre-* branches, or PRs. Current branch: ${env.branchName}")
