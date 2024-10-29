@@ -68,14 +68,6 @@ pipeline {
             }
         }
 
-        stage('Testing with Jest') {
-            steps {
-                script {
-                    sh 'npm test'
-                }
-            }
-        }
-
         stage('Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
@@ -124,6 +116,14 @@ pipeline {
                             error "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}"
                         }
                     }
+                }
+            }
+        }
+
+        stage('Testing with Jest') {
+            steps {
+                script {
+                    sh 'npm test'
                 }
             }
         }
