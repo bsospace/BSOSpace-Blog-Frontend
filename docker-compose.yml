@@ -3,10 +3,11 @@ version: "3"
 services:
   web:
     build: .
-    container_name: bso-blog
+    container_name: ${DOCKER_NAME:-bso-blog}
     ports:
       - "9009:3000"
     environment:
+      APP_PORT: ${APP_PORT:-3000}
       DATABASE_URL: ${DATABASE_URL}
       NODE_ENV: ${NODE_ENV}
       PG_USER: ${PG_USER}

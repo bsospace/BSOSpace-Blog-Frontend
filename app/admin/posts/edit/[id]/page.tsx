@@ -1,12 +1,23 @@
 "use client";
-
-import { useState, useContext, useEffect } from "react";
-import { Editor } from "@tinymce/tinymce-react";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
+import hljs from "highlight.js";
+import "highlight.js/styles/github.css"; // You can change the theme if needed
 import { Post, Tag, Category } from "@/app/interfaces";
-import { useRouter, useParams } from "next/navigation";
-import { AuthContext } from "@/app/contexts/authContext";
-import { FaEdit, FaTrash, FaSave, FaTag } from "react-icons/fa";
-import { fetchPostById, fetchPostBySlug } from "@/app/_action/posts.action";
+import { useRouter } from "next/navigation";
+import { FaEdit, FaSave, FaTag } from "react-icons/fa";
+import { fetchPostById } from "@/app/_action/posts.action";
+
+// Load ReactQuill dynamically for client-side only
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+});
+
+// Ensure `highlight.js` is available for ReactQuill
+if (typeof window !== "undefined" && window.hljs === undefined) {
+  window.hljs = hljs;
+}
 
 export default function EditPost({ params }: { params: { id: number } }) {
   const [postData, setPostData] = useState<Post | null>(null);
@@ -14,7 +25,6 @@ export default function EditPost({ params }: { params: { id: number } }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const editorApiKey = process.env.NEXT_PUBLIC_TINYMCE_API_KEY;
   const router = useRouter();
 
   useEffect(() => {
@@ -164,42 +174,21 @@ export default function EditPost({ params }: { params: { id: number } }) {
           <label htmlFor="content" className="block text-gray-700">
             Content <span className="text-red-500">*</span>
           </label>
-          <Editor
-            apiKey={editorApiKey}
+          <ReactQuill
+            theme="snow"
             value={postData.content}
-            init={{
-              height: 300,
-              menubar: true,
-              plugins: [
-                "a11ychecker",
-                "advcode",
-                "advlist",
-                "anchor",
-                "autolink",
-                "codesample",
-                "fullscreen",
-                "help",
-                "image",
-                "editimage",
-                "tinydrive",
-                "lists",
-                "link",
-                "media",
-                "powerpaste",
-                "preview",
-                "searchreplace",
-                "table",
-                "tinymcespellchecker",
-                "visualblocks",
-                "wordcount",
-              ],
+            onChange={handleEditorChange}
+            modules={{
+              syntax: true,
               toolbar: [
-                "insertfile a11ycheck undo redo | bold italic | forecolor backcolor | codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image",
+                [{ header: [1, 2, 3, false] }],
+                ["bold", "italic", "underline", "strike"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["link", "image"],
+                [{ align: [] }],
+                ["code-block"],
               ],
-              content_style:
-                "body { font-family:Helvetica,Arial,sans-serif; font-size:16px }",
             }}
-            onEditorChange={handleEditorChange}
           />
           {errors.content && (
             <p className="text-red-500 text-sm">{errors.content}</p>
@@ -249,15 +238,15 @@ export default function EditPost({ params }: { params: { id: number } }) {
             Tags <span className="text-red-500">*</span>
           </label>
           <div className="flex flex-wrap gap-2">
-            {tags?.map((tag) => (
+            {tags.map((tag) => (
               <button
                 key={tag.id}
                 type="button"
                 className={`px-4 py-2 rounded border ${
-                  postData?.tags?.some((t) => t.id === tag.id)
+                  postData.tags.some((t) => t.id === tag.id)
                     ? "bg-blue-600 text-white border-blue-600"
                     : "bg-gray-200 text-gray-700 border-gray-300"
-                } flex items-center`}
+                }`}
                 onClick={() => handleTagClick(tag)}
               >
                 <FaTag className="mr-2" />

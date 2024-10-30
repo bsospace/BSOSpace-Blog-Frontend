@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: bso-dev-image
+    container_name: bso-blog-develop
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.develop
+    volumes:
+      - ./app-develop:/app
+      - /develop_app/node_modules
+    networks:
+      - develop-network
+
+networks:
+  develop-network:
+    driver: bridge

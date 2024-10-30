@@ -1,10 +1,32 @@
 "use client";
 
 import { useState, useContext, useEffect } from "react";
-import { Editor } from "@tinymce/tinymce-react";
+
+// Extend the Window interface to include hljs
+declare global {
+  interface Window {
+    hljs: typeof hljs;
+  }
+}
+
+import dynamic from "next/dynamic"; // ใช้ dynamic เพื่อลดปัญหาการโหลด
+import "react-quill/dist/quill.snow.css"; // นำเข้าธีมของ React Quill
+import hljs from "highlight.js"; // นำเข้า highlight.js
+import "highlight.js/styles/github.css"; // นำเข้าธีมของ highlight.js
 import { Post, Tag, Category } from "@/app/interfaces";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/app/contexts/authContext";
+import TurndownService from "turndown"; // สำหรับแปลง HTML เป็น Markdown
+
+// โหลด ReactQuill แบบ dynamic เพื่อให้ทำงานบน client side เท่านั้น
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false, // ปิดการใช้งาน Server-Side Rendering (SSR)
+});
+
+// เปิดใช้งาน highlight.js ก่อนที่จะใช้ Quill
+if (typeof window !== "undefined") {
+  window.hljs = hljs;
+}
 
 export default function CreatePost() {
   const [postData, setPostData] = useState<Post>({
@@ -33,7 +55,6 @@ export default function CreatePost() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const editorApiKey = process.env.NEXT_PUBLIC_TINYMCE_API_KEY;
   const { isLoggedIn, isFecthing } = useContext(AuthContext);
   const router = useRouter();
 
@@ -67,12 +88,14 @@ export default function CreatePost() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value: originalValue } = e.target;
     let value = originalValue;
 
-    // Modify the value if the field is "key"
+    // ปรับเปลี่ยนค่าของฟิลด์ "key"
     if (name === "key" && value !== "") {
       value = value.replace(/[^a-zA-Z0-9]/g, "-");
     }
@@ -114,7 +137,7 @@ export default function CreatePost() {
       return;
     }
 
-    // Prepare tagIds from selected tags
+    // จัดเตรียม tagIds จาก tags ที่เลือก
     const tagIds = postData.tags.map((tag) => tag.id);
 
     try {
@@ -146,10 +169,32 @@ export default function CreatePost() {
     }
   }, [isLoggedIn, isFecthing, router]);
 
+  // ฟังก์ชันดาวน์โหลดเป็น Markdown
+  const downloadMarkdown = () => {
+    const turndownService = new TurndownService();
+    const markdown = turndownService.turndown(postData.content);
+
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${postData.title || "post"}.md`;
+    link.click();
+  };
+
+  // ฟังก์ชันดาวน์โหลดเป็น HTML
+  const downloadHTML = () => {
+    const blob = new Blob([postData.content], { type: "text/html" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${postData.title || "post"}.html`;
+    link.click();
+  };
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-4">Create New Post</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* ส่วน Title */}
         <div>
           <label htmlFor="title" className="block text-gray-700">
             Title <span className="text-red-500">*</span>
@@ -169,45 +214,26 @@ export default function CreatePost() {
           )}
         </div>
 
+        {/* ส่วน Content */}
         <div>
           <label htmlFor="content" className="block text-gray-700">
             Content <span className="text-red-500">*</span>
           </label>
-          <Editor
-            apiKey={editorApiKey}
-            init={{
-              height: 300,
-              menubar: true,
-              plugins: [
-                "a11ychecker",
-                "advcode",
-                "advlist",
-                "anchor",
-                "autolink",
-                "codesample",
-                "fullscreen",
-                "help",
-                "image",
-                "editimage",
-                "tinydrive",
-                "lists",
-                "link",
-                "media",
-                "powerpaste",
-                "preview",
-                "searchreplace",
-                "table",
-                "tinymcespellchecker",
-                "visualblocks",
-                "wordcount",
-              ],
+          <ReactQuill
+            theme="snow"
+            value={postData.content}
+            onChange={handleEditorChange}
+            modules={{
+              syntax: true,
               toolbar: [
-                "insertfile a11ycheck undo redo | bold italic | forecolor backcolor | codesample | alignleft aligncenter alignright alignjustify | bullist numlist | link image",
+                [{ header: [1, 2, 3, false] }],
+                ["bold", "italic", "underline", "strike"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["link", "image"],
+                [{ align: [] }],
+                ["code-block"],
               ],
-              content_style:
-                "body { font-family:Helvetica,Arial,sans-serif; font-size:16px }",
             }}
-            onEditorChange={handleEditorChange}
           />
           {errors.content && (
             <p className="text-red-500 text-sm">{errors.content}</p>
@@ -228,6 +254,8 @@ export default function CreatePost() {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
+
+        {/* ส่วน Category */}
         <div>
           <label htmlFor="categoryId" className="block text-gray-700">
             Category <span className="text-red-500">*</span>
@@ -251,6 +279,7 @@ export default function CreatePost() {
           )}
         </div>
 
+        {/* ส่วน Tags */}
         <div>
           <label className="block text-gray-700">
             Tags <span className="text-red-500">*</span>
@@ -274,6 +303,7 @@ export default function CreatePost() {
           {errors.tags && <p className="text-red-500 text-sm">{errors.tags}</p>}
         </div>
 
+        {/* ปุ่มสร้างโพสต์ */}
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -281,6 +311,25 @@ export default function CreatePost() {
           Create Post
         </button>
       </form>
+
+      {/* l */}
+      <div></div>
+
+      {/* ปุ่มดาวน์โหลด */}
+      <div className="mt-6">
+        <button
+          onClick={downloadMarkdown}
+          className="px-4 py-2 bg-green-600 text-white rounded mr-4"
+        >
+          Download as Markdown
+        </button>
+        <button
+          onClick={downloadHTML}
+          className="px-4 py-2 bg-purple-600 text-white rounded"
+        >
+          Download as HTML
+        </button>
+      </div>
     </div>
   );
 }

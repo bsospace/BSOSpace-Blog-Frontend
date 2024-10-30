@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.pre
+    image: bso-pre-image
+    container_name: bso-blog-pre
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3002:3000"
+    env_file:
+      - .env.pre
+    volumes:
+      - ./app-pre:/app
+      - /pre_app/node_modules
+    networks:
+      - pre-production-network
+
+networks:
+  pre-production-network:
+    driver: bridge
