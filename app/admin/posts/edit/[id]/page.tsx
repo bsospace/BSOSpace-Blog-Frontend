@@ -8,6 +8,7 @@ import { Post, Tag, Category } from "@/app/interfaces";
 import { useRouter } from "next/navigation";
 import { FaEdit, FaSave, FaTag } from "react-icons/fa";
 import { fetchPostById } from "@/app/_action/posts.action";
+import BackButton from "../../../../components/BackButton";
 
 // Load ReactQuill dynamically for client-side only
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -147,9 +148,10 @@ export default function EditPost({ params }: { params: { id: number } }) {
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-4 flex items-center">
-        <FaEdit className="mr-2" /> Edit Post
-      </h1>
+      <div className="flex mb-2 items-center space-x-2">
+        <BackButton />
+        <h1 className="text-2xl font-bold">Edit Post</h1>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="title" className="block text-gray-700">
