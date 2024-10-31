@@ -1,37 +1,130 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# BSO Space Blog Frontend
+
+[![Bugs](https://sonarqube.bsospace.com/api/project_badges/measure?project=bso-space-app&metric=bugs&token=sqb_f0e574fbcaedfab483d303668cf0a3ba4ba18f8d)](https://sonarqube.bsospace.com/dashboard?id=bso-space-app) [![Maintainability Rating](https://sonarqube.bsospace.com/api/project_badges/measure?project=bso-space-app&metric=sqale_rating&token=sqb_f0e574fbcaedfab483d303668cf0a3ba4ba18f8d)](https://sonarqube.bsospace.com/dashboard?id=bso-space-app) [![Quality Gate Status](https://sonarqube.bsospace.com/api/project_badges/measure?project=bso-space-app&metric=alert_status&token=sqb_f0e574fbcaedfab483d303668cf0a3ba4ba18f8d)](https://sonarqube.bsospace.com/dashboard?id=bso-space-app) [![Reliability Rating](https://sonarqube.bsospace.com/api/project_badges/measure?project=bso-space-app&metric=reliability_rating&token=sqb_f0e574fbcaedfab483d303668cf0a3ba4ba18f8d)](https://sonarqube.bsospace.com/dashboard?id=bso-space-app) [![Security Rating](https://sonarqube.bsospace.com/api/project_badges/measure?project=bso-space-app&metric=security_rating&token=sqb_f0e574fbcaedfab483d303668cf0a3ba4ba18f8d)](https://sonarqube.bsospace.com/dashboard?id=bso-space-app)
+
+Welcome to the **BSO Space Blog** repository! This open-source project is part of the **BSO Space** platform, a collaborative blog designed specifically for Software Engineering students to share insights, learnings, and projects with a wider audience. This repository contains the frontend code for the BSO Space Blog.
+
+## Table of Contents
+- [BSO Space Blog Frontend](#bso-space-blog-frontend)
+  - [Table of Contents](#table-of-contents)
+  - [Project Overview](#project-overview)
+  - [Tech Stack](#tech-stack)
+  - [Features](#features)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Build for Production](#build-for-production)
+  - [Contributing](#contributing)
+  - [CI/CD Pipeline](#cicd-pipeline)
+  - [Testing](#testing)
+  - [Code Quality](#code-quality)
+  - [License](#license)
+
+## Project Overview
+
+The BSO Space Blog provides a seamless platform where Software Engineering students can post articles, browse through others' content, and engage with the community. This frontend application, built with **Next.js**, interfaces with a backend service using **Prisma** and **PostgreSQL**.
+
+**Live Site:** [https://blog.bsospace.com](https://blog.bsospace.com)
+
+## Tech Stack
+
+- **Frontend Framework:** Next.js
+- **Database:** PostgreSQL
+- **ORM:** Prisma
+- **CI/CD Pipeline:** Jenkins
+- **Testing Framework:** Jest
+- **Code Scanning:** SonarQube
+- **Deployment:** Docker
+
+## Features
+
+- **User-Friendly Interface:** Designed with students in mind, the interface is intuitive and responsive.
+- **Article Management:** Easily create, edit, and publish articles.
+- **Community Engagement:** Read and comment on articles posted by other students.
+- **Dashboard for Statistics:** Access statistics related to article views, user engagement, and more.
 
 ## Getting Started
 
-First, run the development server:
+To get a local copy up and running, follow these steps:
+
+### Prerequisites
+
+- **Node.js** (v14 or above recommended)
+- **Yarn** (optional but recommended for dependency management)
+- **Docker** (optional, for containerized development)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/BSO-Space/BSOSpace-Blog-Frontend.git
+   cd BSOSpace-Blog-Frontend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   yarn install
+   # or
+   npm install
+   ```
+
+3. **Configure environment variables:**
+   Create a `.env.local` file at the root of the project and add the necessary environment variables (API endpoints, database credentials, etc.).
+
+4. **Start the development server:**
+   ```bash
+   yarn dev
+   # or
+   npm run dev
+   ```
+
+   The app should now be running on [http://localhost:3000](http://localhost:3000).
+
+### Build for Production
+
+To build the project for production, run:
 
 ```bash
-npm run dev
+yarn build
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev 
+npm run build
 ```
 
+## Contributing
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Contributions are welcome! To contribute to this open-source project:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature/YourFeature`.
+3. Make changes and test thoroughly.
+4. Commit your changes: `git commit -m 'Add new feature'`.
+5. Push to your branch: `git push origin feature/YourFeature`.
+6. Open a pull request.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Please ensure all contributions align with the **Code of Conduct** and follow the project's **Coding Standards**.
 
-## Learn More
+## CI/CD Pipeline
 
-To learn more about Next.js, take a look at the following resources:
+This project uses **Jenkins** for Continuous Integration and Continuous Deployment. Upon a pull request, the pipeline performs the following:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Testing:** Runs tests with Jest.
+- **Code Scanning:** Scans code for potential issues using SonarQube.
+- **Deployment:** If all tests pass and no issues are found, the latest code is automatically deployed using Docker.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Testing
 
-## Deploy on Vercel
+We use **Jest** for unit and integration tests to ensure code reliability and functionality. To run tests locally:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+yarn test
+# or
+npm test
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Code Quality
+
+**SonarQube** is integrated into our CI/CD pipeline to maintain high code quality. All code must pass SonarQube checks before merging.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
