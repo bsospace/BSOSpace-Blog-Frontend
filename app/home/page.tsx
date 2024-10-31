@@ -120,13 +120,13 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto">
-      <header className="mb-12 h-64 flex justify-center items-center flex-col">
-        <h1 className="text-heading-2-medium my-4 md:text-hero-bold font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
+      <header className="h-full mb-12 flex justify-center items-center flex-col">        
+        <h1 className="text-heading-2-medium md:my-24 mb-4 mt-12 md:text-hero-bold font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
           Be Simple but Outstanding
         </h1>
 
         {/* Search Bar */}
-        <div className="relative mt-6 w-full max-w-lg">
+        <div className="relative mt-6 w-full max-w-lg shadow-sm dark:hover:shadow-white-500">
           <input
             type="text"
             placeholder="ค้นหาบทความ"
