@@ -58,12 +58,28 @@ pipeline {
                     env.LAST_COMMIT_MESSAGE = lastCommitMessage
                 }
             }
+            post {
+                success {
+                    publishChecks name: 'Checkout & Pulling', title: 'Checkout & Pulling', summary: 'Code checkout and pulling completed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Checkout & Pulling', title: 'Checkout & Pulling', summary: 'Code checkout and pulling failed.'
+                }
+            }
         }
 
         stage('Install Dependencies') {
             steps {
                 script {
                     sh 'npm install'
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Install Dependencies', title: 'Install Dependencies', summary: 'Dependencies installed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Install Dependencies', title: 'Install Dependencies', summary: 'Dependency installation failed.'
                 }
             }
         }
@@ -89,6 +105,14 @@ pipeline {
                             echo "SonarQube analysis passed successfully."
                         }
                     }
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Code Analysis', title: 'Code Analysis', summary: 'SonarQube analysis passed.'
+                }
+                failure {
+                    publishChecks name: 'Code Analysis', title: 'Code Analysis', summary: 'SonarQube analysis failed.'
                 }
             }
         }
@@ -118,12 +142,28 @@ pipeline {
                     }
                 }
             }
+            post {
+                success {
+                    publishChecks name: 'Quality Gate', title: 'Quality Gate', summary: 'Quality gate passed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Quality Gate', title: 'Quality Gate', summary: 'Quality gate failed.'
+                }
+            }
         }
 
         stage('Testing with Jest') {
             steps {
                 script {
                     sh 'npm test'
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Testing with Jest', title: 'Testing with Jest', summary: 'Jest tests passed.'
+                }
+                failure {
+                    publishChecks name: 'Testing with Jest', title: 'Testing with Jest', summary: 'Jest tests failed.'
                 }
             }
         }
@@ -142,18 +182,23 @@ pipeline {
                     """
                 }
             }
+            post {
+                success {
+                    publishChecks name: 'Docker Build & Deploy', title: 'Docker Build & Deploy', summary: 'Docker build and deployment completed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Docker Build & Deploy', title: 'Docker Build & Deploy', summary: 'Docker build and deployment failed.'
+                }
+            }
         }
     }
     post {
         always {
             script {
-                // กำหนดสีสำหรับข้อความแจ้งเตือนตามผลลัพธ์ของ Pipeline
                 def color = currentBuild.currentResult == 'SUCCESS' ? '#36A64F' : '#FF0000'
 
-                // จัดเตรียมข้อมูล Quality Gate Summary
                 def qualityGateSummary = env.QUALITY_GATE_STATUS == 'OK' ? "*Quality Gate*: ✅ *Passed*" : "*Quality Gate*: ❌ *Failed*"
                 if (env.QUALITY_SUMMARY) {
-                    // ปรับข้อความให้ดูเป็นระเบียบด้วย bullet points
                     qualityGateSummary += "\n" + env.QUALITY_SUMMARY.split("\n").collect { line ->
                         line.startsWith("Metric:") ? "🔹 ${line}" : line
                     }.join("\n")
@@ -161,7 +206,6 @@ pipeline {
                     qualityGateSummary += "\n_No detailed Quality Gate Summary available_"
                 }
 
-                // ส่งข้อความไปยัง Slack โดยจัดรูปแบบให้สวยงามและอ่านง่ายขึ้น
                 slackSend channel: "${SLACK_CHANNEL}", color: color, message: """
                     *📈 Pipeline Report for ${env.JOB_NAME}* [#${env.BUILD_NUMBER}]
                     *😎 Status*: ${currentBuild.currentResult == 'SUCCESS' ? "✅ *Success*" : "❌ *Failed*"}

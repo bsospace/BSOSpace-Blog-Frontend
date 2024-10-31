@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { Post } from "@/app/interfaces";
 import { fetchPostBySlug } from "@/app/_action/posts.action";
 import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
@@ -13,6 +13,7 @@ import {
   PopoverContentProps,
 } from "@material-tailwind/react";
 import { IoChevronDown, IoChevronForward } from "react-icons/io5";
+import ScrollProgress  from "../../components/ScrollProgress";
 
 export default function PostPage({ params }: { params: { slug: string } }) {
   const [post, setPost] = useState<Post>();
@@ -58,7 +59,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     // };
   }, [formattedContent]);
 
-  useEffect(() => {});
+  useEffect(() => { });
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -174,6 +175,8 @@ export default function PostPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="block md:flex">
+       {/* Progress Bar */}
+       <ScrollProgress />
       {/* {JSON.stringify(formattedContent)} */}
       <aside className="w-2/4 pr-4 hidden md:block">
         <div className="sticky top-[88px] md:top-[61px]">
@@ -275,7 +278,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
       )}
 
       {post.published && (
-        <main className="w-full rounded-md p-6 dark:bg-[#1f1f1f] bg-[#ffffff]">
+        <main className="w-full rounded-md p-6 dark:bg-[#1f1f1f] bg-[#ffffff]" id="content">
           <div className="flex justify-between">
             <p className="text-sm mb-4 dark:text-white">
               <div className="flex items-center space-x-2">
