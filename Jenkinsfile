@@ -12,6 +12,7 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 script {
+                    publishChecks name: 'Setup Environment', title: 'Environment Setup', summary: 'Setting up environment variables and configurations'
                     def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
 
                     if (branchName ==~ /^pre-.*/) {
@@ -47,6 +48,7 @@ pipeline {
         stage('Checkout & Pulling') {
             steps {
                 script {
+                    publishChecks name: 'Checkout & Pulling', title: 'Code Checkout', summary: 'Pulling the latest code from the repository'
                     sh 'git config --global user.name "bso.jenkins"'
                     sh 'git config --global user.email "bso.jenkins@bsospace.com"'
                     checkout([$class: 'GitSCM', branches: [[name: "${env.GIT_BRANCH}"]], userRemoteConfigs: [[url: "${GIT_URL}"]]])
@@ -63,6 +65,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
+                    publishChecks name: 'Install Dependencies', title: 'Dependency Installation', summary: 'Installing npm dependencies'
                     sh 'npm install'
                 }
             }
@@ -72,6 +75,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
                     script {
+                        publishChecks name: 'Code Analysis', title: 'SonarQube Analysis', summary: 'Running SonarQube code analysis'
                         def sonarResult = sh(
                             script: '''
                                 npm install sonar-scanner
@@ -97,6 +101,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
                     script {
+                        publishChecks name: 'Quality Gate', title: 'SonarQube Quality Gate', summary: 'Checking quality gate status'
                         def response = sh(
                             script: "curl -s -u ${SONAR_TOKEN}: https://sonarqube.bsospace.com/api/qualitygates/project_status?projectKey=bso-space-app",
                             returnStdout: true
@@ -123,6 +128,7 @@ pipeline {
         stage('Testing with Jest') {
             steps {
                 script {
+                    publishChecks name: 'Testing with Jest', title: 'Jest Testing', summary: 'Running unit tests with Jest'
                     sh 'npm test'
                 }
             }
@@ -136,6 +142,7 @@ pipeline {
             }
             steps {
                 script {
+                    publishChecks name: 'Docker Build & Deploy', title: 'Building and Deploying Docker', summary: 'Building Docker images and deploying to server'
                     sh """
                     docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
                     docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} up -d
@@ -147,21 +154,15 @@ pipeline {
     post {
         always {
             script {
-                // กำหนดสีสำหรับข้อความแจ้งเตือนตามผลลัพธ์ของ Pipeline
                 def color = currentBuild.currentResult == 'SUCCESS' ? '#36A64F' : '#FF0000'
-
-                // จัดเตรียมข้อมูล Quality Gate Summary
                 def qualityGateSummary = env.QUALITY_GATE_STATUS == 'OK' ? "*Quality Gate*: ✅ *Passed*" : "*Quality Gate*: ❌ *Failed*"
                 if (env.QUALITY_SUMMARY) {
-                    // ปรับข้อความให้ดูเป็นระเบียบด้วย bullet points
                     qualityGateSummary += "\n" + env.QUALITY_SUMMARY.split("\n").collect { line ->
                         line.startsWith("Metric:") ? "🔹 ${line}" : line
                     }.join("\n")
                 } else {
                     qualityGateSummary += "\n_No detailed Quality Gate Summary available_"
                 }
-
-                // ส่งข้อความไปยัง Slack โดยจัดรูปแบบให้สวยงามและอ่านง่ายขึ้น
                 slackSend channel: "${SLACK_CHANNEL}", color: color, message: """
                     *📈 Pipeline Report for ${env.JOB_NAME}* [#${env.BUILD_NUMBER}]
                     *😎 Status*: ${currentBuild.currentResult == 'SUCCESS' ? "✅ *Success*" : "❌ *Failed*"}
