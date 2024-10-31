@@ -11,131 +11,159 @@ pipeline {
     stages {
         stage('Setup Environment') {
             steps {
-                withChecks('Setup Environment') {
-                    script {
-                        def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
+                script {
+                    def branchName = env.GIT_BRANCH?.replaceFirst('origin/', '')
 
-                        if (branchName ==~ /^pre-.*/) {
-                            APP_PORT = '3002'
-                            DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
-                            STACK_NAME = "bso-blog-pre"
-                            echo "Setting up Pre-Production Environment: ${branchName}"
-                        } else if (branchName == 'develop') {
-                            APP_PORT = '3000'
-                            DOCKER_IMAGE_TAG = "develop-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
-                            STACK_NAME = "bso-blog-develop"
-                            echo "Setting up Development Environment: ${branchName}"
-                        } else if (branchName == 'main') {
-                            APP_PORT = '9009'
-                            DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
-                            STACK_NAME = "bso-blog-production"
-                            echo "Setting up Production Environment: ${branchName}"
-                        } else {
-                            error("This pipeline only supports main, develop, or pre-* branches. Current branch: ${branchName}")
-                        }
-
-                        echo "APP_PORT is set to ${APP_PORT}"
-                        echo "DOCKER_IMAGE_TAG is set to ${DOCKER_IMAGE_TAG}"
-                        echo "Using Docker Compose file: ${DOCKER_COMPOSE_FILE}"
-                        echo "STACK_NAME is set to ${STACK_NAME}"
+                    if (branchName ==~ /^pre-.*/) {
+                        APP_PORT = '3002'
+                        DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
+                        DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
+                        STACK_NAME = "bso-blog-pre"
+                        echo "Setting up Pre-Production Environment: ${branchName}"
+                    } else if (branchName == 'develop') {
+                        APP_PORT = '3000'
+                        DOCKER_IMAGE_TAG = "develop-${BUILD_NUMBER}"
+                        DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
+                        STACK_NAME = "bso-blog-develop"
+                        echo "Setting up Development Environment: ${branchName}"
+                    } else if (branchName == 'main') {
+                        APP_PORT = '9009'
+                        DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
+                        DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
+                        STACK_NAME = "bso-blog-production"
+                        echo "Setting up Production Environment: ${branchName}"
+                    } else {
+                        error("This pipeline only supports main, develop, or pre-* branches. Current branch: ${branchName}")
                     }
+
+                    echo "APP_PORT is set to ${APP_PORT}"
+                    echo "DOCKER_IMAGE_TAG is set to ${DOCKER_IMAGE_TAG}"
+                    echo "Using Docker Compose file: ${DOCKER_COMPOSE_FILE}"
+                    echo "STACK_NAME is set to ${STACK_NAME}"
                 }
             }
         }
 
         stage('Checkout & Pulling') {
             steps {
-                withChecks('Checkout & Pulling') {
-                    script {
-                        sh 'git config --global user.name "bso.jenkins"'
-                        sh 'git config --global user.email "bso.jenkins@bsospace.com"'
-                        checkout([$class: 'GitSCM', branches: [[name: "${env.GIT_BRANCH}"]], userRemoteConfigs: [[url: "${GIT_URL}"]]])
-                        sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
-                        sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
-                        def lastCommitAuthor = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
-                        def lastCommitMessage = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
-                        env.LAST_COMMIT_AUTHOR = lastCommitAuthor
-                        env.LAST_COMMIT_MESSAGE = lastCommitMessage
-                    }
+                script {
+                    sh 'git config --global user.name "bso.jenkins"'
+                    sh 'git config --global user.email "bso.jenkins@bsospace.com"'
+                    checkout([$class: 'GitSCM', branches: [[name: "${env.GIT_BRANCH}"]], userRemoteConfigs: [[url: "${GIT_URL}"]]])
+                    sh "git checkout ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
+                    sh "git pull origin ${env.GIT_BRANCH?.replaceFirst('origin/', '')}"
+                    def lastCommitAuthor = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    def lastCommitMessage = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+                    env.LAST_COMMIT_AUTHOR = lastCommitAuthor
+                    env.LAST_COMMIT_MESSAGE = lastCommitMessage
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Checkout & Pulling', title: 'Checkout & Pulling', summary: 'Code checkout and pulling completed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Checkout & Pulling', title: 'Checkout & Pulling', summary: 'Code checkout and pulling failed.'
                 }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                withChecks('Install Dependencies') {
-                    script {
-                        sh 'npm install'
-                    }
+                script {
+                    sh 'npm install'
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Install Dependencies', title: 'Install Dependencies', summary: 'Dependencies installed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Install Dependencies', title: 'Install Dependencies', summary: 'Dependency installation failed.'
                 }
             }
         }
 
         stage('Code Analysis') {
             steps {
-                withChecks('Code Analysis') {
-                    withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
-                        script {
-                            def sonarResult = sh(
-                                script: '''
-                                    npm install sonar-scanner
-                                    npx sonar-scanner \
-                                    -Dsonar.projectKey=bso-space-app \
-                                    -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
-                                    -Dsonar.login=$SONAR_TOKEN
-                                ''',
-                                returnStatus: true
-                            )
+                withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        def sonarResult = sh(
+                            script: '''
+                                npm install sonar-scanner
+                                npx sonar-scanner \
+                                -Dsonar.projectKey=bso-space-app \
+                                -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
+                                -Dsonar.login=$SONAR_TOKEN
+                            ''',
+                            returnStatus: true
+                        )
 
-                            if (sonarResult != 0) {
-                                error "SonarQube analysis failed. Halting deployment."
-                            } else {
-                                echo "SonarQube analysis passed successfully."
-                            }
+                        if (sonarResult != 0) {
+                            error "SonarQube analysis failed. Halting deployment."
+                        } else {
+                            echo "SonarQube analysis passed successfully."
                         }
                     }
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Code Analysis', title: 'Code Analysis', summary: 'SonarQube analysis passed.'
+                }
+                failure {
+                    publishChecks name: 'Code Analysis', title: 'Code Analysis', summary: 'SonarQube analysis failed.'
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
-                withChecks('Quality Gate') {
-                    withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
-                        script {
-                            def response = sh(
-                                script: "curl -s -u ${SONAR_TOKEN}: https://sonarqube.bsospace.com/api/qualitygates/project_status?projectKey=bso-space-app",
-                                returnStdout: true
-                            ).trim()
-                            def qualityGate = new groovy.json.JsonSlurper().parseText(response)
-                            env.QUALITY_GATE_STATUS = qualityGate?.projectStatus?.status ?: "UNKNOWN"
+                withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        def response = sh(
+                            script: "curl -s -u ${SONAR_TOKEN}: https://sonarqube.bsospace.com/api/qualitygates/project_status?projectKey=bso-space-app",
+                            returnStdout: true
+                        ).trim()
+                        def qualityGate = new groovy.json.JsonSlurper().parseText(response)
+                        env.QUALITY_GATE_STATUS = qualityGate?.projectStatus?.status ?: "UNKNOWN"
 
-                            def qualitySummary = "Quality Gate Status: ${env.QUALITY_GATE_STATUS}\n"
-                            qualityGate?.projectStatus?.conditions.each { condition ->
-                                qualitySummary += "Metric: ${condition.metricKey}, Status: ${condition.status}, " +
-                                                  "Actual: ${condition.actualValue}, Threshold: ${condition.errorThreshold}\n"
-                            }
-                            echo qualitySummary
-                            env.QUALITY_SUMMARY = qualitySummary
+                        def qualitySummary = "Quality Gate Status: ${env.QUALITY_GATE_STATUS}\n"
+                        qualityGate?.projectStatus?.conditions.each { condition ->
+                            qualitySummary += "Metric: ${condition.metricKey}, Status: ${condition.status}, " +
+                                              "Actual: ${condition.actualValue}, Threshold: ${condition.errorThreshold}\n"
+                        }
+                        echo qualitySummary
+                        env.QUALITY_SUMMARY = qualitySummary
 
-                            if (env.QUALITY_GATE_STATUS != 'OK') {
-                                error "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}"
-                            }
+                        if (env.QUALITY_GATE_STATUS != 'OK') {
+                            error "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}"
                         }
                     }
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Quality Gate', title: 'Quality Gate', summary: 'Quality gate passed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Quality Gate', title: 'Quality Gate', summary: 'Quality gate failed.'
                 }
             }
         }
 
         stage('Testing with Jest') {
             steps {
-                withChecks('Testing with Jest') {
-                    script {
-                        sh 'npm test'
-                    }
+                script {
+                    sh 'npm test'
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Testing with Jest', title: 'Testing with Jest', summary: 'Jest tests passed.'
+                }
+                failure {
+                    publishChecks name: 'Testing with Jest', title: 'Testing with Jest', summary: 'Jest tests failed.'
                 }
             }
         }
@@ -147,13 +175,19 @@ pipeline {
                 }
             }
             steps {
-                withChecks('Docker Build & Deploy') {
-                    script {
-                        sh """
-                        docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-                        docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} up -d
-                        """
-                    }
+                script {
+                    sh """
+                    docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
+                    docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} up -d
+                    """
+                }
+            }
+            post {
+                success {
+                    publishChecks name: 'Docker Build & Deploy', title: 'Docker Build & Deploy', summary: 'Docker build and deployment completed successfully.'
+                }
+                failure {
+                    publishChecks name: 'Docker Build & Deploy', title: 'Docker Build & Deploy', summary: 'Docker build and deployment failed.'
                 }
             }
         }
