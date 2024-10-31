@@ -200,3 +200,9 @@ ul li::before {
     clip-path: inset(0 -34% 0 0);
   }
 }
+
+::selection
+{
+    background-color: #fb923c;
+    color: #fff;
+}
