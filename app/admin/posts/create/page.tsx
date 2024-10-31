@@ -17,6 +17,7 @@ import { Post, Tag, Category } from "@/app/interfaces";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/app/contexts/authContext";
 import TurndownService from "turndown"; // สำหรับแปลง HTML เป็น Markdown
+import BackButton from '../../../components/BackButton';
 
 // โหลด ReactQuill แบบ dynamic เพื่อให้ทำงานบน client side เท่านั้น
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -192,7 +193,10 @@ export default function CreatePost() {
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-4">Create New Post</h1>
+      <div className="flex mb-2 items-center space-x-2">
+        <BackButton />
+        <h1 className="text-2xl font-bold">Create New Post</h1>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* ส่วน Title */}
         <div>
