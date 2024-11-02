@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { FaEdit, FaSave, FaTag } from "react-icons/fa";
 import { fetchPostById } from "@/app/_action/posts.action";
 import BackButton from "../../../../components/BackButton";
+import Editor from "../../../../components/EditToolBar";
 
 // Load ReactQuill dynamically for client-side only
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -66,6 +67,8 @@ export default function EditPost({ params }: { params: { id: number } }) {
   }, [params.id]);
 
   const handleEditorChange = (content: string) => {
+    console.log(content);
+    
     setPostData((prevData) => ({
       ...prevData!,
       content,
@@ -115,6 +118,7 @@ export default function EditPost({ params }: { params: { id: number } }) {
 
     const tagIds = postData!.tags.map((tag) => tag.id);
 
+    console.log(postData);
     try {
       const response = await fetch(`/api/posts/edit/${params.id}`, {
         method: "PUT",
@@ -176,7 +180,8 @@ export default function EditPost({ params }: { params: { id: number } }) {
           <label htmlFor="content" className="block text-gray-700">
             Content <span className="text-red-500">*</span>
           </label>
-          <ReactQuill
+          <Editor onSubmit={handleEditorChange} value={postData} />
+          {/* <ReactQuill
             theme="snow"
             value={postData.content}
             onChange={handleEditorChange}
@@ -191,7 +196,7 @@ export default function EditPost({ params }: { params: { id: number } }) {
                 ["code-block"],
               ],
             }}
-          />
+          /> */}
           {errors.content && (
             <p className="text-red-500 text-sm">{errors.content}</p>
           )}

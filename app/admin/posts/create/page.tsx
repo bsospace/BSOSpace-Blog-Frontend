@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { AuthContext } from "@/app/contexts/authContext";
 import TurndownService from "turndown"; // สำหรับแปลง HTML เป็น Markdown
 import BackButton from '../../../components/BackButton';
+import Editor from "../../../components/EditToolBar";
 
 // โหลด ReactQuill แบบ dynamic เพื่อให้ทำงานบน client side เท่านั้น
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -82,6 +83,7 @@ export default function CreatePost() {
   }, []);
 
   const handleEditorChange = (content: string) => {
+    console.log(content);
     setPostData((prevData) => ({
       ...prevData,
       content,
@@ -137,7 +139,6 @@ export default function CreatePost() {
     if (!validateForm()) {
       return;
     }
-
     // จัดเตรียม tagIds จาก tags ที่เลือก
     const tagIds = postData.tags.map((tag) => tag.id);
 
@@ -223,7 +224,8 @@ export default function CreatePost() {
           <label htmlFor="content" className="block text-gray-700">
             Content <span className="text-red-500">*</span>
           </label>
-          <ReactQuill
+          < Editor onSubmit={handleEditorChange} value={postData} />
+          {/* <ReactQuill
             theme="snow"
             value={postData.content}
             onChange={handleEditorChange}
@@ -238,7 +240,7 @@ export default function CreatePost() {
                 ["code-block"],
               ],
             }}
-          />
+          /> */}
           {errors.content && (
             <p className="text-red-500 text-sm">{errors.content}</p>
           )}
