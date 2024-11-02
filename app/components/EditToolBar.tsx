@@ -1,9 +1,15 @@
-import React, { useState } from "react";
-import ReactQuill, { Quill } from "react-quill";
+"use client";
+import React, { useEffect } from "react";
+import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
-import { Post } from "../interfaces";
+import hljs from "highlight.js";
+import "highlight.js/styles/github.css";
+import { Post } from "@prisma/client";
 
-// Custom Undo button icon component for Quill editor
+// โหลด ReactQuill แบบ dynamic เพื่อใช้งานบน client-side เท่านั้น
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+// Custom Undo และ Redo button icon component สำหรับ Quill editor
 const CustomUndo = () => (
     <svg viewBox="0 0 18 18">
         <polygon className="ql-fill ql-stroke" points="6 10 4 12 2 10 6 10" />
@@ -11,7 +17,6 @@ const CustomUndo = () => (
     </svg>
 );
 
-// Redo button icon component for Quill editor
 const CustomRedo = () => (
     <svg viewBox="0 0 18 18">
         <polygon className="ql-fill ql-stroke" points="12 10 14 12 16 10 12 10" />
@@ -19,7 +24,7 @@ const CustomRedo = () => (
     </svg>
 );
 
-// Undo and redo functions for Custom Toolbar
+// Undo และ Redo functions สำหรับ Custom Toolbar
 function undoChange(this: { quill: any }) {
     this.quill.history.undo();
 }
@@ -28,63 +33,7 @@ function redoChange(this: { quill: any }) {
     this.quill.history.redo();
 }
 
-// Add sizes to whitelist and register them
-const Size = Quill.import("formats/size");
-Size.whitelist = ["extra-small", "small", "medium", "large"];
-Quill.register(Size, true);
-
-// Add fonts to whitelist and register them
-const Font = Quill.import("formats/font");
-Font.whitelist = [
-    "arial",
-    "comic-sans",
-    "courier-new",
-    "georgia",
-    "helvetica",
-    "lucida",
-];
-Quill.register(Font, true);
-
-// Modules object for setting up the Quill editor
-const modules = {
-    toolbar: {
-        container: "#toolbar",
-        handlers: {
-            undo: undoChange,
-            redo: redoChange,
-        },
-    },
-    history: {
-        delay: 500,
-        maxStack: 100,
-        userOnly: true,
-    },
-};
-
-// Formats objects for setting up the Quill editor
-const formats = [
-    "header",
-    "font",
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "align",
-    "strike",
-    "script",
-    "blockquote",
-    "background",
-    "list",
-    "bullet",
-    "indent",
-    "link",
-    "image",
-    "color",
-    "code-block",
-    "video",
-];
-
-// Quill Toolbar component
+// Toolbar component สำหรับ Quill editor
 const EditToolBar: React.FC = () => (
     <div id="toolbar" className="sticky top-12 z-10 bg-white">
         <div className="pt-5">
@@ -157,10 +106,73 @@ const EditToolBar: React.FC = () => (
 // Main Editor component
 interface EditorProps {
     onSubmit: (content: string) => void;
-    value: Post;
+    value: Post | null;
 }
 
 const Editor: React.FC<EditorProps> = ({ onSubmit, value }) => {
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const Quill = require("react-quill").Quill;
+
+            // ตั้งค่า size whitelist
+            const Size = Quill.import("formats/size");
+            Size.whitelist = ["extra-small", "small", "medium", "large"];
+            Quill.register(Size, true);
+
+            // ตั้งค่า font whitelist
+            const Font = Quill.import("formats/font");
+            Font.whitelist = [
+                "arial",
+                "comic-sans",
+                "courier-new",
+                "georgia",
+                "helvetica",
+                "lucida",
+            ];
+            Quill.register(Font, true);
+
+            // กำหนดค่า highlight.js สำหรับไฮไลต์โค้ด
+            window.hljs = hljs;
+        }
+    }, []);
+
+    const modules = {
+        toolbar: {
+            container: "#toolbar",
+            handlers: {
+                undo: undoChange,
+                redo: redoChange,
+            },
+        },
+        history: {
+            delay: 500,
+            maxStack: 100,
+            userOnly: true,
+        },
+    };
+
+    const formats = [
+        "header",
+        "font",
+        "size",
+        "bold",
+        "italic",
+        "underline",
+        "align",
+        "strike",
+        "script",
+        "blockquote",
+        "background",
+        "list",
+        "bullet",
+        "indent",
+        "link",
+        "image",
+        "color",
+        "code-block",
+        "video",
+    ];
+
     return (
         <div>
             <EditToolBar />
