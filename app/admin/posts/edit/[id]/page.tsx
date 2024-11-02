@@ -16,6 +16,7 @@ const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
 });
 
+
 // Ensure `highlight.js` is available for ReactQuill
 if (typeof window !== "undefined" && window.hljs === undefined) {
   window.hljs = hljs;
@@ -27,8 +28,22 @@ export default function EditPost({ params }: { params: { id: number } }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  
   const router = useRouter();
 
+  const editorValue = {
+    id: postData?.id || 0,
+    title: postData?.title || "",
+    slug: postData?.slug || "",
+    content: postData?.content || "",
+    categoryId: postData?.categoryId ?? null,
+    authorId: postData?.authorId ?? null,
+    key: postData?.key || "",
+    published: postData?.published ?? false,
+    createdAt: postData?.createdAt ? new Date(postData.createdAt) : new Date(),
+    updatedAt: postData?.updatedAt ? new Date(postData.updatedAt) : new Date(),
+  };
+  
   useEffect(() => {
     const fetchPostData = async () => {
       try {
@@ -180,23 +195,7 @@ export default function EditPost({ params }: { params: { id: number } }) {
           <label htmlFor="content" className="block text-gray-700">
             Content <span className="text-red-500">*</span>
           </label>
-          <Editor onSubmit={handleEditorChange} value={postData} />
-          {/* <ReactQuill
-            theme="snow"
-            value={postData.content}
-            onChange={handleEditorChange}
-            modules={{
-              syntax: true,
-              toolbar: [
-                [{ header: [1, 2, 3, false] }],
-                ["bold", "italic", "underline", "strike"],
-                [{ list: "ordered" }, { list: "bullet" }],
-                ["link", "image"],
-                [{ align: [] }],
-                ["code-block"],
-              ],
-            }}
-          /> */}
+          <Editor onSubmit={handleEditorChange} value={editorValue} />
           {errors.content && (
             <p className="text-red-500 text-sm">{errors.content}</p>
           )}
