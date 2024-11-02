@@ -16,6 +16,78 @@ body {
 }
 
 /* Additional Custom Styles for Consistency */
+
+.content p,
+.content li,
+.content blockquote,
+.content ol,
+.content ul,
+.content pre,
+.content table,
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6,
+.content thead,
+.content tbody,
+.content tfoot,
+.content tr,
+.content th,
+.content td,
+.content code,
+.content pre,
+.content blockquote,
+.content figure,
+.content figcaption,
+.content hr,
+.content dl,
+.content dd,
+.content dt,
+.content fieldset,
+.content legend,
+.content button,
+.content input,
+.content select,
+.content textarea,
+.content optgroup,
+.content option,
+.content form,
+.content label,
+.content fieldset,
+.content legend,
+.content table,
+.content caption,
+.content tbody,
+.content tfoot,
+.content thead,
+.content tr,
+.content th,
+.content td,
+.content article,
+.content aside,
+.content canvas,
+.content details,
+.content figcaption,
+.content figure,
+.content footer,
+.content header,
+.content hgroup,
+.content menu,
+.content nav,
+.content section,
+.content summary,
+.content time,
+.content mark,
+.content audio,
+.content video,
+.content ol,
+.content ul 
+{
+  margin: 0;
+}
+
 .content {
   @apply prose prose-lg prose-gray max-w-none;
 }
@@ -158,39 +230,49 @@ ul li::before {
 }
 
 .scroller {
-  overflow-y: auto; /* แสดง scrollbar เฉพาะเมื่อเนื้อหามีความยาวเกินขนาดของ div */
+  overflow-y: auto;
+  /* แสดง scrollbar เฉพาะเมื่อเนื้อหามีความยาวเกินขนาดของ div */
 }
 
 /* Scrollbar for WebKit browsers (Chrome, Safari, Edge) */
 .scroller::-webkit-scrollbar {
-  width: 6px; /* ความกว้างของ scrollbar */
+  width: 6px;
+  /* ความกว้างของ scrollbar */
 }
 
 .scroller::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #7e22ce, #ec4899, #fb923c); /* ไล่สีสำหรับ thumb */
-  border-radius: 10px; /* ทำให้ scrollbar thumb โค้งมน */
+  background: linear-gradient(to bottom, #7e22ce, #ec4899, #fb923c);
+  /* ไล่สีสำหรับ thumb */
+  border-radius: 10px;
+  /* ทำให้ scrollbar thumb โค้งมน */
 }
 
 .scroller::-webkit-scrollbar-track {
-  background: #f3f4f6; /* สีพื้นฐานของ scrollbar track */
+  background: #f3f4f6;
+  /* สีพื้นฐานของ scrollbar track */
 }
 
 /* เมื่อ hover ให้แสดง scrollbar thumb ที่มีสีไล่ระดับ */
 .scroller:hover::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #9b5de5, #f15bb5, #fcbf49); /* ไล่สีเมื่อ hover */
+  background: linear-gradient(to bottom, #9b5de5, #f15bb5, #fcbf49);
+  /* ไล่สีเมื่อ hover */
 }
 
 .scroller:hover::-webkit-scrollbar-track {
-  background: #e5e7eb; /* สีของ scrollbar track เมื่อ hover */
+  background: #e5e7eb;
+  /* สีของ scrollbar track เมื่อ hover */
 }
 
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 40px;
   aspect-ratio: 4;
-  background: radial-gradient(circle closest-side, #ff7e5f 90%, #ff7e5f00) 0/calc(100%/3) 100% space, /* Gradient 1 */
-              radial-gradient(circle closest-side, #feb47b 90%, #feb47b00) 33.33%/calc(100%/3) 100% space, /* Gradient 2 */
-              radial-gradient(circle closest-side, #86a8e7 90%, #86a8e700) 66.66%/calc(100%/3) 100% space; /* Gradient 3 */
+  background: radial-gradient(circle closest-side, #ff7e5f 90%, #ff7e5f00) 0/calc(100%/3) 100% space,
+    /* Gradient 1 */
+    radial-gradient(circle closest-side, #feb47b 90%, #feb47b00) 33.33%/calc(100%/3) 100% space,
+    /* Gradient 2 */
+    radial-gradient(circle closest-side, #86a8e7 90%, #86a8e700) 66.66%/calc(100%/3) 100% space;
+  /* Gradient 3 */
   clip-path: inset(0 100% 0 0);
   animation: l1 1s steps(4) infinite;
 }
@@ -201,8 +283,19 @@ ul li::before {
   }
 }
 
-::selection
-{
-    background-color: #fb923c;
-    color: #fff;
+::selection {
+  background-color: #fb923c;
+  color: #fff;
+}
+
+.ql-editor {
+  min-height: 390px !important;
+  background-color: white;
+}
+
+.ql-video {
+  width: 100%;
+  height: 400px;
+  max-width: none;
+  max-height: none;
 }
