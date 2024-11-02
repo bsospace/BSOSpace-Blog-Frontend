@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useContext, useEffect } from "react";
@@ -33,26 +34,53 @@ if (typeof window !== "undefined") {
 export default function CreatePost() {
   const [postData, setPostData] = useState<Post>({
     id: 0,
-    createdAt: "",
-    updatedAt: "",
+    createdAt: new Date().toISOString(), 
+    updatedAt: new Date().toISOString(),
     title: "",
     slug: "",
     content: "",
     key: "",
     published: false,
-    Category: { id: 0, name: "", createdAt: "", updatedAt: "" },
+    Category: { 
+      id: 0, 
+      name: "", 
+      createdAt: new Date().toISOString(), 
+      updatedAt: new Date().toISOString() 
+    },
     tags: [],
     authorId: 0,
     categoryId: 0,
     Author: {
       id: 0,
       name: "",
-      createdAt: "",
-      updatedAt: "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       email: "",
     },
   });
+  
+  const editorValue = {
+    ...postData,
+    createdAt: new Date(postData.createdAt),
+    updatedAt: new Date(postData.updatedAt),
+    Author: {
+      ...postData.Author,
+      createdAt: new Date(postData.Author.createdAt),
+      updatedAt: new Date(postData.Author.updatedAt),
+    },
+    Category: {
+      ...postData.Category,
+      createdAt: new Date(postData.Category.createdAt),
+      updatedAt: new Date(postData.Category.updatedAt),
+    },
+    tags: postData.tags.map(tag => ({
+      ...tag,
+      createdAt: new Date(tag.createdAt),
+      updatedAt: new Date(tag.updatedAt),
+    })),
+  };
 
+  
   const [tags, setTags] = useState<Tag[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -224,23 +252,7 @@ export default function CreatePost() {
           <label htmlFor="content" className="block text-gray-700">
             Content <span className="text-red-500">*</span>
           </label>
-          < Editor onSubmit={handleEditorChange} value={postData} />
-          {/* <ReactQuill
-            theme="snow"
-            value={postData.content}
-            onChange={handleEditorChange}
-            modules={{
-              syntax: true,
-              toolbar: [
-                [{ header: [1, 2, 3, false] }],
-                ["bold", "italic", "underline", "strike"],
-                [{ list: "ordered" }, { list: "bullet" }],
-                ["link", "image"],
-                [{ align: [] }],
-                ["code-block"],
-              ],
-            }}
-          /> */}
+          < Editor onSubmit={handleEditorChange} value={editorValue} />
           {errors.content && (
             <p className="text-red-500 text-sm">{errors.content}</p>
           )}
