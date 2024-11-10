@@ -32,6 +32,17 @@ async function uploadImagesFromContent(content: string): Promise<string> {
 
     // If it's not an external URL (e.g., https://), consider it a blob
     const isExternalUrl = imgSrc.startsWith("https://");
+    const oldBucketUrl = imgSrc.startsWith("https://bso-image.posyayee.shop/");
+
+    if (oldBucketUrl) {
+      const newImageUrl = imgSrc.replace(
+        "https://bso-image.posyayee.shop/",
+        `https://assets.bsospace.com/`
+      );
+
+      content = content.replace(imgSrc, newImageUrl);
+    }
+
     if (!isExternalUrl) {
       // Separate the image type and base64 data
       const base64Data = imgSrc.split(";base64,").pop();
