@@ -18,6 +18,7 @@ services:
       - /pre_app/node_modules
     networks:
       - pre-production-network
+    restart: unless-stopped
 
 networks:
   pre-production-network:
