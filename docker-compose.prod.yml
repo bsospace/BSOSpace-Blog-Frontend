@@ -18,6 +18,7 @@ services:
       - /prod_app/node_modules
     networks:
       - production-network
+    restart: unless-stopped
 
 networks:
   production-network:
