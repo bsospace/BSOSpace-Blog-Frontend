@@ -18,7 +18,8 @@ services:
       - /develop_app/node_modules
     networks:
       - develop-network
-
+    restart: unless-stopped
+    
 networks:
   develop-network:
     driver: bridge
