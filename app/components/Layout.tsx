@@ -12,6 +12,8 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen dark:bg-space-dark bg-space-light">
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="bsospace" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
       {/* Header */}
       <header className="sticky top-0 p-2 z-50 bg-white dark:bg-[#1F1F1F] shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center">

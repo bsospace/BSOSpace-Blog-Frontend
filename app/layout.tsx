@@ -9,7 +9,7 @@ import Providers from "./components/providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BSO space Blog",
+  title: "BSO Space Blog",
 };
 
 export default function RootLayout({
