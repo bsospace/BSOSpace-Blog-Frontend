@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # Install OpenSSL and other dependencies
-RUN apk add --no-cache libssl3
+# RUN apk add --no-cache libssl3
 
 # Set the working directory inside the container
 WORKDIR /bsoblog-prod
