@@ -93,7 +93,7 @@ pipeline {
                                 npm install sonar-scanner
                                 npx sonar-scanner \
                                 -Dsonar.projectKey=bso-space-app \
-                                -Dsonar.host.url=http://sonarqube-dso-demo:9000 \
+                                -Dsonar.host.url=http://sonarqube:9000 \
                                 -Dsonar.login=$SONAR_TOKEN
                             ''',
                             returnStatus: true
