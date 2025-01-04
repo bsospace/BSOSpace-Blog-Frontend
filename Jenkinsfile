@@ -14,12 +14,16 @@ pipeline {
         stage('Determine Environment') {
             steps {
                 script {
-                    switch (env.BRANCH_NAME) {
+                    // ตั้งค่า branch name และ fallback กรณี BRANCH_NAME ไม่ถูกกำหนด
+                    def branchName = env.BRANCH_NAME ?: 'unknown'
+                    branchName = branchName.replaceFirst('origin/', '')
+
+                    switch (branchName) {
                         case 'develop':
                             env.ENVIRONMENT = 'development'
                             env.ENV_FILE_CREDENTIAL = 'blog-dev-env-file'
                             break
-                        case ~(/release\/.*/):
+                        case ~/^release\/.*/:
                             env.ENVIRONMENT = 'staging'
                             env.ENV_FILE_CREDENTIAL = 'blog-staging-env-file'
                             break
@@ -29,7 +33,7 @@ pipeline {
                             break
                         default:
                             env.ENVIRONMENT = 'other'
-                            echo "Branch ${env.BRANCH_NAME} is not for deployment. Running Build and Test stages only."
+                            echo "Branch ${branchName} is not for deployment. Running Build and Test stages only."
                     }
                 }
             }
@@ -52,7 +56,8 @@ pipeline {
         stage('Setup Environment Variables') {
             steps {
                 script {
-                    def branchName = env.BRANCH_NAME?.replaceFirst('origin/', '')
+                    def branchName = env.BRANCH_NAME ?: 'unknown'
+                    branchName = branchName.replaceFirst('origin/', '')
 
                     switch (branchName) {
                         case ~/^pre-.*/:
@@ -74,7 +79,7 @@ pipeline {
                             env.STACK_NAME = "bso-blog-production"
                             break
                         default:
-                            error("Unsupported branch: ${branchName}")
+                            error("Unsupported or missing branch: ${branchName}")
                     }
 
                     echo "APP_PORT=${env.APP_PORT}, DOCKER_IMAGE_TAG=${env.DOCKER_IMAGE_TAG}, STACK_NAME=${env.STACK_NAME}, DOCKER_COMPOSE_FILE=${env.DOCKER_COMPOSE_FILE}"
@@ -131,9 +136,9 @@ pipeline {
                     *Pipeline Report*
                     *Job*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
                     *Status*: ${currentBuild.result}
-                    *Branch*: ${env.BRANCH_NAME}
-                    *Author*: ${env.LAST_COMMIT_AUTHOR}
-                    *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
+                    *Branch*: ${env.BRANCH_NAME ?: 'unknown'}
+                    *Author*: ${env.LAST_COMMIT_AUTHOR ?: 'unknown'}
+                    *Commit Message*: ${env.LAST_COMMIT_MESSAGE ?: 'unknown'}
                 """)
             }
         }
