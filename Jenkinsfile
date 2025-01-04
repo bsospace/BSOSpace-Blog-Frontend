@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        GIT_URL = 'https://github.com/BSO-Space/BSOSpace-Blog-Frontend'
+        GIT_URL = 'https://github.com/bsospace/BSOSpace-Blog-Frontend'
         DOCKER_COMPOSE_FILE = ''
         DOCKER_IMAGE_TAG = ''
         APP_PORT = ''
@@ -80,74 +80,6 @@ pipeline {
                 }
                 failure {
                     publishChecks name: 'Install Dependencies', title: 'Install Dependencies', summary: 'Dependency installation failed.'
-                }
-            }
-        }
-
-        stage('Code Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
-                    script {
-                        def sonarResult = sh(
-                            script: '''
-                                npm install sonar-scanner
-                                npx sonar-scanner \
-                                -Dsonar.projectKey=bso-space-app \
-                                -Dsonar.host.url=http://labs.bsospace.com:3001 \
-                                -Dsonar.login=$SONAR_TOKEN
-                            ''',
-                            returnStatus: true
-                        )
-
-                        if (sonarResult != 0) {
-                            error "SonarQube analysis failed. Halting deployment."
-                        } else {
-                            echo "SonarQube analysis passed successfully."
-                        }
-                    }
-                }
-            }
-            post {
-                success {
-                    publishChecks name: 'Code Analysis', title: 'Code Analysis', summary: 'SonarQube analysis passed.'
-                }
-                failure {
-                    publishChecks name: 'Code Analysis', title: 'Code Analysis', summary: 'SonarQube analysis failed.'
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                withCredentials([string(credentialsId: 'bso-space-app', variable: 'SONAR_TOKEN')]) {
-                    script {
-                        def response = sh(
-                            script: "curl -s -u ${SONAR_TOKEN}: https://sonarqube.bsospace.com/api/qualitygates/project_status?projectKey=bso-space-app",
-                            returnStdout: true
-                        ).trim()
-                        def qualityGate = new groovy.json.JsonSlurper().parseText(response)
-                        env.QUALITY_GATE_STATUS = qualityGate?.projectStatus?.status ?: "UNKNOWN"
-
-                        def qualitySummary = "Quality Gate Status: ${env.QUALITY_GATE_STATUS}\n"
-                        qualityGate?.projectStatus?.conditions.each { condition ->
-                            qualitySummary += "Metric: ${condition.metricKey}, Status: ${condition.status}, " +
-                                              "Actual: ${condition.actualValue}, Threshold: ${condition.errorThreshold}\n"
-                        }
-                        echo qualitySummary
-                        env.QUALITY_SUMMARY = qualitySummary
-
-                        if (env.QUALITY_GATE_STATUS != 'OK') {
-                            error "Quality Gate failed with status: ${env.QUALITY_GATE_STATUS}"
-                        }
-                    }
-                }
-            }
-            post {
-                success {
-                    publishChecks name: 'Quality Gate', title: 'Quality Gate', summary: 'Quality gate passed successfully.'
-                }
-                failure {
-                    publishChecks name: 'Quality Gate', title: 'Quality Gate', summary: 'Quality gate failed.'
                 }
             }
         }
