@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        GIT_URL = 'https://github.com/bsospace/BSOSpace-Blog-Frontend'
         SLACK_CHANNEL = '#jenkins-notifications'
         APP_PORT = ''
         DOCKER_IMAGE_TAG = ''
@@ -86,13 +85,7 @@ pipeline {
         stage('Checkout & Pull') {
             steps {
                 script {
-                    checkout scm: [$class: 'GitSCM', 
-                                  branches: [[name: env.BRANCH_NAME]], 
-                                  userRemoteConfigs: [[url: GIT_URL]]]
-
-                    def branch = env.BRANCH_NAME.replaceFirst('origin/', '')
-                    sh "git checkout ${branch} && git pull origin ${branch}"
-
+                    checkout scm
                     env.LAST_COMMIT_AUTHOR = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
                     env.LAST_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
                 }
