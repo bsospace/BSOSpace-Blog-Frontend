@@ -57,28 +57,28 @@ pipeline {
 
                     switch (branchName) {
                         case ~/^pre-.*/:
-                            APP_PORT = '3002'
-                            DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
-                            STACK_NAME = "bso-blog-pre"
+                            env.APP_PORT = '3002'
+                            env.DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
+                            env.STACK_NAME = "bso-blog-pre"
                             break
                         case 'develop':
-                            APP_PORT = '3000'
-                            DOCKER_IMAGE_TAG = "develop-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
-                            STACK_NAME = "bso-blog-develop"
+                            env.APP_PORT = '3000'
+                            env.DOCKER_IMAGE_TAG = "develop-${BUILD_NUMBER}"
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
+                            env.STACK_NAME = "bso-blog-develop"
                             break
                         case 'main':
-                            APP_PORT = '9009'
-                            DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
-                            STACK_NAME = "bso-blog-production"
+                            env.APP_PORT = '9009'
+                            env.DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
+                            env.STACK_NAME = "bso-blog-production"
                             break
                         default:
                             error("Unsupported branch: ${branchName}")
                     }
 
-                    echo "APP_PORT=${APP_PORT}, DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}, STACK_NAME=${STACK_NAME}, DOCKER_COMPOSE_FILE=${DOCKER_COMPOSE_FILE}"
+                    echo "APP_PORT=${env.APP_PORT}, DOCKER_IMAGE_TAG=${env.DOCKER_IMAGE_TAG}, STACK_NAME=${env.STACK_NAME}, DOCKER_COMPOSE_FILE=${env.DOCKER_COMPOSE_FILE}"
                 }
             }
         }
@@ -122,8 +122,8 @@ pipeline {
             steps {
                 script {
                     sh """
-                        docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-                        docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} up -d
+                        docker-compose -p ${env.STACK_NAME} -f ${env.DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${env.DOCKER_IMAGE_TAG}
+                        docker-compose -p ${env.STACK_NAME} -f ${env.DOCKER_COMPOSE_FILE} up -d
                     """
                 }
             }
