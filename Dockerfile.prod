@@ -22,7 +22,5 @@ RUN npx prisma generate
 # Build the Next.js application
 RUN npm run build
 
-EXPOSE 9009
-
 # Start the Next.js application
 CMD ["npm", "start"]
