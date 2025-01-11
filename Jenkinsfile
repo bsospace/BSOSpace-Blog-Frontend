@@ -21,14 +21,17 @@ pipeline {
                         case 'develop':
                             env.ENVIRONMENT = 'development'
                             env.ENV_FILE_CREDENTIAL = 'blog-dev-env-file'
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
                             break
                         case ~/^release\/.*/:
                             env.ENVIRONMENT = 'staging'
                             env.ENV_FILE_CREDENTIAL = 'blog-staging-env-file'
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
                             break
                         case 'main':
                             env.ENVIRONMENT = 'production'
                             env.ENV_FILE_CREDENTIAL = 'blog-prod-env-file'
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
                             break
                         default:
                             env.ENVIRONMENT = 'other'
@@ -47,29 +50,6 @@ pipeline {
                     withCredentials([file(credentialsId: env.ENV_FILE_CREDENTIAL, variable: 'SECRET_ENV_FILE')]) {
                         sh "cp $SECRET_ENV_FILE .env"
                         echo "Loaded environment file for ${env.ENVIRONMENT}."
-                    }
-                }
-            }
-        }
-
-        stage('Setup Environment Variables') {
-            steps {
-                script {
-                    def branchName = env.BRANCH_NAME ?: 'unknown'
-                    branchName = branchName.replaceFirst('origin/', '')
-
-                    switch (branchName) {
-                        case ~/^pre-.*/:
-                            env.DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
-                            break
-                        case 'develop':
-                            env.DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
-                            break
-                        case 'main':
-                            env.DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
-                            break
-                        default:
-                            echo "Branch ${branchName} is unsupported; using default Docker Compose file."
                     }
                 }
             }
