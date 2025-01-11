@@ -14,7 +14,6 @@ pipeline {
         stage('Determine Environment') {
             steps {
                 script {
-                    // ตั้งค่า branch name และ fallback กรณี BRANCH_NAME ไม่ถูกกำหนด
                     def branchName = env.BRANCH_NAME ?: 'unknown'
                     branchName = branchName.replaceFirst('origin/', '')
 
@@ -70,7 +69,7 @@ pipeline {
                             env.DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
                             break
                         default:
-                            error("Unsupported or missing branch: ${branchName}")
+                            echo "Branch ${branchName} is unsupported; using default Docker Compose file."
                     }
                 }
             }
@@ -108,6 +107,9 @@ pipeline {
             }
             steps {
                 script {
+                    if (!env.DOCKER_COMPOSE_FILE) {
+                        error("DOCKER_COMPOSE_FILE is not set. Aborting deployment.")
+                    }
                     sh """
                         docker compose -f ${env.DOCKER_COMPOSE_FILE} build
                         docker compose -f ${env.DOCKER_COMPOSE_FILE} up -d
