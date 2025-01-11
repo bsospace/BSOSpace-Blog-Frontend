@@ -103,6 +103,9 @@ pipeline {
             script {
                 def color = (currentBuild.result == 'SUCCESS') ? 65280 : 16711680
                 def status = (currentBuild.result == 'SUCCESS') ? 'Success' : 'Failure'
+
+                // debug discord webhhok
+                echo "DISCORD_WEBHOOK: ${env.DISCORD_WEBHOOK}"
                 def payload = [
                     content: null,
                     embeds: [[
