@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SLACK_CHANNEL = '#jenkins-notifications'
+        DISCORD_WEBHOOK = credentials('discord-webhook')
         APP_PORT = ''
         DOCKER_IMAGE_TAG = ''
         DOCKER_COMPOSE_FILE = ''
@@ -10,7 +10,6 @@ pipeline {
     }
 
     stages {
-
         stage('Determine Environment') {
             steps {
                 script {
@@ -102,15 +101,28 @@ pipeline {
     post {
         always {
             script {
-                def color = (currentBuild.result == 'SUCCESS') ? '#36A64F' : '#FF0000'
-                slackSend(channel: SLACK_CHANNEL, color: color, message: """
-                    *Pipeline Report*
-                    *Job*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
-                    *Status*: ${currentBuild.result}
-                    *Branch*: ${env.BRANCH_NAME ?: 'unknown'}
-                    *Author*: ${env.LAST_COMMIT_AUTHOR ?: 'unknown'}
-                    *Commit Message*: ${env.LAST_COMMIT_MESSAGE ?: 'unknown'}
-                """)
+                def color = (currentBuild.result == 'SUCCESS') ? 65280 : 16711680
+                def status = (currentBuild.result == 'SUCCESS') ? 'Success' : 'Failure'
+                def payload = [
+                    content: null,
+                    embeds: [[
+                        title: "Pipeline Report",
+                        description: """
+                            **Job**: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]\n
+                            **Status**: ${status}\n
+                            **Branch**: ${env.BRANCH_NAME ?: 'unknown'}\n
+                            **Author**: ${env.LAST_COMMIT_AUTHOR ?: 'unknown'}\n
+                            **Commit Message**: ${env.LAST_COMMIT_MESSAGE ?: 'unknown'}
+                        """,
+                        color: color
+                    ]]
+                ]
+                httpRequest(
+                    url: env.DISCORD_WEBHOOK,
+                    httpMode: 'POST',
+                    contentType: 'APPLICATION_JSON',
+                    requestBody: groovy.json.JsonOutput.toJson(payload)
+                )
             }
         }
     }
