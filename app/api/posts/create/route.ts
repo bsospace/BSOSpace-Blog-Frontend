@@ -4,20 +4,16 @@ import prisma from "@/prisma/client";
 import { verifyToken } from "@/app/utils/auth";
 import { v4 as uuidv4 } from "uuid";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import envConfig from "@/app/configs/envConfig";
 
-// Cloudflare R2 settings
-const R2_BUCKET_NAME = process.env.DESTINATION_BUCKET_NAME;
-const R2_ACCESS_KEY = process.env.DESTINATION_ACCESS_KEY;
-const R2_SECRET_KEY = process.env.DESTINATION_SECRET_KEY;
-const R2_ACCOUNT_ID = process.env.DESTINATION_ACCOUNT_ID;
-const R2_ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+const R2_ENDPOINT = `https://${envConfig.cloudflareR2AccessId}.r2.cloudflarestorage.com`;
 
 const s3Client = new S3Client({
   region: "auto",
   endpoint: R2_ENDPOINT,
   credentials: {
-    accessKeyId: R2_ACCESS_KEY!,
-    secretAccessKey: R2_SECRET_KEY!,
+    accessKeyId: envConfig.cloudflareR2AccessKey,
+    secretAccessKey: envConfig.cloudflareR2SecretKey,
   },
 });
 
@@ -49,7 +45,7 @@ async function uploadImagesFromContent(content: string): Promise<string> {
       // Upload image to Cloudflare R2
       const uploadPromise = s3Client.send(
         new PutObjectCommand({
-          Bucket: R2_BUCKET_NAME,
+          Bucket: envConfig.cloudflareR2BucketName,
           Key: newFileName,
           Body: imageBuffer,
           ContentType: contentType, // Set file type based on base64
@@ -57,8 +53,8 @@ async function uploadImagesFromContent(content: string): Promise<string> {
       );
 
       // Create new URL from Cloudflare R2
-      const newImageUrl = `https://assets.bsospace.com/${newFileName}`;
-      content = content.replace(imgSrc, newImageUrl); // Replace original URL with new URL
+      const newImageUrl = `${envConfig.cloudflareR2Domain}/${newFileName}`;
+      content = content.replace(imgSrc, newImageUrl);
 
       uploads.push(uploadPromise);
     }
