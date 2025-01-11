@@ -2,36 +2,40 @@ pipeline {
     agent any
 
     environment {
-        GIT_URL = 'https://github.com/bsospace/BSOSpace-Blog-Frontend'
-        SLACK_CHANNEL = '#jenkins-notifications'
-        APP_PORT = ''
-        DOCKER_IMAGE_TAG = ''
-        DOCKER_COMPOSE_FILE = ''
-        STACK_NAME = ''
+        DISCORD_WEBHOOK = credentials('discord-webhook')
     }
 
     stages {
-
         stage('Determine Environment') {
             steps {
                 script {
-                    switch (env.BRANCH_NAME) {
+                    def branchName = env.BRANCH_NAME ?: 'unknown'
+                    branchName = branchName.replaceFirst('origin/', '')
+
+                    switch (branchName) {
                         case 'develop':
                             env.ENVIRONMENT = 'development'
                             env.ENV_FILE_CREDENTIAL = 'blog-dev-env-file'
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
                             break
-                        case ~(/release\/.*/):
+                        case ~/^release\/.*/:
                             env.ENVIRONMENT = 'staging'
                             env.ENV_FILE_CREDENTIAL = 'blog-staging-env-file'
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
                             break
                         case 'main':
                             env.ENVIRONMENT = 'production'
                             env.ENV_FILE_CREDENTIAL = 'blog-prod-env-file'
+                            env.DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
                             break
                         default:
                             env.ENVIRONMENT = 'other'
-                            echo "Branch ${env.BRANCH_NAME} is not for deployment. Running Build and Test stages only."
+                            env.DOCKER_COMPOSE_FILE = ''
+                            echo "Branch ${branchName} is not supported. Skipping deployment."
                     }
+
+                    echo "Environment: ${env.ENVIRONMENT}"
+                    echo "DOCKER_COMPOSE_FILE: ${env.DOCKER_COMPOSE_FILE}"
                 }
             }
         }
@@ -50,51 +54,15 @@ pipeline {
             }
         }
 
-        stage('Setup Environment Variables') {
-            steps {
-                script {
-                    def branchName = env.BRANCH_NAME?.replaceFirst('origin/', '')
-
-                    switch (branchName) {
-                        case ~/^pre-.*/:
-                            APP_PORT = '3002'
-                            DOCKER_IMAGE_TAG = "pre-production-${branchName}-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.pre.yml'
-                            STACK_NAME = "bso-blog-pre"
-                            break
-                        case 'develop':
-                            APP_PORT = '3000'
-                            DOCKER_IMAGE_TAG = "develop-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.develop.yml'
-                            STACK_NAME = "bso-blog-develop"
-                            break
-                        case 'main':
-                            APP_PORT = '9009'
-                            DOCKER_IMAGE_TAG = "production-${BUILD_NUMBER}"
-                            DOCKER_COMPOSE_FILE = 'docker-compose.prod.yml'
-                            STACK_NAME = "bso-blog-production"
-                            break
-                        default:
-                            error("Unsupported branch: ${branchName}")
-                    }
-
-                    echo "APP_PORT=${APP_PORT}, DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}, STACK_NAME=${STACK_NAME}, DOCKER_COMPOSE_FILE=${DOCKER_COMPOSE_FILE}"
-                }
-            }
-        }
-
         stage('Checkout & Pull') {
             steps {
                 script {
-                    checkout scm: [$class: 'GitSCM', 
-                                  branches: [[name: env.BRANCH_NAME]], 
-                                  userRemoteConfigs: [[url: GIT_URL]]]
-
-                    def branch = env.BRANCH_NAME.replaceFirst('origin/', '')
-                    sh "git checkout ${branch} && git pull origin ${branch}"
-
+                    checkout scm
                     env.LAST_COMMIT_AUTHOR = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
                     env.LAST_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+
+                    echo "Last Commit Author: ${env.LAST_COMMIT_AUTHOR}"
+                    echo "Last Commit Message: ${env.LAST_COMMIT_MESSAGE}"
                 }
             }
         }
@@ -117,13 +85,14 @@ pipeline {
 
         stage('Build & Deploy Docker') {
             when {
-                expression { env.ENVIRONMENT != 'other' }
+                expression { env.ENVIRONMENT != 'other' && env.DOCKER_COMPOSE_FILE?.trim() }
             }
             steps {
                 script {
+                    echo "Using DOCKER_COMPOSE_FILE: ${env.DOCKER_COMPOSE_FILE}"
                     sh """
-                        docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} build --no-cache --build-arg DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-                        docker-compose -p ${STACK_NAME} -f ${DOCKER_COMPOSE_FILE} up -d
+                        docker compose -f ${env.DOCKER_COMPOSE_FILE} build
+                        docker compose -f ${env.DOCKER_COMPOSE_FILE} up -d
                     """
                 }
             }
@@ -133,15 +102,60 @@ pipeline {
     post {
         always {
             script {
-                def color = (currentBuild.result == 'SUCCESS') ? '#36A64F' : '#FF0000'
-                slackSend(channel: SLACK_CHANNEL, color: color, message: """
-                    *Pipeline Report*
-                    *Job*: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]
-                    *Status*: ${currentBuild.result}
-                    *Branch*: ${env.BRANCH_NAME}
-                    *Author*: ${env.LAST_COMMIT_AUTHOR}
-                    *Commit Message*: ${env.LAST_COMMIT_MESSAGE}
-                """)
+                def color = (currentBuild.result == 'SUCCESS') ? 3066993 : 15158332
+                def status = (currentBuild.result == 'SUCCESS') ? '✅ Success' : '❌ Failure'
+                def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
+
+                def payload = [
+                    content: null,
+                    embeds: [[
+                        title: "🚀 Pipeline Execution Report For BSO Blog Front-end",
+                        description: "Pipeline execution details below:",
+                        color: color,
+                        thumbnail: [
+                            url: "https://raw.githubusercontent.com/bsospace/assets/refs/heads/main/LOGO/LOGO%20WITH%20CIRCLE.ico"
+                        ],
+                        fields: [
+                            [
+                                name: "Job",
+                                value: "${env.JOB_NAME} [#${env.BUILD_NUMBER}]",
+                                inline: true
+                            ],
+                            [
+                                name: "Status",
+                                value: status,
+                                inline: true
+                            ],
+                            [
+                                name: "Branch",
+                                value: "${env.BRANCH_NAME ?: 'unknown'}",
+                                inline: true
+                            ],
+                            [
+                                name: "Author",
+                                value: "${env.LAST_COMMIT_AUTHOR ?: 'unknown'}",
+                                inline: true
+                            ],
+                            [
+                                name: "Commit Message",
+                                value: "${env.LAST_COMMIT_MESSAGE ?: 'unknown'}",
+                                inline: false
+                            ]
+                        ],
+                        footer: [
+                            text: "Pipeline executed at",
+                            icon_url: "https://raw.githubusercontent.com/bsospace/assets/refs/heads/main/LOGO/LOGO%20WITH%20CIRCLE.ico"
+                        ],
+                        timestamp: timestamp
+                    ]]
+                ]
+
+                httpRequest(
+                    url: env.DISCORD_WEBHOOK,
+                    httpMode: 'POST',
+                    contentType: 'APPLICATION_JSON',
+                    requestBody: groovy.json.JsonOutput.toJson(payload)
+                )
             }
         }
     }
