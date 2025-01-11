@@ -1,8 +1,7 @@
 # Use the official Node.js image as the base image
-FROM node:18-alpine
+FROM node:18-bullseye
 
 # Install OpenSSL and other dependencies
-# RUN apk add --no-cache libssl3
 
 # Set the working directory inside the container
 WORKDIR /bsoblog-prod
