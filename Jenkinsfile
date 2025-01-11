@@ -3,10 +3,7 @@ pipeline {
 
     environment {
         DISCORD_WEBHOOK = credentials('discord-webhook')
-        APP_PORT = ''
-        DOCKER_IMAGE_TAG = ''
         DOCKER_COMPOSE_FILE = ''
-        STACK_NAME = ''
     }
 
     stages {
@@ -34,8 +31,12 @@ pipeline {
                             break
                         default:
                             env.ENVIRONMENT = 'other'
-                            echo "Branch ${branchName} is not for deployment. Running Build and Test stages only."
+                            env.DOCKER_COMPOSE_FILE = ''
+                            echo "Branch ${branchName} is not supported. Skipping deployment."
                     }
+
+                    echo "Environment: ${env.ENVIRONMENT}"
+                    echo "DOCKER_COMPOSE_FILE: ${env.DOCKER_COMPOSE_FILE}"
                 }
             }
         }
@@ -60,6 +61,9 @@ pipeline {
                     checkout scm
                     env.LAST_COMMIT_AUTHOR = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
                     env.LAST_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+
+                    echo "Last Commit Author: ${env.LAST_COMMIT_AUTHOR}"
+                    echo "Last Commit Message: ${env.LAST_COMMIT_MESSAGE}"
                 }
             }
         }
@@ -82,13 +86,11 @@ pipeline {
 
         stage('Build & Deploy Docker') {
             when {
-                expression { env.ENVIRONMENT != 'other' }
+                expression { env.ENVIRONMENT != 'other' && env.DOCKER_COMPOSE_FILE?.trim() }
             }
             steps {
                 script {
-                    if (!env.DOCKER_COMPOSE_FILE) {
-                        error("DOCKER_COMPOSE_FILE is not set. Aborting deployment.")
-                    }
+                    echo "Using DOCKER_COMPOSE_FILE: ${env.DOCKER_COMPOSE_FILE}"
                     sh """
                         docker compose -f ${env.DOCKER_COMPOSE_FILE} build
                         docker compose -f ${env.DOCKER_COMPOSE_FILE} up -d
@@ -104,8 +106,6 @@ pipeline {
                 def color = (currentBuild.result == 'SUCCESS') ? 65280 : 16711680
                 def status = (currentBuild.result == 'SUCCESS') ? 'Success' : 'Failure'
 
-                // debug discord webhhok
-                echo "DISCORD_WEBHOOK: ${env.DISCORD_WEBHOOK}"
                 def payload = [
                     content: null,
                     embeds: [[
@@ -120,6 +120,7 @@ pipeline {
                         color: color
                     ]]
                 ]
+
                 httpRequest(
                     url: env.DISCORD_WEBHOOK,
                     httpMode: 'POST',
