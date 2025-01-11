@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DISCORD_WEBHOOK = credentials('discord-webhook')
-        DOCKER_COMPOSE_FILE = ''
     }
 
     stages {
