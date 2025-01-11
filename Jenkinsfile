@@ -48,7 +48,7 @@ pipeline {
                     withCredentials([file(credentialsId: env.ENV_FILE_CREDENTIAL, variable: 'SECRET_ENV_FILE')]) {
                         sh "cp $SECRET_ENV_FILE .env"
                         echo "Loaded environment file for ${env.ENVIRONMENT}."
-                        cat '.env'
+                        sh 'cat .env'
                     }
                 }
             }
