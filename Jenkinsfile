@@ -102,21 +102,51 @@ pipeline {
     post {
         always {
             script {
-                def color = (currentBuild.result == 'SUCCESS') ? 65280 : 16711680
-                def status = (currentBuild.result == 'SUCCESS') ? 'Success' : 'Failure'
+                def color = (currentBuild.result == 'SUCCESS') ? 3066993 : 15158332
+                def status = (currentBuild.result == 'SUCCESS') ? '✅ Success' : '❌ Failure'
+                def timestamp = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone('UTC'))
 
                 def payload = [
                     content: null,
                     embeds: [[
-                        title: "Pipeline Report",
-                        description: """
-                            **Job**: ${env.JOB_NAME} [#${env.BUILD_NUMBER}]\n
-                            **Status**: ${status}\n
-                            **Branch**: ${env.BRANCH_NAME ?: 'unknown'}\n
-                            **Author**: ${env.LAST_COMMIT_AUTHOR ?: 'unknown'}\n
-                            **Commit Message**: ${env.LAST_COMMIT_MESSAGE ?: 'unknown'}
-                        """,
-                        color: color
+                        title: "🚀 Pipeline Execution Report For BSO Blog Front-end",
+                        description: "Pipeline execution details below:",
+                        color: color,
+                        thumbnail: [
+                            url: "https://raw.githubusercontent.com/bsospace/assets/refs/heads/main/LOGO/LOGO%20WITH%20CIRCLE.ico"
+                        ],
+                        fields: [
+                            [
+                                name: "Job",
+                                value: "${env.JOB_NAME} [#${env.BUILD_NUMBER}]",
+                                inline: true
+                            ],
+                            [
+                                name: "Status",
+                                value: status,
+                                inline: true
+                            ],
+                            [
+                                name: "Branch",
+                                value: "${env.BRANCH_NAME ?: 'unknown'}",
+                                inline: true
+                            ],
+                            [
+                                name: "Author",
+                                value: "${env.LAST_COMMIT_AUTHOR ?: 'unknown'}",
+                                inline: true
+                            ],
+                            [
+                                name: "Commit Message",
+                                value: "${env.LAST_COMMIT_MESSAGE ?: 'unknown'}",
+                                inline: false
+                            ]
+                        ],
+                        footer: [
+                            text: "Pipeline executed at",
+                            icon_url: "https://raw.githubusercontent.com/bsospace/assets/refs/heads/main/LOGO/LOGO%20WITH%20CIRCLE.ico"
+                        ],
+                        timestamp: timestamp
                     ]]
                 ]
 
