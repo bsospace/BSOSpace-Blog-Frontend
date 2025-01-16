@@ -75,6 +75,14 @@ pipeline {
             }
         }
 
+        stage('Maual Build') {
+            steps {
+                script {
+                    sh 'npm run build'
+                }
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 script {
