@@ -31,7 +31,7 @@ pipeline {
                         default:
                             env.ENVIRONMENT = 'other'
                             env.DOCKER_COMPOSE_FILE = ''
-                            echo "Branch ${branchName} is not supported. Skipping deployment."
+                            env.ENV_FILE_CREDENTIAL = 'blog-dev-env-file'
                     }
 
                     echo "Environment: ${env.ENVIRONMENT}"
@@ -41,9 +41,6 @@ pipeline {
         }
 
         stage('Setup .env') {
-            when {
-                expression { env.ENVIRONMENT != 'other' }
-            }
             steps {
                 script {
                     withCredentials([file(credentialsId: env.ENV_FILE_CREDENTIAL, variable: 'SECRET_ENV_FILE')]) {
