@@ -5,6 +5,7 @@ import Image from "next/image";
 import logo from "../../public/BSO LOGO.svg";
 import Link from "next/link";
 import axios from "axios";
+import Script from "next/script";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -27,7 +28,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex flex-col min-h-screen dark:bg-space-dark bg-space-light">
-      <script
+      <Script
         data-name="BMC-Widget"
         data-cfasync="false"
         src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
@@ -38,7 +39,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         data-position="Right"
         data-x_margin="18"
         data-y_margin="18"
-      ></script>
+      ></Script>
       {/* Header */}
       <header className="sticky top-0 p-2 z-50 bg-white dark:bg-[#1F1F1F] shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center">
