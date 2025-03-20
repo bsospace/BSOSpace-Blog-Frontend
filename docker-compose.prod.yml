@@ -13,11 +13,11 @@ services:
       - .env
     networks:
       - production-network
-      - db-network
+      - centralized-postgresql_db-network
     restart: unless-stopped
 
 networks:
   production-network:
     driver: bridge
-  db-network:
+  centralized-postgresql_db-network:
     external: true
