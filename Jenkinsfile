@@ -33,9 +33,6 @@ pipeline {
                             env.DOCKER_COMPOSE_FILE = ''
                             env.ENV_FILE_CREDENTIAL = 'blog-dev-env-file'
                     }
-
-                    echo "Environment: ${env.ENVIRONMENT}"
-                    echo "DOCKER_COMPOSE_FILE: ${env.DOCKER_COMPOSE_FILE}"
                 }
             }
         }
@@ -44,10 +41,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: env.ENV_FILE_CREDENTIAL, variable: 'SECRET_ENV_FILE')]) {
-                        sh "ls -l $SECRET_ENV_FILE"
-                        sh "cat $SECRET_ENV_FILE"
                         sh "cp $SECRET_ENV_FILE .env"
-                        echo "Loaded environment file for ${env.ENVIRONMENT}."
                     }
                 }
             }
@@ -57,11 +51,6 @@ pipeline {
             steps {
                 script {
                     checkout scm
-                    env.LAST_COMMIT_AUTHOR = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
-                    env.LAST_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
-
-                    echo "Last Commit Author: ${env.LAST_COMMIT_AUTHOR}"
-                    echo "Last Commit Message: ${env.LAST_COMMIT_MESSAGE}"
                 }
             }
         }
@@ -69,12 +58,12 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'npm install'
+                    sh 'npm ci'
                 }
             }
         }
 
-        stage('Maual Build') {
+        stage('Build') {
             steps {
                 script {
                     sh 'npm run build'
@@ -96,7 +85,6 @@ pipeline {
             }
             steps {
                 script {
-                    echo "Using DOCKER_COMPOSE_FILE: ${env.DOCKER_COMPOSE_FILE}"
                     sh """
                         docker compose -f ${env.DOCKER_COMPOSE_FILE} build
                         docker compose -f ${env.DOCKER_COMPOSE_FILE} up -d
@@ -123,31 +111,9 @@ pipeline {
                             url: "https://raw.githubusercontent.com/bsospace/assets/refs/heads/main/LOGO/LOGO%20WITH%20CIRCLE.ico"
                         ],
                         fields: [
-                            [
-                                name: "Job",
-                                value: "${env.JOB_NAME} [#${env.BUILD_NUMBER}]",
-                                inline: true
-                            ],
-                            [
-                                name: "Status",
-                                value: status,
-                                inline: true
-                            ],
-                            [
-                                name: "Branch",
-                                value: "${env.BRANCH_NAME ?: 'unknown'}",
-                                inline: true
-                            ],
-                            [
-                                name: "Author",
-                                value: "${env.LAST_COMMIT_AUTHOR ?: 'unknown'}",
-                                inline: true
-                            ],
-                            [
-                                name: "Commit Message",
-                                value: "${env.LAST_COMMIT_MESSAGE ?: 'unknown'}",
-                                inline: false
-                            ]
+                            [name: "Job", value: "${env.JOB_NAME} [#${env.BUILD_NUMBER}]", inline: true],
+                            [name: "Status", value: status, inline: true],
+                            [name: "Branch", value: "${env.BRANCH_NAME ?: 'unknown'}", inline: true]
                         ],
                         footer: [
                             text: "Pipeline executed at",
