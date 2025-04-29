@@ -24,7 +24,7 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://192.168.1.105:8080/upload", {
+      const res = await fetch("http://192.168.1.105:8088/upload", {
         method: "POST",
         body: formData,
       });
@@ -45,7 +45,7 @@ export default function App() {
 
     setAsking(true);
     try {
-      const res = await fetch("http://192.168.1.105:8080/ask", {
+      const res = await fetch("http://192.168.1.105:8088/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
