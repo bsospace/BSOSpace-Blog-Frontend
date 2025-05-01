@@ -1,19 +1,22 @@
 "use client";
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useState, useEffect, ReactNode, useContext } from "react";
 import { useRouter } from "next/navigation";
+import envConfig from "../configs/envConfig";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
   isFecthing: boolean;
   setIsFetching: (isFecthing: boolean) => void;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
+  oauthLogin: (provider: 'discord' | 'github' | 'google') => void;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   isLoggedIn: false,
   isFecthing: true,
-  setIsFetching: () => {},
-  setIsLoggedIn: () => {},
+  setIsFetching: () => { },
+  setIsLoggedIn: () => { },
+  oauthLogin: () => { },
 });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -22,6 +25,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isFecthing, setIsFetching] = useState<boolean>(true);
   const router = useRouter();
+
+  const oauthLogin = async (provider: 'discord' | 'github' | 'google') => {
+    const service = 'blog'
+
+    window.location.href = `${envConfig.openIdApiUrl}/auth/${provider}?service=${service}&redirect=${envConfig.callBackUrl}`
+  }
+
 
   useEffect(() => {
     // Check user authentication status
@@ -51,9 +61,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, setIsLoggedIn, isFecthing, setIsFetching }}
+      value={{ isLoggedIn, setIsLoggedIn, isFecthing, setIsFetching, oauthLogin }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = (): AuthContextProps => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
