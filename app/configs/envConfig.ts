@@ -1,6 +1,8 @@
 
 interface IEvnConfig {
     [key: string]: string | number | undefined;
+    openIdApiUrl: string;
+    callBackUrl: string;
     nodeEnv: string;
     port: number;
     developmentUrl?: string;
@@ -31,6 +33,8 @@ const envConfig: IEvnConfig = {
     nodeEnv: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.APP_PORT || '3000', 10),
     developmentUrl: process.env.DEVELOPMENT_URL || '',
+    openIdApiUrl: process.env.NEXT_PUBLIC_OPENID_API_URL || '',
+    callBackUrl: process.env.NEXT_PUBLIC_CALLBACK_URL || '',
     jwtSecret: process.env.JWT_SECRET || '',
     databaseUrl: process.env.DATABASE_URL || '',
     databasePort: parseInt(process.env.DATABASE_PORT || '5432', 10),
@@ -62,6 +66,7 @@ export const checkEnvConfig = () => {
         'nodeEnv',
         'port',
         'jwtSecret',
+        'openIdApiUrl',
         'databaseUrl',
         'databaseName',
         'databaseUser',
@@ -84,7 +89,6 @@ try {
     } else {
         console.error('An unknown error occurred.');
     }
-    process.exit(1); // Exit if missing required environment variable
 }
 
 export default envConfig;
