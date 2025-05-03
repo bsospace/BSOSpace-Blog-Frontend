@@ -8,83 +8,53 @@ import { Post } from "../interfaces";
 import { FiSearch } from "react-icons/fi";
 
 export default function HomePage() {
-  // Posts data
   const [posts, setPosts] = useState<Post[]>([]);
-
-  // Popular posts data
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
-
-  // Loading states
   const [loading, setLoading] = useState(true);
-
-  // Loading states for popular posts
   const [loadingPopular, setLoadingPopular] = useState(true);
-
-  // Loading state for infinite scrolling
   const [loadingMore, setLoadingMore] = useState(false);
-
-  // Search query state
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Error state
-  let error: string | undefined;
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
-  const [nextPage, setNextPage] = useState<number | null>(null);
-  const [prevPage, setPrevPage] = useState<number | null>(null);
-  const [total, setTotal] = useState(0);
+  const [limit] = useState(5);
+  const [hasNextPage, setHasNextPage] = useState(false);
 
-  // Ref for observing the loader at the bottom
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  // Debounced getPosts function for smoother fetching
-  const getPosts = useCallback(
-    async (newPage = page) => {
-      try {
-        if (newPage === 1) setLoading(true);
-        else setLoadingMore(true);
+  const getPosts = useCallback(async (newPage = page) => {
+    try {
+      if (newPage === 1) setLoading(true);
+      else setLoadingMore(true);
 
-        let temp = await fetchPosts(newPage, limit);
+      const res = await fetchPosts(newPage, limit, searchQuery);
 
-        if (newPage === 1) {
-          // Set the new posts if it's the first page
-          setPosts(temp.data);
-        } else {
-          // Append new posts to the existing posts array
-          setPosts((prevPosts) => [...prevPosts, ...temp.data]);
-        }
+      setPosts(res.data);
+      setHasNextPage(res.meta.hasNextPage);
 
-        setTotal(temp.pagination.total_records);
-        setNextPage(temp.pagination.next_page);
-        setPrevPage(temp.pagination.prev_page);
-      } catch (err) {
-        error = "Failed to load posts.";
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [page, limit]
-  );
+    } catch (err) {
+      console.error("Failed to load posts");
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [page, limit, searchQuery]);
 
-  async function getPopularPosts() {
+  const getPopularPosts = useCallback(async () => {
     try {
       setLoadingPopular(true);
-      const tempPopular = await fetchPosts(1, 5);
-      setPopularPosts(tempPopular.data);
+      const res = await fetchPosts(1, 5);
+      setPopularPosts(res.data);
     } catch (err) {
-      console.error("Failed to load popular posts.");
+      console.error("Failed to load popular posts");
     } finally {
       setLoadingPopular(false);
     }
-  }
+  }, []);
 
-  // Intersection Observer to detect when the loader at the bottom becomes visible
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && nextPage !== null && !loadingMore) {
-          setPage((prevPage) => prevPage + 1);
+        if (entries[0].isIntersecting && hasNextPage && !loadingMore) {
+          setPage((prev) => prev + 1);
         }
       },
       { threshold: 1.0 }
@@ -99,42 +69,31 @@ export default function HomePage() {
         observer.unobserve(observerRef.current);
       }
     };
-  }, [nextPage, loadingMore]);
+  }, [hasNextPage, loadingMore]);
 
   useEffect(() => {
     getPosts();
     getPopularPosts();
-  }, [page, limit]);
-
-  if (error) {
-    return (
-      <div className="container mx-auto text-center mt-12">
-        <p className="text-lg text-red-500">{error}</p>
-      </div>
-    );
-  }
-
-  const filteredPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  }, [page, searchQuery]);
 
   return (
     <div className="container mx-auto">
-      <header className="h-full mb-12 flex justify-center items-center flex-col">        
+      <header className="h-full mb-12 flex justify-center items-center flex-col">
         <h1 className="text-heading-2-medium md:my-24 mb-4 mt-12 md:text-hero-bold font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
           Be Simple but Outstanding
         </h1>
 
-        {/* Search Bar */}
         <div className="relative mt-6 w-full max-w-lg shadow-sm dark:hover:shadow-white-500">
           <input
             type="text"
             placeholder="ค้นหาบทความ"
             className="w-full p-3 pl-10 rounded-md dark:bg-[#4A4A4A] dark:text-gray-100 focus:outline-none"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setPage(1);
+              setSearchQuery(e.target.value);
+            }}
           />
-          {/* Magnifying Glass Icon */}
           <div className="absolute left-3 top-4">
             <FiSearch
               className="w-4 h-4"
@@ -157,78 +116,24 @@ export default function HomePage() {
             Latest From the BSO Blog
           </h3>
 
-          <div className="w-full justify-between flex gap-4">
-            <div className="w-full flex gap-4 flex-col transition-all">
-              {/* Show custom loader if loading */}
-              {loading ? (
-                <div className="text-center py-10 w-full flex justify-center  border-b dark:border-none shadow-sm  rounded-md min-h-48 h-full bg-white  p-6 text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
-                  <div className="loader"></div>
-                </div>
-              ) : filteredPosts.length > 0 ? (
-                filteredPosts.map((post) => (
-                  <BlogCard
-                    key={post.id.toString()}
-                    slug={post.slug}
-                    id={post.id}
-                    title={post.title}
-                    content={post.content}
-                    Author={post.Author}
-                    tags={post.tags}
-                    Category={post.Category}
-                    createdAt={post.createdAt}
-                    updatedAt={post.updatedAt}
-                    authorId={post.authorId}
-                    categoryId={post.categoryId}
-                    published={false}
-                  />
-                ))
-              ) : (
-                <p className="text-lg text-gray-500 text-center">
-                  No posts available.
-                </p>
-              )}
-              {/* Bottom loader for infinite scrolling */}
-              <div
-                ref={observerRef}
-                className="text-center py-10 w-full flex justify-center"
-              >
-                {loadingMore && <div className="loader smooth-loader"></div>}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-1/4 hidden md:block">
-          <h3 className="text-heading-4-medium py-4">
-            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
-              #
-            </span>
-            Popular
-          </h3>
-          <div className="cursor-pointer bg-white rounded-lg shadow-sm p-6  text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
-            {loadingPopular ? (
-              <div className="text-center min-h-36 py-10 w-full flex justify-center">
+          <div className="w-full flex flex-col gap-4">
+            {loading ? (
+              <div className="text-center py-10 w-full flex justify-center border-b dark:border-none shadow-sm rounded-md min-h-48 h-full bg-white p-6 text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
                 <div className="loader"></div>
               </div>
-            ) : popularPosts.length > 0 ? (
-              <ul>
-                {popularPosts.map((post) => (
-                  <li key={post.id.toString()} className="mb-4">
-                    <a
-                      href={`/posts/${post.slug}`}
-                      className="text-blue-600 dark:text-blue-400 hover:underline line-clamp-2"
-                    >
-                      {post.title}
-                    </a>
-                    <p className="text-sm text-gray-500">{post.Author.name}</p>
-                  </li>
-                ))}
-              </ul>
+            ) : posts && posts.length > 0 ? (
+              posts?.map((post) => (
+                <BlogCard key={post.id} {...post} published={true} />
+              ))
             ) : (
-              <p className="text-lg text-gray-500">
-                No popular posts available.
+              <p className="text-lg text-gray-500 text-center">
+                No posts available.
               </p>
             )}
+
+            <div ref={observerRef} className="text-center py-10 w-full flex justify-center">
+              {loadingMore && <div className="loader smooth-loader"></div>}
+            </div>
           </div>
         </div>
       </section>

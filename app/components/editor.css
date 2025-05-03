@@ -1,0 +1,19 @@
+.ProseMirror {
+  outline: none;
+  min-height: 300px;
+  padding: 1rem;
+}
+
+.ProseMirror:focus {
+  border-color: #3b82f6;
+}
+
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+.ProseMirror li[data-type="taskItem"] {
+  display: flex;
+  align-items: center;
+}
