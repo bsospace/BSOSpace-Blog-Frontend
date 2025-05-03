@@ -15,7 +15,7 @@ export default function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [limit] = useState(5);
+  const [limit,setLimit] = useState(5);
   const [hasNextPage, setHasNextPage] = useState(false);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -54,7 +54,7 @@ export default function HomePage() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !loadingMore) {
-          setPage((prev) => prev + 1);
+          setLimit((prevLimit) => prevLimit + 5);
         }
       },
       { threshold: 1.0 }
@@ -108,7 +108,7 @@ export default function HomePage() {
       </header>
 
       <section className="flex gap-4 w-full">
-        <div className="md:w-3/4 w-full">
+        <div className="w-full">
           <h3 className="md:text-heading-4-medium py-4">
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
               #
