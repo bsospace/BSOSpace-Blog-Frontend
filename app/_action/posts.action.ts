@@ -55,13 +55,17 @@ export async function fetchPosts(
   search: string = ""
 ): Promise<{ data: Post[]; meta: Meta }> {
   try {
-    const resposne = await axiosInstance.get<PostResponse>(
-      `/posts?page=${page}&limit=${limit}&search=${search}`
-    );
+    const response = await axiosInstance.get<{
+      data: PostResponse;
+      message: string;
+      success: boolean;
+    }>(`/posts?page=${page}&limit=${limit}&search=${search}`);
+
+    const raw = response.data.data;
 
     return {
-      data: resposne.data.posts,
-      meta: resposne.data.meta,
+      data: raw.posts,
+      meta: raw.meta,
     };
   } catch (error) {
     console.error("Failed to fetch posts:", error);
