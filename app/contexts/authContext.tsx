@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from "react";
 import { useRouter } from "next/navigation";
 import envConfig from "../configs/envConfig";
+import { axiosInstance } from "../utils/api";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
@@ -37,12 +38,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // Check user authentication status
     const checkLogin = async () => {
       try {
-        const response = await fetch("/api/auth/check", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.ok) {
+        const response = await axiosInstance.get('/auth/me');
+        if (response.status === 200) {
           setIsLoggedIn(true);
           setIsFetching(false);
         } else {
