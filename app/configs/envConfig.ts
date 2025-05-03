@@ -1,6 +1,7 @@
 
 interface IEvnConfig {
     [key: string]: string | number | undefined;
+    apiBaseUrl: string;
     openIdApiUrl: string;
     callBackUrl: string;
     nodeEnv: string;
@@ -31,6 +32,7 @@ interface IEvnConfig {
 
 const envConfig: IEvnConfig = {
     nodeEnv: process.env.NODE_ENV || 'development',
+    apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || '',
     port: parseInt(process.env.APP_PORT || '3000', 10),
     developmentUrl: process.env.DEVELOPMENT_URL || '',
     openIdApiUrl: process.env.NEXT_PUBLIC_OPENID_API_URL || '',
