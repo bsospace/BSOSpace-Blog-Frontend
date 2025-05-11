@@ -3,10 +3,13 @@ import React, { createContext, useState, useEffect, ReactNode, useContext } from
 import { useRouter } from "next/navigation";
 import envConfig from "../configs/envConfig";
 import { axiosInstance } from "../utils/api";
+import { User } from "../interfaces";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
   isFecthing: boolean;
+  user: User | null;
+  setUser: (user: User | null) => void;
   setIsFetching: (isFecthing: boolean) => void;
   setIsLoggedIn: (isLoggedIn: boolean) => void;
   oauthLogin: (provider: 'discord' | 'github' | 'google') => void;
@@ -18,6 +21,8 @@ export const AuthContext = createContext<AuthContextProps>({
   setIsFetching: () => { },
   setIsLoggedIn: () => { },
   oauthLogin: () => { },
+  user: null,
+  setUser: () => { },
 });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -34,21 +39,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }
 
 
+  const [user, setUser] = useState<User | null>(null);
+
   useEffect(() => {
     // Check user authentication status
     const checkLogin = async () => {
       try {
         const response = await axiosInstance.get('/auth/me');
-        if (response.status === 200) {
+        if (response.data.success) {
           setIsLoggedIn(true);
           setIsFetching(false);
+          setUser(response.data.data);
         } else {
           setIsLoggedIn(false);
           setIsFetching(false);
+          setUser(null);
         }
       } catch (error) {
         setIsLoggedIn(false);
         setIsFetching(false);
+        setUser(null);
         router.push("/auth/login");
       }
     };
@@ -58,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, setIsLoggedIn, isFecthing, setIsFetching, oauthLogin }}
+      value={{ isLoggedIn, setIsLoggedIn, isFecthing, setIsFetching, oauthLogin, user, setUser } }
     >
       {children}
     </AuthContext.Provider>
