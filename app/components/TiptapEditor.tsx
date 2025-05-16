@@ -66,7 +66,7 @@ export default function TiptapEditor() {
         content: '<p>Hello World!</p>',
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert max-w-none focus:outline-none',
+                class: 'prose dark:prose-invert max-w-none focus:outline-none ',
             },
         },
     })
@@ -87,9 +87,9 @@ export default function TiptapEditor() {
             } hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`
 
         return (
-            <div className="sticky top-14 z-10 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-gray-700 py-2 flex flex-wrap gap-1">
+            <div className="sticky top-16 z-10 bg-white dark:bg-[#1F1F1F] border-b border-gray-200 dark:border-gray-700 py-2 flex flex-wrap gap-1">
 
-                <div className="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-gray-700 dark:text-white">
                     <button onClick={() => editor.chain().focus().toggleBold().run()} className={btnClass(editor.isActive('bold'))} title="Bold">
                         <Bold size={18} />
                     </button>
@@ -111,8 +111,8 @@ export default function TiptapEditor() {
                     {[1, 2, 3].map(level => (
                         <button
                             key={level}
-                            onClick={() => editor.chain().focus().toggleHeading({ level }).run()}
-                            className={btnClass(editor.isActive('heading', { level }))}
+                            onClick={() => editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 }).run()}
+                            className={btnClass(editor.isActive('heading', { level: level as 1 | 2 | 3 }))}
                             title={`Heading ${level}`}
                         >
                             <span className="flex items-center">
@@ -206,19 +206,19 @@ export default function TiptapEditor() {
     }
 
     return (
-        <div className=" rounded-xl shadow-sm dark:bg-zinc-900 dark:text-white bg-white">
+        <div className=" rounded-xl  dark:bg-zinc-900 dark:text-white bg-white">
             <Toolbar editor={editor} />
-            <div className="p-4">
-                <EditorContent editor={editor} className="min-h-[250px] focus:outline-none w-full" />
+            <div>
+                <EditorContent editor={editor} className="min-h-[250px] focus:outline-none w-full dark:dark:bg-[#1F1F1F] bg-white p-4" />
             </div>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+            {/* <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
                 <button
                     onClick={handleSubmit}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                 >
                     Submit
                 </button>
-            </div>
+            </div> */}
         </div>
     )
 }
