@@ -69,8 +69,6 @@ import { ThemeToggle } from "@/app/components/tiptap-templates/simple/theme-togg
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/app/lib/tiptap-utils"
 
-// --- Styles ---
-import "@/app/components/tiptap-templates/simple/simple-editor.scss"
 
 import content from "@/app/components/tiptap-templates/simple/data/content.json"
 

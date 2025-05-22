@@ -5,9 +5,6 @@ import {
   TooltipTrigger,
 } from "@/app/components/tiptap-ui-primitive/tooltip"
 
-import "@/app/components/tiptap-ui-primitive/button/button-colors.scss"
-import "@/app/components/tiptap-ui-primitive/button/button-group.scss"
-import "@/app/components/tiptap-ui-primitive/button/button.scss"
 
 type PlatformShortcuts = Record<string, string>
 

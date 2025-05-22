@@ -16,8 +16,6 @@ import {
 import type { ButtonProps } from "@/app/components/tiptap-ui-primitive/button"
 import { Button } from "@/app/components/tiptap-ui-primitive/button"
 
-// --- Styles ---
-import "@/app/components/tiptap-ui/highlight-button/highlight-button.scss"
 
 export const HIGHLIGHT_COLORS = [
   {

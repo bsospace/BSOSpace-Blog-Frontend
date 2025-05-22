@@ -28,8 +28,6 @@ import {
   canToggleHighlight,
 } from "@/app/components/tiptap-ui/highlight-button"
 
-// --- Styles ---
-import "@/app/components/tiptap-ui/highlight-popover/highlight-popover.scss"
 
 export interface HighlightColor {
   label: string

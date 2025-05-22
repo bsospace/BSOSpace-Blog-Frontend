@@ -70,3 +70,164 @@ body {
     padding: 1rem 1.5rem;
   }
 }
+
+
+.tiptap-dropdown-menu{
+  @apply bg-white dark:bg-gray-900  border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg;
+}
+
+.tiptap-button {
+  @apply text-sm font-medium leading-[1.15] h-8 min-w-[2rem] p-2 gap-1 flex items-center justify-center border-none rounded-[0.75rem] transition-colors transition-opacity  duration-200 ease-in-out bg-[var(--tt-button-default-bg-color)] text-[var(--tt-button-default-text-color)];
+
+  .tiptap-button-icon {
+    @apply text-[var(--tt-button-default-icon-color)];
+  }
+
+  .tiptap-button-icon-sub {
+    @apply text-[var(--tt-button-default-icon-sub-color)];
+  }
+
+  .tiptap-button-dropdown-arrows,
+  .tiptap-button-dropdown-small {
+    @apply text-[var(--tt-button-default-dropdown-arrows-color)];
+  }
+
+  &:focus-visible {
+    @apply outline-none;
+  }
+
+  &[data-highlighted="true"] {
+    @apply bg-[var(--tt-button-hover-bg-color)] text-[var(--tt-button-hover-text-color)];
+  }
+
+  &[data-size="large"] {
+    @apply text-[0.9375rem] h-[2.375rem] min-w-[2.375rem] p-[0.625rem];
+  }
+
+  &[data-size="small"] {
+    @apply text-xs leading-[1.2] h-6 min-w-[1.5rem] p-[0.3125rem] rounded-[0.5rem];
+  }
+
+  &[data-active-state="on"],
+  &[data-state="open"] {
+    @apply bg-[var(--tt-button-active-bg-color)] text-[var(--tt-button-active-text-color)];
+
+    .tiptap-button-icon {
+      @apply text-[var(--tt-button-active-icon-color)];
+    }
+
+    .tiptap-button-icon-sub {
+      @apply text-[var(--tt-button-active-icon-sub-color)];
+    }
+
+    .tiptap-button-dropdown-arrows,
+    .tiptap-button-dropdown-small {
+      @apply text-[var(--tt-button-active-dropdown-arrows-color)];
+    }
+
+    &:hover {
+      @apply bg-[var(--tt-button-active-hover-bg-color)];
+    }
+
+    &[data-appearance="emphasized"] {
+      @apply bg-[var(--tt-button-active-bg-color-emphasized)] text-[var(--tt-button-active-text-color-emphasized)];
+    }
+
+    &[data-appearance="subdued"] {
+      @apply bg-[var(--tt-button-active-bg-color-subdued)] text-[var(--tt-button-active-text-color-subdued)];
+    }
+  }
+
+  &:hover,
+  &[data-active-item="true"]:not([disabled]) {
+    @apply bg-[var(--tt-button-hover-bg-color)] text-[var(--tt-button-hover-text-color)];
+
+    .tiptap-button-icon {
+      @apply text-[var(--tt-button-hover-icon-color)];
+    }
+
+    .tiptap-button-icon-sub {
+      @apply text-[var(--tt-button-hover-icon-sub-color)];
+    }
+
+    .tiptap-button-dropdown-arrows,
+    .tiptap-button-dropdown-small {
+      @apply text-[var(--tt-button-hover-dropdown-arrows-color)];
+    }
+  }
+
+  &:disabled {
+    @apply bg-[var(--tt-button-disabled-bg-color)] text-[var(--tt-button-disabled-text-color)];
+
+    .tiptap-button-icon {
+      @apply text-[var(--tt-button-disabled-icon-color)];
+    }
+  }
+}
+
+/* --------------------------------------------
+   🎯 POPUP BASE STYLING
+-------------------------------------------- */
+.tiptap-popover {
+  /* Tailwind utility class styles */
+  @apply z-50 rounded-[calc(var(--padding)_+_var(--tt-radius-lg)_+_var(--border-width))] border border-[var(--tt-popover-border-color)] bg-[var(--tt-popover-bg-color)] text-[var(--tt-popover-text-color)] p-[var(--padding)] shadow-[var(--tt-shadow-elevated-md)] outline-none overflow-hidden flex items-center gap-1;
+
+  /* Default custom props */
+  --padding: 0.25rem;
+  --border-width: 1px;
+
+  button {
+    @apply w-full;
+  }
+
+  &[data-orientation="horizontal"] {
+    --padding: 0.125rem;
+  }
+
+  /* Animation state classes */
+  &[data-state="open"] {
+    animation:
+      fadeIn 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      zoomIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &[data-state="closed"] {
+    animation:
+      fadeOut 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      zoomOut 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Position-specific animation overrides */
+  &[data-side="top"],
+  &[data-side="top-start"],
+  &[data-side="top-end"] {
+    animation: slideFromBottom 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &[data-side="right"],
+  &[data-side="right-start"],
+  &[data-side="right-end"] {
+    animation: slideFromLeft 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &[data-side="bottom"],
+  &[data-side="bottom-start"],
+  &[data-side="bottom-end"] {
+    animation: slideFromTop 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &[data-side="left"],
+  &[data-side="left-start"],
+  &[data-side="left-end"] {
+    animation: slideFromRight 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* --------------------------------------------
+   🎯 THEME MODE OVERRIDES
+-------------------------------------------- */
+.dark .tiptap-popover {
+  --tt-popover-border-color: var(--tt-gray-dark-a-50);
+  --tt-popover-bg-color: var(--tt-gray-dark-50);
+  --tt-popover-text-color: var(--tt-gray-dark-a-600);
+}

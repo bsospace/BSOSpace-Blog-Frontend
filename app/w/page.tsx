@@ -5,7 +5,7 @@ import { SimpleEditor } from "../components/tiptap-templates/simple/simple-edito
 export default function Page() {
     return (
         <>
-            <TiptapEditor />
+            <SimpleEditor />
         </>
     )
 }
