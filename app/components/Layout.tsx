@@ -7,7 +7,7 @@ import Link from "next/link";
 import axios from "axios";
 import Script from "next/script";
 import { AuthContext } from "../contexts/authContext";
-import { ChevronDown, LogOut, Settings, User, UserCircle } from "lucide-react";
+import { ChevronDown, LogOut, Settings, SquarePen, User, UserCircle } from "lucide-react";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -81,9 +81,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="container mx-auto flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2  no-underline text-black dark:text-white">
               <Image src={logo} alt="BSO logo" width={40} height={40} />
-              <span className="font-semibold text-lg hidden md:block dark:text-white">BSO Space</span>
+              <span className="font-semibold text-lg hidden md:block ">BSO Space</span>
             </Link>
           </div>
 
@@ -177,8 +177,16 @@ export default function Layout({ children }: { children: ReactNode }) {
                           {/* Menu Items */}
                           <div className="mt-4 space-y-1">
                             <Link
+                              href='/w'
+                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <SquarePen className="w-5 h-5" />
+                              <span>เขียนบทความ</span>
+                            </Link>
+                            <Link
                               href={`${'/@'}${user.username}`}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
                               onClick={() => setIsOpen(false)}
                             >
                               <UserCircle className="w-5 h-5" />
@@ -186,7 +194,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             </Link>
                             <Link
                               href="/settings"
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
                               onClick={() => setIsOpen(false)}
                             >
                               <Settings className="w-5 h-5" />
@@ -194,7 +202,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             </Link>
                             <button
                               onClick={handleLogout}
-                              className="w-full flex items-center gap-3 px-3 py-2.5 mt-2 text-sm text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
+                              className="w-full no-underline flex items-center gap-3 px-3 py-2.5 mt-2 text-sm text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
                             >
                               <LogOut className="w-5 h-5" />
                               <span>ออกจากระบบ</span>
