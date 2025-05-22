@@ -234,7 +234,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-screen-xl mx-auto md:p-6 p-4">
+      <main className="flex-grow w-full mx-auto md:p-6 p-4">
         {children}
       </main>
 
