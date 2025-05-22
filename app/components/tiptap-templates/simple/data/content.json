@@ -10,15 +10,12 @@
       "content": [
         {
           "type": "text",
-          "text": "Getting started"
+          "text": "Getting Started with DevSecOps"
         }
       ]
     },
     {
       "type": "paragraph",
-      "attrs": {
-        "textAlign": null
-      },
       "content": [
         {
           "type": "text",
@@ -37,24 +34,11 @@
               }
             }
           ],
-          "text": "Simple Editor"
+          "text": "DevSecOps Starter Guide"
         },
         {
           "type": "text",
-          "text": " template! This template integrates "
-        },
-        {
-          "type": "text",
-          "marks": [
-            {
-              "type": "bold"
-            }
-          ],
-          "text": "open source"
-        },
-        {
-          "type": "text",
-          "text": " UI components and Tiptap extensions licensed under "
+          "text": "! This guide introduces core principles of integrating "
         },
         {
           "type": "text",
@@ -63,23 +47,20 @@
               "type": "bold"
             }
           ],
-          "text": "MIT"
+          "text": "security"
         },
         {
           "type": "text",
-          "text": "."
+          "text": " into your development and operations workflow from day one."
         }
       ]
     },
     {
       "type": "paragraph",
-      "attrs": {
-        "textAlign": null
-      },
       "content": [
         {
           "type": "text",
-          "text": "Integrate it by following the "
+          "text": "Follow this guide or explore the "
         },
         {
           "type": "text",
@@ -87,43 +68,41 @@
             {
               "type": "link",
               "attrs": {
-                "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor",
+                "href": "https://owasp.org/www-project-devsecops-guideline/",
                 "target": "_blank",
-                "rel": "noopener noreferrer nofollow",
-                "class": null
+                "rel": "noopener noreferrer nofollow"
               }
             }
           ],
-          "text": "Tiptap UI Components docs"
+          "text": "OWASP DevSecOps guideline"
         },
         {
           "type": "text",
-          "text": " or using our CLI tool."
+          "text": " for best practices."
         }
       ]
     },
     {
       "type": "codeBlock",
       "attrs": {
-        "language": null
+        "language": "bash"
       },
       "content": [
         {
           "type": "text",
-          "text": "npx @tiptap/cli init"
+          "text": "docker run --rm devsecops-pipeline"
         }
       ]
     },
     {
       "type": "heading",
       "attrs": {
-        "textAlign": null,
         "level": 2
       },
       "content": [
         {
           "type": "text",
-          "text": "Features"
+          "text": "Core Features"
         }
       ]
     },
@@ -132,9 +111,6 @@
       "content": [
         {
           "type": "paragraph",
-          "attrs": {
-            "textAlign": null
-          },
           "content": [
             {
               "type": "text",
@@ -143,51 +119,7 @@
                   "type": "italic"
                 }
               ],
-              "text": "A fully responsive rich text editor with built-in support for common formatting and layout tools. Type markdown "
-            },
-            {
-              "type": "text",
-              "marks": [
-                {
-                  "type": "code"
-                }
-              ],
-              "text": "**"
-            },
-            {
-              "type": "text",
-              "marks": [
-                {
-                  "type": "italic"
-                }
-              ],
-              "text": " or use keyboard shortcuts "
-            },
-            {
-              "type": "text",
-              "marks": [
-                {
-                  "type": "code"
-                }
-              ],
-              "text": "⌘+B"
-            },
-            {
-              "type": "text",
-              "text": " for "
-            },
-            {
-              "type": "text",
-              "marks": [
-                {
-                  "type": "strike"
-                }
-              ],
-              "text": "most"
-            },
-            {
-              "type": "text",
-              "text": " all common markdown marks. 🪄"
+              "text": "Shift security left by embedding testing, scanning, and monitoring tools early in your CI/CD pipeline."
             }
           ]
         }
@@ -201,7 +133,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Add images, customize alignment, and apply "
+          "text": "Adopt tools like "
         },
         {
           "type": "text",
@@ -213,20 +145,20 @@
               }
             }
           ],
-          "text": "advanced formatting"
+          "text": "Snyk, SonarQube, and Trivy"
         },
         {
           "type": "text",
-          "text": " to make your writing more engaging and professional."
+          "text": " to secure code, dependencies, and containers automatically."
         }
       ]
     },
     {
       "type": "image",
       "attrs": {
-        "src": "/images/placeholder-image.png",
-        "alt": "placeholder-image",
-        "title": "placeholder-image"
+        "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSITa7J2EGrNT3v64UP0zwnQmqHe4ySUN3eLQ&s",
+        "alt": "DevSecOps Pipeline",
+        "title": "DevSecOps Pipeline"
       }
     },
     {
@@ -237,9 +169,6 @@
           "content": [
             {
               "type": "paragraph",
-              "attrs": {
-                "textAlign": "left"
-              },
               "content": [
                 {
                   "type": "text",
@@ -248,50 +177,11 @@
                       "type": "bold"
                     }
                   ],
-                  "text": "Superscript"
+                  "text": "Security as Code"
                 },
                 {
                   "type": "text",
-                  "text": " (x"
-                },
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "superscript"
-                    }
-                  ],
-                  "text": "2"
-                },
-                {
-                  "type": "text",
-                  "text": ") and "
-                },
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "bold"
-                    }
-                  ],
-                  "text": "Subscript"
-                },
-                {
-                  "type": "text",
-                  "text": " (H"
-                },
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "subscript"
-                    }
-                  ],
-                  "text": "2"
-                },
-                {
-                  "type": "text",
-                  "text": "O) for precision."
+                  "text": ": Define policies, rules, and scans as part of your codebase."
                 }
               ]
             }
@@ -302,9 +192,6 @@
           "content": [
             {
               "type": "paragraph",
-              "attrs": {
-                "textAlign": "left"
-              },
               "content": [
                 {
                   "type": "text",
@@ -313,11 +200,34 @@
                       "type": "bold"
                     }
                   ],
-                  "text": "Typographic conversion"
+                  "text": "Automated Scanning"
                 },
                 {
                   "type": "text",
-                  "text": ": automatically convert to "
+                  "text": ": Detect vulnerabilities in packages and containers early."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Compliance Monitoring"
+                },
+                {
+                  "type": "text",
+                  "text": ": Ensure adherence to standards like "
                 },
                 {
                   "type": "text",
@@ -326,24 +236,24 @@
                       "type": "code"
                     }
                   ],
-                  "text": "->"
+                  "text": "ISO 27001"
                 },
                 {
                   "type": "text",
-                  "text": " an arrow "
+                  "text": ", "
                 },
                 {
                   "type": "text",
                   "marks": [
                     {
-                      "type": "bold"
+                      "type": "code"
                     }
                   ],
-                  "text": "→"
+                  "text": "NIST"
                 },
                 {
                   "type": "text",
-                  "text": "."
+                  "text": ", and more."
                 }
               ]
             }
@@ -353,9 +263,6 @@
     },
     {
       "type": "paragraph",
-      "attrs": {
-        "textAlign": "left"
-      },
       "content": [
         {
           "type": "text",
@@ -372,14 +279,13 @@
             {
               "type": "link",
               "attrs": {
-                "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor#features",
+                "href": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSITa7J2EGrNT3v64UP0zwnQmqHe4ySUN3eLQ&s",
                 "target": "_blank",
-                "rel": "noopener noreferrer nofollow",
-                "class": null
+                "rel": "noopener noreferrer nofollow"
               }
             }
           ],
-          "text": "Learn more"
+          "text": "Learn more about DevSecOps"
         }
       ]
     },
@@ -389,25 +295,21 @@
     {
       "type": "heading",
       "attrs": {
-        "textAlign": "left",
         "level": 2
       },
       "content": [
         {
           "type": "text",
-          "text": "Make it your own"
+          "text": "Next Steps"
         }
       ]
     },
     {
       "type": "paragraph",
-      "attrs": {
-        "textAlign": "left"
-      },
       "content": [
         {
           "type": "text",
-          "text": "Switch between light and dark modes, and tailor the editor's appearance with customizable CSS to match your style."
+          "text": "Customize the pipeline to fit your organization’s risk profile, and foster collaboration between development, security, and operations teams."
         }
       ]
     },
@@ -422,13 +324,10 @@
           "content": [
             {
               "type": "paragraph",
-              "attrs": {
-                "textAlign": "left"
-              },
               "content": [
                 {
                   "type": "text",
-                  "text": "Test template"
+                  "text": "Enable static code analysis"
                 }
               ]
             }
@@ -442,36 +341,33 @@
           "content": [
             {
               "type": "paragraph",
-              "attrs": {
-                "textAlign": "left"
-              },
               "content": [
                 {
                   "type": "text",
-                  "marks": [
-                    {
-                      "type": "link",
-                      "attrs": {
-                        "href": "https://tiptap.dev/docs/ui-components/templates/simple-editor",
-                        "target": "_blank",
-                        "rel": "noopener noreferrer nofollow",
-                        "class": null
-                      }
-                    }
-                  ],
-                  "text": "Integrate the free template"
+                  "text": "Set up container vulnerability scanning"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "taskItem",
+          "attrs": {
+            "checked": false
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Automate dependency checks with SCA tools"
                 }
               ]
             }
           ]
         }
       ]
-    },
-    {
-      "type": "paragraph",
-      "attrs": {
-        "textAlign": "left"
-      }
     }
   ]
 }

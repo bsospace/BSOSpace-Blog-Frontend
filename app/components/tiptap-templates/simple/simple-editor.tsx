@@ -63,6 +63,8 @@ import { useCursorVisibility } from "@/app/hooks/use-cursor-visibility"
 import { handleImageUpload, MAX_FILE_SIZE } from "@/app/lib/tiptap-utils"
 
 import content from "@/app/components/tiptap-templates/simple/data/content.json"
+import { Input } from "@/components/ui/input"
+
 
 // Types
 type MobileViewType = "main" | "highlighter" | "link"
@@ -158,6 +160,7 @@ const PublishModal = React.memo<PublishModalProps>(({
     setMetadata(prev => ({ ...prev, slug }))
   }
 
+
   if (!isOpen) return null
 
   return (
@@ -178,14 +181,7 @@ const PublishModal = React.memo<PublishModalProps>(({
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Title *
             </label>
-            <input
-              type="text"
-              required
-              value={metadata.title}
-              onChange={(e) => setMetadata(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter post title"
-            />
+            <Input />
           </div>
 
           {/* Description */}
@@ -392,10 +388,10 @@ const MainToolbarContent = React.memo<MainToolbarContentProps>(({
       <ToolbarSeparator />
 
       {/* Advanced Typography */}
-      <ToolbarGroup aria-label="Advanced typography">
+      {/* <ToolbarGroup aria-label="Advanced typography">
         <MarkButton type="superscript" />
         <MarkButton type="subscript" />
-      </ToolbarGroup>
+      </ToolbarGroup> */}
 
       <ToolbarSeparator />
 
@@ -646,6 +642,15 @@ export function SimpleEditor() {
     // You might want to redirect or show a success message here
   }, [editor])
 
+  const handleShowContent = () => {
+    if (editor) {
+      const html = editor.getHTML()
+      const json = editor.getJSON()
+      console.log("HTML:", html)
+      console.log("JSON:", json)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96 rounded-lg">
@@ -662,7 +667,7 @@ export function SimpleEditor() {
       {/* Enhanced Toolbar */}
       <Toolbar
         ref={toolbarRef}
-        className="transition-all duration-300 ease-out sticky top-16 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm"
+        className="transition-all duration-300 max-w-screen-xl w-full ease-out sticky top-16 z-10 bg-white dark:bg-gray-900  dark:border-gray-700 shadow-sm"
         style={
           isMobile
             ? {
@@ -724,37 +729,23 @@ export function SimpleEditor() {
             ))}
           </ul>
         </div>
-
         {/* Enhanced Editor Content */}
-        <div className="transition-all duration-300 ease-out">
+        <div className="transition-all duration-300 ease-out bg-transparent dark:bg-transparent">
           <EditorContent
             editor={editor}
             role="presentation"
-            className="simple-editor-content select-text focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-opacity-50 transition-all duration-200 ease-out"
+            className="simple-editor-content border-none rounded-b-md select-text transition-all duration-200 ease-out focus:outline-none focus:ring-2 dark:focus:outline-none bg-transparent dark:bg-transparent"
           />
         </div>
-
-        {/* Word Count & Status Bar */}
-        {editor && (
-          <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center space-x-4">
-              <span>
-                {editor.storage.characterCount?.characters() || 0} characters
-              </span>
-              <span>
-                {editor.storage.characterCount?.words() || 0} words
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              {editor.isEditable && (
-                <span className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                  Ready
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+      </div>
+      <div>
+        <Button
+          onClick={handleShowContent}
+          data-style="default"
+          className="mt-4"
+        >
+          Show Content
+        </Button>
       </div>
 
       {/* Publish Modal */}
