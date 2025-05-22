@@ -1,5 +1,5 @@
 import * as React from "react"
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
+import { EditorContent, EditorContext, JSONContent, useEditor } from "@tiptap/react"
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit"
@@ -62,7 +62,7 @@ import { useCursorVisibility } from "@/app/hooks/use-cursor-visibility"
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "@/app/lib/tiptap-utils"
 
-import content from "@/app/components/tiptap-templates/simple/data/content.json"
+// import content from "@/app/components/tiptap-templates/simple/data/content.json"
 import { Input } from "@/components/ui/input"
 
 
@@ -462,8 +462,14 @@ const MobileToolbarContent = React.memo<MobileToolbarContentProps>(({
 
 MobileToolbarContent.displayName = "MobileToolbarContent"
 
+interface SimpleEditorProps {
+  onContentChange: (content: JSONContent) => void;
+}
+
 // Enhanced SimpleEditor with Publish Modal
-export function SimpleEditor() {
+export function SimpleEditor(
+  { onContentChange }: SimpleEditorProps
+) {
   const isMobile = useMobile()
   const windowSize = useWindowSize()
   const [mobileView, setMobileView] = React.useState<MobileViewType>("main")
@@ -474,6 +480,10 @@ export function SimpleEditor() {
 
   // Enhanced editor configuration with better error handling
   const editor = useEditor({
+    onUpdate: ({ editor }) => {
+      const json = editor.getJSON();
+      onContentChange?.(json);
+    },
     immediatelyRender: true,
     editorProps: {
       attributes: {
@@ -515,7 +525,7 @@ export function SimpleEditor() {
     extensions: [
       StarterKit.configure({
         history: {
-          depth: 50, // Increased undo/redo depth
+          depth: 500,
         },
       }),
       TextAlign.configure({
@@ -581,7 +591,7 @@ export function SimpleEditor() {
         },
       }),
     ],
-    content: content,
+    content: "",
     onCreate: () => {
       setIsLoading(false)
     },
@@ -692,9 +702,9 @@ export function SimpleEditor() {
         )}
       </Toolbar>
 
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden">
+      <div className="w-full min-h-[50vh] max-w-screen-xl focus:outline-none bg-white dark:bg-gray-900">
         {/* Error Banner */}
-        {error && (
+        {/* {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-4">
             <div className="flex items-center justify-between">
               <div className="flex">
@@ -718,25 +728,23 @@ export function SimpleEditor() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Hidden accessibility helper */}
-        <div id="editor-help" className="sr-only">
+        {/* <div id="editor-help" className="sr-only">
           <p>Rich text editor with formatting options. Use the toolbar buttons or keyboard shortcuts:</p>
           <ul>
             {keyboardShortcuts.map(({ key, action }) => (
               <li key={key}>{key}: {action}</li>
             ))}
           </ul>
-        </div>
+        </div> */}
         {/* Enhanced Editor Content */}
-        <div className="transition-all duration-300 ease-out bg-transparent dark:bg-transparent">
-          <EditorContent
-            editor={editor}
-            role="presentation"
-            className="simple-editor-content border-none rounded-b-md select-text transition-all duration-200 ease-out focus:outline-none focus:ring-2 dark:focus:outline-none bg-transparent dark:bg-transparent"
-          />
-        </div>
+        <EditorContent
+          editor={editor}
+          role="presentation"
+          className="w-full border h-full min-h-[50vh] border-red-500  rounded-b-md select-text transition-all duration-200 ease-out focus:outline-none focus:ring-2 dark:focus:outline-none bg-transparent dark:bg-transparent"
+        />
       </div>
       <div>
         <Button
