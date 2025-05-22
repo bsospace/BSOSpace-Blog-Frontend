@@ -2,295 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 🌐 Global HTML and Body Setup */
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  transition: background-color 0.4s ease, color 0.4s ease;
+  @apply transition-colors duration-300 ease-in-out;
 }
 
-/* Additional Custom Styles for Consistency */
-
-.content p,
-.content li,
-.content blockquote,
-.content ol,
-.content ul,
-.content pre,
-.content table,
-.content h1,
-.content h2,
-.content h3,
-.content h4,
-.content h5,
-.content h6,
-.content thead,
-.content tbody,
-.content tfoot,
-.content tr,
-.content th,
-.content td,
-.content code,
-.content pre,
-.content blockquote,
-.content figure,
-.content figcaption,
-.content hr,
-.content dl,
-.content dd,
-.content dt,
-.content fieldset,
-.content legend,
-.content button,
-.content input,
-.content select,
-.content textarea,
-.content optgroup,
-.content option,
-.content form,
-.content label,
-.content fieldset,
-.content legend,
-.content table,
-.content caption,
-.content tbody,
-.content tfoot,
-.content thead,
-.content tr,
-.content th,
-.content td,
-.content article,
-.content aside,
-.content canvas,
-.content details,
-.content figcaption,
-.content figure,
-.content footer,
-.content header,
-.content hgroup,
-.content menu,
-.content nav,
-.content section,
-.content summary,
-.content time,
-.content mark,
-.content audio,
-.content video,
-.content ol,
-.content ul 
-{
-  margin: 0;
+body {
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  color: var(--tt-theme-text);
+  background-color: var(--tt-bg-color);
+  overflow: hidden;
+  --tt-toolbar-height: 44px;
+  --tt-theme-text: var(--tt-gray-light-900);
 }
 
-.content {
-  @apply prose prose-lg prose-gray max-w-none;
+.dark body {
+  --tt-theme-text: var(--tt-gray-dark-900);
 }
 
-/* Default styles for headings */
-.content h1 {
-  @apply text-3xl font-bold text-gray-900;
+/* 📝 Editor Styling */
+.tiptap.ProseMirror {
+  font-family: 'DM Sans', sans-serif;
 }
 
-.content h2 {
-  @apply text-2xl font-semibold text-gray-800;
-}
-
-.content h2::before {
-  content: '#';
-  margin-right: 8px;
-  background: linear-gradient(to right, #7e22ce, #ec4899, #fb923c);
-  /* ไล่สี */
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  /* ทำให้ข้อความเป็นโปร่งใสเพื่อแสดงไล่สี */
-}
-
-.content h3 {
-  @apply text-xl font-medium text-gray-700;
-}
-
-.content h4 {
-  @apply text-lg font-normal text-gray-600;
-}
-
-.content img {
-  border-radius: 8px;
-}
-
-/* Dark mode styles for headings */
-.dark .content h1 {
-  @apply text-3xl font-bold text-gray-300;
-}
-
-.dark .content h2 {
-  @apply text-2xl font-semibold text-gray-200;
-}
-
-.dark .content h3 {
-  @apply text-xl font-medium text-gray-200;
-}
-
-.dark .content h4 {
-  @apply text-lg font-normal text-gray-100;
-}
-
-.dark .content h5 {
-  @apply text-lg font-normal text-gray-100;
-}
-
-.content blockquote {
-  @apply border-l-4 pl-4 italic text-gray-800;
-}
-
-/* Dark mode styles */
-.dark .content blockquote {
-  @apply border-l-4 pl-4 italic text-gray-300;
-}
-
-.content code {
-  @apply px-1 py-0.5 rounded;
-}
-
-.content pre {
-  @apply bg-gray-800 text-gray-200 p-4 rounded-lg overflow-x-auto relative max-w-screen-md;
-}
-
-/* Dark mode styles */
-.dark .content pre {
-  @apply bg-gray-900 text-gray-400;
-}
-
-.dark .content * {
-  @apply text-white;
-}
-
-.dark .content ol li * {
-  @apply text-white;
-}
-
-.content .copy-btn {
-  @apply text-white px-2 py-1 rounded absolute top-2 right-2 opacity-70 hover:opacity-100 transition-opacity;
-}
-
-/* Dark mode styles */
-.dark .content .copy-btn {
-  @apply text-gray-100;
-}
-
-ul li::before {
-  content: '#';
-  margin-right: 8px;
-  background: linear-gradient(to right, #7e22ce, #ec4899, #fb923c);
-  /* ไล่สี */
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  /* ทำให้ข้อความเป็นโปร่งใสเพื่อแสดงไล่สี */
-}
-
-/* Default styles */
-.toc-link {
-  text-decoration: none;
-}
-
-.toc-link:hover {
-  text-decoration: underline;
-}
-
-/* Dark mode styles */
-.dark .toc-link {
-  color: #93c5fd;
-  /* Customize as needed */
-}
-
-.dark .toc-link:hover {
-  text-decoration: underline;
-}
-
-.copy-btn {
-  @apply bg-white text-white p-2 rounded-md absolute top-2 right-2 opacity-70 hover:opacity-100 transition-opacity;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-}
-
-.copy-btn svg {
-  width: 1.25rem;
-  /* adjust size as needed */
-  height: 1.25rem;
-}
-
-.scroller {
+/* 📜 Scrollbar Styling */
+.content-wrapper {
+  height: calc(100% - var(--tt-toolbar-height));
   overflow-y: auto;
-  /* แสดง scrollbar เฉพาะเมื่อเนื้อหามีความยาวเกินขนาดของ div */
+  scrollbar-width: thin;
+  scrollbar-color: var(--tt-scrollbar-color) transparent;
 }
 
-/* Scrollbar for WebKit browsers (Chrome, Safari, Edge) */
-.scroller::-webkit-scrollbar {
-  width: 6px;
-  /* ความกว้างของ scrollbar */
+.content-wrapper::-webkit-scrollbar {
+  width: 0.5rem;
 }
 
-.scroller::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #7e22ce, #ec4899, #fb923c);
-  /* ไล่สีสำหรับ thumb */
-  border-radius: 10px;
-  /* ทำให้ scrollbar thumb โค้งมน */
+.content-wrapper::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.scroller::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  /* สีพื้นฐานของ scrollbar track */
+.content-wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--tt-scrollbar-color);
+  border-radius: 4px;
 }
 
-/* เมื่อ hover ให้แสดง scrollbar thumb ที่มีสีไล่ระดับ */
-.scroller:hover::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #9b5de5, #f15bb5, #fcbf49);
-  /* ไล่สีเมื่อ hover */
-}
-
-.scroller:hover::-webkit-scrollbar-track {
-  background: #e5e7eb;
-  /* สีของ scrollbar track เมื่อ hover */
-}
-
-/* HTML: <div class="loader"></div> */
-.loader {
-  width: 40px;
-  aspect-ratio: 4;
-  background: radial-gradient(circle closest-side, #ff7e5f 90%, #ff7e5f00) 0/calc(100%/3) 100% space,
-    /* Gradient 1 */
-    radial-gradient(circle closest-side, #feb47b 90%, #feb47b00) 33.33%/calc(100%/3) 100% space,
-    /* Gradient 2 */
-    radial-gradient(circle closest-side, #86a8e7 90%, #86a8e700) 66.66%/calc(100%/3) 100% space;
-  /* Gradient 3 */
-  clip-path: inset(0 100% 0 0);
-  animation: l1 1s steps(4) infinite;
-}
-
-@keyframes l1 {
-  to {
-    clip-path: inset(0 -34% 0 0);
-  }
-}
-
-::selection {
-  background-color: #fb923c;
-  color: #fff;
-}
-
-.ql-editor {
-  min-height: 390px !important;
-  background-color: white;
-}
-
-.ql-video {
+/* 📱 Responsive Padding */
+.simple-editor-content {
+  max-width: 640px;
   width: 100%;
-  height: 400px;
-  max-width: none;
-  max-height: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.simple-editor-content .tiptap.ProseMirror {
+  padding: 3rem 3rem;
+}
+
+@media screen and (max-width: 480px) {
+  .simple-editor-content .tiptap.ProseMirror {
+    padding: 1rem 1.5rem;
+  }
 }
