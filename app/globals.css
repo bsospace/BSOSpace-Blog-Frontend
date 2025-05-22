@@ -11,18 +11,6 @@ body {
   @apply transition-colors duration-300 ease-in-out;
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  color: var(--tt-theme-text);
-  background-color: var(--tt-bg-color);
-  overflow: hidden;
-  --tt-toolbar-height: 44px;
-  --tt-theme-text: var(--tt-gray-light-900);
-}
-
 .dark body {
   --tt-theme-text: var(--tt-gray-dark-900);
 }
@@ -55,10 +43,7 @@ body {
 
 /* 📱 Responsive Padding */
 .simple-editor-content {
-  max-width: 640px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+  @apply max-w-screen-xl;
 }
 
 .simple-editor-content .tiptap.ProseMirror {
@@ -71,16 +56,47 @@ body {
   }
 }
 
+/* 🎨 Smooth Dropdown Menu */
+.tiptap-dropdown-menu {
+  @apply bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg;
 
-.tiptap-dropdown-menu{
-  @apply bg-white dark:bg-gray-900  border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg;
+  /* Enhanced smooth transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+
+  /* Initial hidden state */
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  visibility: hidden;
+
+  /* Open state */
+  &.open,
+  &[data-state="open"] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+  }
+
+  /* Backdrop blur for modern effect */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  /* Menu items smooth interaction */
+  .menu-item,
+  >* {
+    @apply transition-all duration-150 ease-out;
+
+    &:hover {
+      @apply bg-gray-50 dark:bg-gray-800 transform translate-x-0.5;
+    }
+  }
 }
 
 .tiptap-button {
-  @apply text-sm font-medium leading-[1.15] h-8 min-w-[2rem] p-2 gap-1 flex items-center justify-center border-none rounded-[0.75rem] transition-colors transition-opacity  duration-200 ease-in-out bg-[var(--tt-button-default-bg-color)] text-[var(--tt-button-default-text-color)];
+  @apply text-sm font-medium leading-[1.15] h-8 min-w-[2rem] p-2 gap-1 flex items-center justify-center border-none rounded-[0.75rem] transition-all duration-200 ease-out bg-[var(--tt-button-default-bg-color)] text-[var(--tt-button-default-text-color)];
 
   .tiptap-button-icon {
-    @apply text-[var(--tt-button-default-icon-color)];
+    @apply text-[var(--tt-button-default-icon-color)] transition-transform duration-200 ease-out;
   }
 
   .tiptap-button-icon-sub {
@@ -89,7 +105,7 @@ body {
 
   .tiptap-button-dropdown-arrows,
   .tiptap-button-dropdown-small {
-    @apply text-[var(--tt-button-default-dropdown-arrows-color)];
+    @apply text-[var(--tt-button-default-dropdown-arrows-color)] transition-transform duration-200 ease-out;
   }
 
   &:focus-visible {
@@ -97,7 +113,7 @@ body {
   }
 
   &[data-highlighted="true"] {
-    @apply bg-[var(--tt-button-hover-bg-color)] text-[var(--tt-button-hover-text-color)];
+    @apply bg-[var(--tt-button-hover-bg-color)] text-[var(--tt-button-hover-text-color)] transform scale-105;
   }
 
   &[data-size="large"] {
@@ -113,7 +129,7 @@ body {
     @apply bg-[var(--tt-button-active-bg-color)] text-[var(--tt-button-active-text-color)];
 
     .tiptap-button-icon {
-      @apply text-[var(--tt-button-active-icon-color)];
+      @apply text-[var(--tt-button-active-icon-color)] transform rotate-3;
     }
 
     .tiptap-button-icon-sub {
@@ -122,7 +138,7 @@ body {
 
     .tiptap-button-dropdown-arrows,
     .tiptap-button-dropdown-small {
-      @apply text-[var(--tt-button-active-dropdown-arrows-color)];
+      @apply text-[var(--tt-button-active-dropdown-arrows-color)] transform rotate-180;
     }
 
     &:hover {
@@ -140,10 +156,10 @@ body {
 
   &:hover,
   &[data-active-item="true"]:not([disabled]) {
-    @apply bg-[var(--tt-button-hover-bg-color)] text-[var(--tt-button-hover-text-color)];
+    @apply bg-[var(--tt-button-hover-bg-color)] text-[var(--tt-button-hover-text-color)] transform scale-105;
 
     .tiptap-button-icon {
-      @apply text-[var(--tt-button-hover-icon-color)];
+      @apply text-[var(--tt-button-hover-icon-color)] transform scale-110;
     }
 
     .tiptap-button-icon-sub {
@@ -157,7 +173,7 @@ body {
   }
 
   &:disabled {
-    @apply bg-[var(--tt-button-disabled-bg-color)] text-[var(--tt-button-disabled-text-color)];
+    @apply bg-[var(--tt-button-disabled-bg-color)] text-[var(--tt-button-disabled-text-color)] opacity-50;
 
     .tiptap-button-icon {
       @apply text-[var(--tt-button-disabled-icon-color)];
@@ -169,26 +185,33 @@ body {
    🎯 POPUP BASE STYLING
 -------------------------------------------- */
 .tiptap-popover {
-  /* Tailwind utility class styles */
+  /* Enhanced Tailwind utility class styles */
   @apply z-50 rounded-[calc(var(--padding)_+_var(--tt-radius-lg)_+_var(--border-width))] border border-[var(--tt-popover-border-color)] bg-[var(--tt-popover-bg-color)] text-[var(--tt-popover-text-color)] p-[var(--padding)] shadow-[var(--tt-shadow-elevated-md)] outline-none overflow-hidden flex items-center gap-1;
 
   /* Default custom props */
   --padding: 0.25rem;
   --border-width: 1px;
 
+  /* Enhanced transitions */
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
   button {
-    @apply w-full;
+    @apply w-full transition-all duration-150 ease-out;
+
+    &:hover {
+      @apply transform scale-105;
+    }
   }
 
   &[data-orientation="horizontal"] {
     --padding: 0.125rem;
   }
 
-  /* Animation state classes */
+  /* Enhanced Animation state classes */
   &[data-state="open"] {
     animation:
-      fadeIn 150ms cubic-bezier(0.16, 1, 0.3, 1),
-      zoomIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+      fadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      zoomIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-state="closed"] {
@@ -197,29 +220,29 @@ body {
       zoomOut 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Position-specific animation overrides */
+  /* Enhanced Position-specific animation overrides */
   &[data-side="top"],
   &[data-side="top-start"],
   &[data-side="top-end"] {
-    animation: slideFromBottom 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideFromBottom 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-side="right"],
   &[data-side="right-start"],
   &[data-side="right-end"] {
-    animation: slideFromLeft 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideFromLeft 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-side="bottom"],
   &[data-side="bottom-start"],
   &[data-side="bottom-end"] {
-    animation: slideFromTop 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideFromTop 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-side="left"],
   &[data-side="left-start"],
   &[data-side="left-end"] {
-    animation: slideFromRight 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideFromRight 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -230,4 +253,375 @@ body {
   --tt-popover-border-color: var(--tt-gray-dark-a-50);
   --tt-popover-bg-color: var(--tt-gray-dark-50);
   --tt-popover-text-color: var(--tt-gray-dark-a-600);
+}
+
+.tiptap-toolbar {
+  @apply flex items-center gap-1 rounded p-2 bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-md z-10 transition-all duration-300 ease-out;
+}
+
+.tiptap-toolbar-group {
+  @apply flex items-center gap-1;
+}
+
+/* =========================
+   Inline code formatting
+   ========================= */
+code {
+  @apply text-[0.875em] leading-[1.4] rounded-md transition-all duration-200 ease-out;
+  background-color: var(--tt-inline-code-bg-color);
+  color: var(--tt-inline-code-text-color);
+  border: 1px solid var(--tt-inline-code-border-color);
+  padding: 0.1em 0.2em;
+
+  &:hover {
+    @apply transform scale-105;
+  }
+}
+
+/* =========================
+   Code block formatting
+   ========================= */
+pre {
+  @apply text-base mt-6 mb-6 p-4 rounded-md transition-all duration-300 ease-out;
+  background-color: var(--tt-codeblock-bg);
+  color: var(--tt-codeblock-text);
+  border: 1px solid var(--tt-codeblock-border);
+
+  &:hover {
+    @apply transform translate-y-px shadow-lg;
+  }
+
+  code {
+    @apply bg-transparent border-none rounded-none;
+    color: inherit;
+    -webkit-text-fill-color: inherit;
+
+    &:hover {
+      @apply transform-none;
+    }
+  }
+}
+
+.tiptap-image-upload {
+  @apply my-8 transition-all duration-300 ease-out;
+
+  input[type='file'] {
+    @apply hidden;
+  }
+
+  .tiptap-image-upload-dropzone {
+    @apply relative inline-flex w-[3.125rem] h-[3.75rem] items-start justify-center select-none transition-transform duration-200 ease-out;
+
+    &:hover {
+      @apply transform scale-105;
+    }
+  }
+
+  .tiptap-image-upload-icon-container {
+    @apply absolute bottom-0 right-0 w-7 h-7 bg-[var(--tiptap-image-upload-icon-bg)] rounded-[0.75rem] flex items-center justify-center transition-all duration-200 ease-out;
+
+    &:hover {
+      @apply transform scale-110 rotate-6;
+    }
+  }
+
+  .tiptap-image-upload-icon {
+    @apply w-[0.875rem] h-[0.875rem] text-[var(--tiptap-image-upload-icon-color)] transition-transform duration-200 ease-out;
+  }
+
+  .tiptap-image-upload-dropzone-rect-primary {
+    @apply absolute text-[var(--tiptap-image-upload-icon-doc-bg)] transition-colors duration-200 ease-out;
+  }
+
+  .tiptap-image-upload-dropzone-rect-secondary {
+    @apply absolute top-0 right-1 bottom-0 text-[var(--tiptap-image-upload-icon-doc-border)] transition-colors duration-200 ease-out;
+  }
+
+  .tiptap-image-upload-text {
+    @apply text-[var(--tiptap-image-upload-text-color)] font-medium text-sm leading-none transition-colors duration-200 ease-out;
+
+    em {
+      @apply not-italic underline;
+    }
+  }
+
+  .tiptap-image-upload-subtext {
+    @apply text-[var(--tiptap-image-upload-subtext-color)] font-semibold text-xs leading-none transition-colors duration-200 ease-out;
+  }
+
+  .tiptap-image-upload-preview {
+    @apply relative overflow-hidden rounded-[0.5rem] transition-all duration-300 ease-out;
+
+    &:hover {
+      @apply shadow-lg transform translate-y-px;
+    }
+
+    .tiptap-image-upload-progress {
+      @apply absolute inset-0 bg-[var(--tiptap-image-upload-progress-bg)] transition-all duration-500 ease-out;
+    }
+
+    .tiptap-image-upload-preview-content {
+      @apply relative border border-[var(--tiptap-image-upload-border)] rounded-[0.5rem] p-4 flex items-center justify-between transition-all duration-200 ease-out;
+    }
+
+    .tiptap-image-upload-file-info {
+      @apply flex items-center gap-3 h-8;
+
+      .tiptap-image-upload-file-icon {
+        @apply p-2 bg-[var(--tiptap-image-upload-icon-bg)] rounded-[0.75rem] transition-all duration-200 ease-out;
+
+        &:hover {
+          @apply transform scale-110 rotate-12;
+        }
+
+        svg {
+          @apply w-[0.875rem] h-[0.875rem] text-[var(--tiptap-image-upload-icon-color)];
+        }
+      }
+    }
+
+    .tiptap-image-upload-details {
+      @apply flex flex-col;
+    }
+
+    .tiptap-image-upload-actions {
+      @apply flex items-center;
+
+      .tiptap-image-upload-progress-text {
+        @apply text-xs text-[var(--tiptap-image-upload-border-active)] transition-colors duration-200 ease-out;
+      }
+
+      .tiptap-image-upload-close-btn {
+        @apply flex items-center justify-center w-8 h-8 text-[var(--tt-button-default-icon-color)] transition-all duration-200 ease-out;
+
+        &:hover {
+          @apply transform scale-110 rotate-90;
+        }
+
+        svg {
+          @apply w-4 h-4;
+        }
+      }
+    }
+  }
+
+  .tiptap-image-upload-dragger {
+    @apply relative p-8 px-6 border border-dashed border-[1.5px] border-[var(--tiptap-image-upload-border)] rounded-[0.5rem] text-center cursor-pointer overflow-hidden transition-all duration-300 ease-out;
+
+    &:hover {
+      @apply transform scale-105 shadow-md;
+    }
+
+    &-active {
+      @apply border-[var(--tiptap-image-upload-border-active)] transform scale-105;
+    }
+  }
+
+  .tiptap-image-upload-content {
+    @apply flex flex-col items-center justify-center gap-1 select-none transition-all duration-200 ease-out;
+  }
+}
+
+.tiptap.ProseMirror {
+  img {
+    @apply max-w-full h-auto block transition-all duration-300 ease-out;
+
+    &:hover {
+      @apply transform scale-105 shadow-lg;
+    }
+  }
+
+  >img:not([data-type='emoji'] img) {
+    @apply my-8 outline-[0.125rem] outline-transparent rounded-[0.25rem];
+  }
+
+  &.ProseMirror-focused>img:not([data-type='emoji'] img).ProseMirror-selectednode {
+    outline-color: var(--tt-brand-color-500);
+    @apply transform scale-105;
+  }
+
+  .tiptap-thread:has(> img) {
+    @apply my-8;
+
+    img {
+      @apply outline-[0.125rem] outline-transparent rounded-[0.25rem];
+    }
+  }
+
+  .tiptap-thread img {
+    @apply my-0;
+  }
+}
+
+.tiptap.ProseMirror.ProseMirror-focused {
+  .ProseMirror-selectednode .tiptap-image-upload-dragger {
+    @apply border-[var(--tiptap-image-upload-active)] transform scale-105;
+  }
+}
+
+/* 🎭 Custom Keyframes for smooth animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.95);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slideFromTop {
+  from {
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromBottom {
+  from {
+    transform: translateY(8px) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    transform: translateX(-8px) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    transform: translateX(8px) scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+/* === Headings === */
+h1 {
+  @apply text-3xl font-bold leading-[1.2] mb-4 text-gray-900 dark:text-white;
+}
+
+h2 {
+  @apply text-2xl font-bold leading-[1.2] mb-4 text-gray-900 dark:text-white;
+}
+
+h3 {
+  @apply text-xl font-bold leading-[1.2] mb-4 text-gray-900 dark:text-white;
+}
+
+h4 {
+  @apply text-lg font-bold leading-[1.2] mb-4 text-gray-900 dark:text-white;
+}
+
+h5 {
+  @apply text-base font-bold leading-[1.2] mb-4 text-gray-900 dark:text-white;
+}
+
+h6 {
+  @apply text-sm font-bold leading-[1.2] mb-4 text-gray-900 dark:text-white;
+}
+
+/* === Paragraphs & Inline === */
+p {
+  @apply text-base leading-[1.6] mb-4 text-gray-800 dark:text-gray-200;
+}
+
+strong {
+  @apply font-bold;
+}
+
+em {
+  @apply italic;
+}
+
+a {
+  @apply text-blue-500 dark:text-blue-400 underline;
+}
+
+/* === Lists === */
+ul {
+  @apply list-disc list-inside mb-4 text-gray-800 dark:text-gray-200;
+}
+
+ol {
+  @apply list-decimal list-inside mb-4 text-gray-800 dark:text-gray-200;
+}
+
+/* === Blockquote === */
+blockquote {
+  @apply border-l-4 pl-4 italic mb-4 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700;
+}
+
+/* === Horizontal Rule === */
+hr {
+  @apply border-t border-gray-300 dark:border-gray-700 my-4;
+}
+
+/* === Code Block & Inline Code === */
+pre {
+  @apply bg-gray-100 dark:bg-gray-800 text-black dark:text-white p-4 rounded-md overflow-x-auto mb-4;
+}
+
+/* === Table === */
+table {
+  @apply w-full border-collapse mb-4;
+}
+
+th {
+  @apply bg-gray-200 dark:bg-gray-700 text-left p-2 border-b border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200;
+}
+
+td {
+  @apply p-2 border-b border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200;
 }
