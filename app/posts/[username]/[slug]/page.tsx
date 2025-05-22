@@ -2,9 +2,10 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { Post } from "@/app/interfaces";
 import { fetchPostBySlug } from "@/app/_action/posts.action";
+import Link from "next/link";
 import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { useSearchParams } from "next/navigation";
-import { FaBars, FaLock } from "react-icons/fa";
+import { FaBars, FaLock, FaCalendar, FaClock, FaUser } from "react-icons/fa";
 import {
     Popover,
     PopoverHandler,
@@ -14,311 +15,217 @@ import {
 } from "@material-tailwind/react";
 import { IoChevronDown, IoChevronForward } from "react-icons/io5";
 import ScrollProgressBar from "@/app/components/ScrollProgress";
+import { PreviewEditor } from "@/app/components/tiptap-templates/simple/view-editor";
+import content from "@/app/components/tiptap-templates/simple/data/content.json";
 
 export default function PostPage({ params }: { params: { slug: string } }) {
-    const [post, setPost] = useState<Post>();
-    const [formattedContent, setFormattedContent] = useState<string>("");
-    const [error, setError] = useState<string>("");
-    const [toc, setToc] = useState<string[]>([]);
-    const searchParams = useSearchParams();
-    const [isOpen, setIsOpen] = useState(false);
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [zoomedImage, setZoomedImage] = useState<string>("");
-
-    const handleImageClick = (src: string | null) => {
-        if (src) {
-            console.log("hi hi ohm");
-            setZoomedImage(src);
-            setIsModalOpen(true);
-        }
+    const mockData = {
+        header: "My Sample Blog Post",
+        description: "This is a sample blog post description that shows how the preview works.",
+        image: "https://picsum.photos/800/400", // Using placeholder image
+        tags: ["programming", "typescript", "react", "nextjs"],
+        content: content, // Using your existing content import
+        author: "John Doe",
+        publishDate: "March 15, 2024",
+        readTime: "5 min read"
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setZoomedImage("");
-    };
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const images = document.querySelectorAll(".content img");
+        // Simulate loading
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
 
-        console.log(images);
-        images.forEach((img) => {
-            const imageElement = img as HTMLImageElement;
-            imageElement.style.cursor = "pointer"; // Set cursor to pointer for all images
-            imageElement.addEventListener("click", () =>
-                handleImageClick(imageElement.src)
-            );
-        });
+        return () => clearTimeout(timer);
+    }, []);
 
-        // return () => {
-        //   images.forEach((img) => {
-        //     const imageElement = img as HTMLImageElement;
-        //     imageElement.removeEventListener("click", () => handleImageClick(imageElement.src));
-        //   });
-        // };
-    }, [formattedContent]);
-
-    useEffect(() => { });
-
-    useEffect(() => {
-        const fetchPost = async () => {
-            try {
-                const fetchedPost = await fetchPostBySlug(
-                    params.slug,
-                    searchParams.get("key") || ""
-                );
-
-                if (fetchedPost) {
-                    generateTableOfContents(fetchedPost?.post.content);
-
-                    const post = fetchedPost?.post;
-
-                    setPost(post);
-                }
-                if (fetchedPost?.error) {
-                    window.alert(fetchedPost.error);
-                    const userKey = window.prompt("กรุณาใส่คีย์เพื่อเข้าถึงบทความ");
-                    // If userKey is not null, set the key in the URL
-                    if (userKey) {
-                        const newSearchParams = new URLSearchParams(
-                            searchParams.toString()
-                        );
-                        newSearchParams.set("key", userKey);
-                        window.location.search = newSearchParams.toString();
-                    }
-                }
-            } catch (err) {
-                setError("Failed to load the post.");
-            }
-        };
-        fetchPost();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params.slug]);
-
-    const generateTableOfContents = (content: string) => {
-        const headingTags = ["h2"];
-        const headings: string[] = [];
-
-        headingTags.forEach((tag, level) => {
-            const regex = new RegExp(`<${tag}>(.*?)<\/${tag}>`, "g");
-            let match;
-            while ((match = regex.exec(content)) !== null) {
-                const index = headings.length;
-                const title = match[1];
-                headings.push(
-                    `<li><a href="#section-${title}" class="toc-link text-[#1f1f1f] dark:text-[#ffffff]">${title}</a></li>`
-                );
-
-                content = content.replace(
-                    match[0],
-                    `
-            <${tag} id="section-${title}">${title}</${tag}>
-          `
-                );
-                setFormattedContent(content);
-            }
-        });
-
-        setToc(headings);
-    };
-
-    const addCopyButtons = () => {
-        const codeBlocks = document.querySelectorAll("pre code");
-        codeBlocks.forEach((block) => {
-            const copyButton = document.createElement("button");
-            copyButton.className = "copy-btn";
-
-            copyButton.innerHTML = `<span class="sr-only"></span> <?xml version="1.0" encoding="utf-8"?><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 111.07 122.88" style="enable-background:new 0 0 111.07 122.88" xml:space="preserve"><style type="text/css"><![CDATA[
-	.st0{fill-rule:evenodd;clip-rule:evenodd;}
-  ]]></style><g><path class="st0" d="M97.67,20.81L97.67,20.81l0.01,0.02c3.7,0.01,7.04,1.51,9.46,3.93c2.4,2.41,3.9,5.74,3.9,9.42h0.02v0.02v75.28 v0.01h-0.02c-0.01,3.68-1.51,7.03-3.93,9.46c-2.41,2.4-5.74,3.9-9.42,3.9v0.02h-0.02H38.48h-0.01v-0.02 c-3.69-0.01-7.04-1.5-9.46-3.93c-2.4-2.41-3.9-5.74-3.91-9.42H25.1c0-25.96,0-49.34,0-75.3v-0.01h0.02 c0.01-3.69,1.52-7.04,3.94-9.46c2.41-2.4,5.73-3.9,9.42-3.91v-0.02h0.02C58.22,20.81,77.95,20.81,97.67,20.81L97.67,20.81z M0.02,75.38L0,13.39v-0.01h0.02c0.01-3.69,1.52-7.04,3.93-9.46c2.41-2.4,5.74-3.9,9.42-3.91V0h0.02h59.19 c7.69,0,8.9,9.96,0.01,10.16H13.4h-0.02v-0.02c-0.88,0-1.68,0.37-2.27,0.97c-0.59,0.58-0.96,1.4-0.96,2.27h0.02v0.01v3.17 c0,19.61,0,39.21,0,58.81C10.17,83.63,0.02,84.09,0.02,75.38L0.02,75.38z M100.91,109.49V34.2v-0.02h0.02 c0-0.87-0.37-1.68-0.97-2.27c-0.59-0.58-1.4-0.96-2.28-0.96v0.02h-0.01H38.48h-0.02v-0.02c-0.88,0-1.68,0.38-2.27,0.97 c-0.59,0.58-0.96,1.4-0.96,2.27h0.02v0.01v75.28v0.02h-0.02c0,0.88,0.38,1.68,0.97,2.27c0.59,0.59,1.4,0.96,2.27,0.96v-0.02h0.01 h59.19h0.02v0.02c0.87,0,1.68-0.38,2.27-0.97c0.59-0.58,0.96-1.4,0.96-2.27L100.91,109.49L100.91,109.49L100.91,109.49 L100.91,109.49z"/></g></svg>`;
-
-            block.parentElement?.insertBefore(copyButton, block.nextSibling);
-
-            copyButton.addEventListener("click", () => {
-                navigator.clipboard.writeText(block.textContent || "").then(() => {
-                    copyButton.innerHTML = `<span class="sr-only">Copied</span> <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 13H5v-2h14v2z"></path></svg>`;
-                    setTimeout(() => {
-                        copyButton.innerHTML = `<span class="sr-only"></span> <?xml version="1.0" encoding="utf-8"?><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 111.07 122.88" style="enable-background:new 0 0 111.07 122.88" xml:space="preserve"><style type="text/css"><![CDATA[
-	.st0{fill-rule:evenodd;clip-rule:evenodd;}
-  ]]></style><g><path class="st0" d="M97.67,20.81L97.67,20.81l0.01,0.02c3.7,0.01,7.04,1.51,9.46,3.93c2.4,2.41,3.9,5.74,3.9,9.42h0.02v0.02v75.28 v0.01h-0.02c-0.01,3.68-1.51,7.03-3.93,9.46c-2.41,2.4-5.74,3.9-9.42,3.9v0.02h-0.02H38.48h-0.01v-0.02 c-3.69-0.01-7.04-1.5-9.46-3.93c-2.4-2.41-3.9-5.74-3.91-9.42H25.1c0-25.96,0-49.34,0-75.3v-0.01h0.02 c0.01-3.69,1.52-7.04,3.94-9.46c2.41-2.4,5.73-3.9,9.42-3.91v-0.02h0.02C58.22,20.81,77.95,20.81,97.67,20.81L97.67,20.81z M0.02,75.38L0,13.39v-0.01h0.02c0.01-3.69,1.52-7.04,3.93-9.46c2.41-2.4,5.74-3.9,9.42-3.91V0h0.02h59.19 c7.69,0,8.9,9.96,0.01,10.16H13.4h-0.02v-0.02c-0.88,0-1.68,0.37-2.27,0.97c-0.59,0.58-0.96,1.4-0.96,2.27h0.02v0.01v3.17 c0,19.61,0,39.21,0,58.81C10.17,83.63,0.02,84.09,0.02,75.38L0.02,75.38z M100.91,109.49V34.2v-0.02h0.02 c0-0.87-0.37-1.68-0.97-2.27c-0.59-0.58-1.4-0.96-2.28-0.96v0.02h-0.01H38.48h-0.02v-0.02c-0.88,0-1.68,0.38-2.27,0.97 c-0.59,0.58-0.96,1.4-0.96,2.27h0.02v0.01v75.28v0.02h-0.02c0,0.88,0.38,1.68,0.97,2.27c0.59,0.59,1.4,0.96,2.27,0.96v-0.02h0.01 h59.19h0.02v0.02c0.87,0,1.68-0.38,2.27-0.97c0.59-0.58,0.96-1.4,0.96-2.27L100.91,109.49L100.91,109.49L100.91,109.49 L100.91,109.49z"/></g></svg>`;
-                    }, 2000);
-                });
-            });
-        });
-    };
-
-    useEffect(() => {
-        if (post) {
-            addCopyButtons();
-            document.title = post?.title || "Post";
-        }
-    }, [post]);
-
-    if (!post) {
+    if (isLoading) {
         return (
-            <div className=" w-full h-full flex justify-center">
-                <p className="loader"></p>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         );
     }
 
-    const viewPrivatePost = () => {
-        const userKey = window.prompt("กรุณาใส่คีย์เพื่อเข้าถึงโพสต์");
-        // If userKey is not null, set the key in the URL
-        if (userKey) {
-            const newSearchParams = new URLSearchParams(searchParams.toString());
-            newSearchParams.set("key", userKey);
-            window.location.search = newSearchParams.toString();
-        }
-    };
-
     return (
-        <div className="block md:flex">
-            {/* Progress Bar */}
+        <>
             <ScrollProgressBar />
-            {/* {JSON.stringify(formattedContent)} */}
-            <aside className="w-2/4 pr-4 hidden md:block">
-                <div className="sticky top-[88px] md:top-[61px]">
-                    <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh]">
-                        <h2 className="text-2xl font-semibold mb-2">สารบัญ</h2>
-                        <ul
-                            className="space-y-2 max-h-[calc(50vh-80px)] scroller py-4"
-                            dangerouslySetInnerHTML={{ __html: toc.join("") }}
-                        />
+
+            <div className="min-h-screen bg-gray-50">
+                {/* Hero Section */}
+                <div className="relative bg-white rounded-lg">
+                    <div className="container mx-auto px-4 py-8 max-w-4xl">
+                        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
+                            <Link href="/" className="hover:text-blue-600 transition-colors">
+                                Home
+                            </Link>
+                            <IoChevronForward className="w-4 h-4" />
+                            <Link href="/blog" className="hover:text-blue-600 transition-colors">
+                                Blog
+                            </Link>
+                            <IoChevronForward className="w-4 h-4" />
+                            <span className="text-gray-900 font-medium">
+                                {mockData.header}
+                            </span>
+                        </nav>
+
+                        {/* Header */}
+                        <div className="mb-8">
+                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+                                {mockData.header}
+                            </h1>
+
+                            <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+                                {mockData.description}
+                            </p>
+
+                            {/* Meta Information */}
+                            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-6">
+                                <div className="flex items-center gap-2">
+                                    <FaUser className="w-4 h-4" />
+                                    <span>{mockData.author}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <FaCalendar className="w-4 h-4" />
+                                    <span>{mockData.publishDate}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <FaClock className="w-4 h-4" />
+                                    <span>{mockData.readTime}</span>
+                                </div>
+                            </div>
+
+                            {/* Tags */}
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                {mockData.tags.map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors cursor-pointer"
+                                    >
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Featured Image */}
+                        <div className="mb-8">
+                            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                                <img
+                                    src={mockData.image}
+                                    alt={mockData.header}
+                                    className="w-full h-64 md:h-96 object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </aside>
 
-            <div className="flex md:hidden justify-center max-w-full">
-                <Popover
-                    placement="bottom"
-                    open={isOpen}
-                    handler={setIsOpen}
-                    animate={{
-                        mount: { opacity: 1 },
-                        unmount: { opacity: 0 },
-                    }}
-                >
-                    <PopoverHandler>
-                        <Button
-                            placeholder={undefined}
-                            onPointerEnterCapture={undefined}
-                            onPointerLeaveCapture={undefined}
-                            className="w-full text-body-12pt-thin md:hidden mb-4 dark:bg-[#1f1f1f] bg-[#ffffff] text-[#1f1f1f] dark:text-[#ffffff] rounded-sm shadow-sm p-2 flex items-center justify-center"
-                        >
-                            {" "}
-                            <div>สารบัญ</div>
-                            {isOpen ? (
-                                <IoChevronDown className="ml-2" />
-                            ) : (
-                                <IoChevronForward className="ml-2" />
-                            )}
-                        </Button>
-                    </PopoverHandler>
-                    <PopoverContent
-                        placeholder={undefined}
-                        onPointerEnterCapture={undefined}
-                        onPointerLeaveCapture={undefined}
-                        className="dark:bg-[#1f1f1f] bg-[#ffffff] p-0 rounded-lg shadow-lg w-[95%]"
-                    >
-                        <div className="sticky top-[88px]">
-                            <div className="overflow-hidden shadow-sm rounded-lg p-4 dark:bg-[#1f1f1f] bg-[#ffffff] max-h-[50vh-80px]">
-                                <h2 className="text-2xl font-semibold mb-2 dark:text-[#ffffff] text-[#1f1f1f]">
-                                    สารบัญ
-                                </h2>
-                                <ul
-                                    className="space-y-2 max-h-[calc(70vh)] scroller py-4"
-                                    dangerouslySetInnerHTML={{ __html: toc.join("") }}
-                                    onClick={() => setIsOpen(false)}
-                                />
+                {/* Content Section */}
+                <div className="bg-white">
+                    <div className="container mx-auto px-4 py-8 max-w-4xl">
+                        {/* Table of Contents */}
+                        <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="flex items-center gap-2 mb-4">
+                                <FaBars className="w-4 h-4 text-gray-600" />
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Table of Contents
+                                </h3>
+                            </div>
+
+                            <Popover>
+                                <PopoverHandler>
+                                    <Button
+                                        variant="outlined"
+                                        className="flex items-center gap-2 text-left justify-between w-full"
+                                    >
+                                        <span>Show Contents</span>
+                                        <IoChevronDown className="w-4 h-4" />
+                                    </Button>
+                                </PopoverHandler>
+                                <PopoverContent className="w-80 max-h-60 overflow-y-auto">
+                                    <div className="space-y-2">
+                                        <a href="#introduction" className="block px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                                            1. Introduction
+                                        </a>
+                                        <a href="#getting-started" className="block px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                                            2. Getting Started
+                                        </a>
+                                        <a href="#advanced-topics" className="block px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                                            3. Advanced Topics
+                                        </a>
+                                        <a href="#conclusion" className="block px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                                            4. Conclusion
+                                        </a>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+
+                        {/* Content Editor */}
+                        <div className="prose prose-lg max-w-none">
+                            <PreviewEditor content={mockData.content} />
+                        </div>
+
+                        {/* Social Share & Actions */}
+                        <div className="mt-12 pt-8 border-t border-gray-200">
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-sm text-gray-600">Share this article:</span>
+                                    <div className="flex gap-2">
+                                        <button className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                                            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                                            </svg>
+                                        </button>
+                                        <button className="p-2 rounded-full bg-blue-800 text-white hover:bg-blue-900 transition-colors">
+                                            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                        Bookmark
+                                    </button>
+                                    <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                                        Subscribe
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </PopoverContent>
-                </Popover>
+
+                        {/* Author Bio */}
+                        <div className="mt-12 p-6 bg-gray-50 rounded-xl">
+                            <div className="flex items-start gap-4">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                                    {mockData.author.charAt(0)}
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                                        About {mockData.author}
+                                    </h4>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        A passionate developer and writer who loves to share knowledge about modern web development,
+                                        React, TypeScript, and best practices in software engineering. Always exploring new technologies
+                                        and helping others grow in their coding journey.
+                                    </p>
+                                    <div className="mt-3">
+                                        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                            Follow {mockData.author} →
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            {!post.published && (
-                <main className="w-full rounded-md p-8 dark:bg-[#1f1f1f] bg-[#ffffff]">
-                    <div className="flex justify-between">
-                        <p className="text-sm mb-4 dark:text-white">
-                            <div className="flex items-center space-x-2">
-                                <img
-                                    src="https://raw.githubusercontent.com/LordEaster/ICON-LOGO/refs/heads/main/The%20Duck.png"
-                                    alt={post?.Author?.name}
-                                    className="w-6 h-6 rounded-full"
-                                />
-                                <span>{post?.Author?.name}</span>
-                            </div>
-                        </p>
-                        <p className="text-sm mb-4 dark:text-white">
-                            {new Date(post?.createdAt).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}
-                        </p>
-                    </div>
-                    <h1 className="text-3xl font-bold mb-4 dark:text-white">
-                        {post.title}
-                    </h1>
-                    <hr className="border-b-1 border-gray-300 mb-6" />
-                    <p>โพสต์นี้ไม่ได้เผยแพร่เป็นสาธารณะ กรุณาใส่คีย์เพื่อเข้าถึงโพสต์</p>
-                    <div className="mt-6 flex justify-center">
-                        <button
-                            onClick={() => viewPrivatePost()}
-                            type="submit"
-                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded"
-                        >
-                            <FaLock className="mr-2" />
-                            ดูโพสต์
-                        </button>
-                    </div>
-                </main>
-            )}
-
-            {post.published && (
-                <main className="w-full rounded-md p-6 dark:bg-[#1f1f1f] bg-[#ffffff]" id="content">
-                    <div className="flex justify-between">
-                        <p className="text-sm mb-4 dark:text-white">
-                            <div className="flex items-center space-x-2">
-                                <img
-                                    src="https://raw.githubusercontent.com/LordEaster/ICON-LOGO/refs/heads/main/The%20Duck.png"
-                                    alt={post?.Author?.name}
-                                    className="w-6 h-6 rounded-full"
-                                />
-                                <span>{post?.Author?.name}</span>
-                            </div>
-                        </p>
-                        <p className="text-sm mb-4 dark:text-white">
-                            {new Date(post?.createdAt).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}
-                        </p>
-                    </div>
-                    <h1 className="text-3xl font-bold mb-4 dark:text-white">
-                        {post.title}
-                    </h1>
-                    <hr className="border-b-1 border-gray-300 mb-6" />
-                    <div
-                        dangerouslySetInnerHTML={{ __html: formattedContent }}
-                        className="mt-6 content"
-                    />
-                    {/* Modal for Zoomed Image */}
-                    {isModalOpen && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-                            <img
-                                src={zoomedImage}
-                                alt="Zoomed"
-                                className="max-w-full max-h-full"
-                                onClick={closeModal}
-                            />
-                        </div>
-                    )}
-                </main>
-            )}
-        </div>
+        </>
     );
 }
