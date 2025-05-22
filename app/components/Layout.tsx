@@ -83,7 +83,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2  no-underline text-black dark:text-white">
               <Image src={logo} alt="BSO logo" width={40} height={40} />
-              <span className="font-semibold text-lg hidden md:block ">BSO Space</span>
+              {/* <span className="font-semibold text-lg hidden md:block ">BSO Space</span> */}
             </Link>
           </div>
 
