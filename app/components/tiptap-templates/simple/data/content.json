@@ -15,6 +15,14 @@
       ]
     },
     {
+      "type": "image",
+      "attrs": {
+        "src": "https://image-service.bsospace.com/2025_01_27_163637-cPPbyykWM71J.png",
+        "alt": "Uploaded image",
+        "title": "Uploaded image"
+      }
+    },
+    {
       "type": "paragraph",
       "content": [
         {
