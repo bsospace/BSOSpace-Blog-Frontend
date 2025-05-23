@@ -8,6 +8,7 @@ import axios from "axios";
 import Script from "next/script";
 import { AuthContext } from "../contexts/authContext";
 import { ChevronDown, LogOut, Settings, SquarePen, User, UserCircle } from "lucide-react";
+import { getnerateId } from "@/lib/utils";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -177,7 +178,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                           {/* Menu Items */}
                           <div className="mt-4 space-y-1">
                             <Link
-                              href='/w'
+                              href={`/w/${getnerateId()}`}
                               className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
                               onClick={() => setIsOpen(false)}
                             >
