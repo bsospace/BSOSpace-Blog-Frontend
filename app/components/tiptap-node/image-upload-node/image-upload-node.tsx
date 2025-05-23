@@ -1,8 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 import * as React from "react"
 import type { NodeViewProps } from "@tiptap/react"
 import { NodeViewWrapper } from "@tiptap/react"
 import { CloseIcon } from "@/app/components/tiptap-icons/close-icon"
 import "@/app/components/tiptap-node/image-upload-node/image-upload-node.scss"
+import { getnerateId } from "@/lib/utils"
+import { axiosInstance } from "@/app/utils/api"
 
 export interface FileItem {
   id: string
@@ -41,7 +44,7 @@ function useFileUpload(options: UploadOptions) {
     const abortController = new AbortController()
 
     const newFileItem: FileItem = {
-      id: crypto.randomUUID(),
+      id: getnerateId(),
       file,
       progress: 0,
       status: "uploading",
@@ -147,6 +150,7 @@ function useFileUpload(options: UploadOptions) {
   }
 }
 
+
 const CloudUploadIcon: React.FC = () => (
   <svg
     width="24"
@@ -249,6 +253,9 @@ interface ImageUploadPreviewProps {
   progress: number
   status: "uploading" | "success" | "error"
   onRemove: () => void
+  getPos: () => number | null
+  editor: any
+  fileItem: FileItem
 }
 
 const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
@@ -256,7 +263,12 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   progress,
   status,
   onRemove,
+  getPos,
+  editor,
+  fileItem,
 }) => {
+
+  const [preview, setPreview] = React.useState<string | null>(null)
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
     const k = 1024
@@ -265,8 +277,65 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
   }
 
+  const objectUrlRef = React.useRef<string | null>(null)
+
+  React.useEffect(() => {
+    if (fileItem?.status === "success" && fileItem.url) {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+        objectUrlRef.current = null
+      }
+      setPreview(fileItem.url)
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(file)
+    objectUrlRef.current = objectUrl
+    setPreview(objectUrl)
+
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+        objectUrlRef.current = null
+      }
+    }
+  }, [file, fileItem?.status, fileItem?.url])
+  
+
+  // เมื่อ upload สำเร็จ → ใช้ url จริง
+  React.useEffect(() => {
+    if (fileItem?.status === "success" && fileItem.url) {
+      setPreview(fileItem.url)
+
+      const pos = getPos?.()
+      if (!pos) return
+
+      editor
+        .chain()
+        .focus()
+        .insertContentAt(pos, {
+          type: "image",
+          attrs: {
+            src: fileItem.url,
+            alt: file.name,
+            title: file.name,
+          },
+        })
+        .run()
+    }
+  }, [fileItem?.status, fileItem?.url, editor, getPos])
+
+  
   return (
     <div className="tiptap-image-upload-preview">
+      {preview && (
+        <img
+          src={preview}
+          alt={file.name}
+          className="w-full h-auto max-h-64 object-contain rounded mb-2"
+        />
+      )}
+
       {status === "uploading" && (
         <div
           className="tiptap-image-upload-progress"
@@ -333,13 +402,48 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const extension = props.extension
 
+
   const uploadOptions: UploadOptions = {
-    maxSize,
-    limit,
-    accept,
-    upload: extension.options.upload,
-    onSuccess: extension.options.onSuccess,
-    onError: extension.options.onError,
+    maxSize: 5 * 1024 * 1024, // 5MB
+    limit: 1,
+    accept: "image/*",
+    upload: async (file, onProgress, signal) => {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      try {
+        const response = await axiosInstance.post(
+          "media/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            signal,
+            onUploadProgress: (event) => {
+              if (event.total) {
+                const percent = Math.round((event.loaded * 100) / event.total)
+                onProgress({ progress: percent })
+              }
+            },
+            withCredentials: true,
+          }
+        )
+
+        const url = response?.data?.data?.image_url
+
+        console.log("Image URL:", url)
+        if (!url) {
+          throw new Error("No image_url returned from server")
+        }
+
+        return url
+      } catch (error) {
+        throw error instanceof Error ? error : new Error("Unknown upload error")
+      }
+    },
+    onSuccess: (url) => console.log("Uploaded image URL:", url),
+    onError: (err) => console.error("Upload failed:", err),
   }
 
   const { fileItem, uploadFiles, clearFileItem } = useFileUpload(uploadOptions)
@@ -356,22 +460,21 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
   const handleUpload = async (files: File[]) => {
     const url = await uploadFiles(files)
 
-    if (url) {
-      const pos = props.getPos()
-      const filename = files[0]?.name.replace(/\.[^/.]+$/, "") || "unknown"
+    // if (url) {
+    //   const pos = props.getPos()
+    //   const filename = files[0]?.name.replace(/\.[^/.]+$/, "") || "unknown"
 
-      props.editor
-        .chain()
-        .focus()
-        .deleteRange({ from: pos, to: pos + 1 })
-        .insertContentAt(pos, [
-          {
-            type: "image",
-            attrs: { src: url, alt: filename, title: filename },
-          },
-        ])
-        .run()
-    }
+    //   props.editor
+    //     .chain()
+    //     .focus()
+    //     .insertContentAt(pos, [
+    //       {
+    //         type: "image",
+    //         attrs: { src: url, alt: filename, title: filename },
+    //       },
+    //     ])
+    //     .run()
+    // }
   }
 
   const handleClick = () => {
@@ -399,7 +502,11 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
           progress={fileItem.progress}
           status={fileItem.status}
           onRemove={clearFileItem}
+          getPos={props.getPos}
+          editor={props.editor}
+          fileItem={fileItem}
         />
+
       )}
 
       <input
