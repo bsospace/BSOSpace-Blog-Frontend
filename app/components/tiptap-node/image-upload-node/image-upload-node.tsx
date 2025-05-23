@@ -254,6 +254,7 @@ interface ImageUploadPreviewProps {
   status: "uploading" | "success" | "error"
   onRemove: () => void
   getPos: () => number | null
+  onUploaded?: (src: string) => void
   editor: any
   fileItem: FileItem
 }
@@ -266,6 +267,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   getPos,
   editor,
   fileItem,
+  onUploaded,
 }) => {
 
   const [preview, setPreview] = React.useState<string | null>(null)
@@ -278,6 +280,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   }
 
   const objectUrlRef = React.useRef<string | null>(null)
+  const uploadedRef = React.useRef(false) // ป้องกัน insert ซ้ำ
 
   React.useEffect(() => {
     if (fileItem?.status === "success" && fileItem.url) {
@@ -286,6 +289,13 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
         objectUrlRef.current = null
       }
       setPreview(fileItem.url)
+
+      // ป้องกัน insert ซ้ำ
+      if (!uploadedRef.current && onUploaded) {
+        uploadedRef.current = true
+        onUploaded(fileItem.url)
+      }
+
       return
     }
 
@@ -300,39 +310,17 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
       }
     }
   }, [file, fileItem?.status, fileItem?.url])
-  
 
-  // เมื่อ upload สำเร็จ → ใช้ url จริง
-  React.useEffect(() => {
-    if (fileItem?.status === "success" && fileItem.url) {
-      setPreview(fileItem.url)
 
-      const pos = getPos?.()
-      if (!pos) return
 
-      editor
-        .chain()
-        .focus()
-        .insertContentAt(pos, {
-          type: "image",
-          attrs: {
-            src: fileItem.url,
-            alt: file.name,
-            title: file.name,
-          },
-        })
-        .run()
-    }
-  }, [fileItem?.status, fileItem?.url, editor, getPos])
 
-  
   return (
     <div className="tiptap-image-upload-preview">
       {preview && (
         <img
           src={preview}
           alt={file.name}
-          className="w-full h-auto max-h-64 object-contain rounded mb-2"
+          className="object-contain rounded mb-2"
         />
       )}
 
@@ -400,6 +388,7 @@ const DropZoneContent: React.FC<{ maxSize: number }> = ({ maxSize }) => (
 export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
   const { accept, limit, maxSize } = props.node.attrs
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const uploadedSrcs = React.useRef<string[]>([])
   const extension = props.extension
 
 
@@ -505,6 +494,26 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
           getPos={props.getPos}
           editor={props.editor}
           fileItem={fileItem}
+          onUploaded={(src) => {
+            uploadedSrcs.current.push(src)
+            const pos = props.getPos?.()
+            if (pos != null) {
+              props.editor
+                .chain()
+                .focus()
+                .deleteRange({ from: pos, to: pos + 1 })
+                .insertContentAt(pos, {
+                  type: "image",
+                  attrs: {
+                    src,
+                    alt: "Uploaded image",
+                    title: "Uploaded image",
+                  },
+                })
+                .run()
+            
+            }
+          }}
         />
 
       )}
