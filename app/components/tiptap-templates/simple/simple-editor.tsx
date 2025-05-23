@@ -91,257 +91,6 @@ interface MobileToolbarContentProps {
   onBack: () => void
 }
 
-interface PublishModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onPublish: (metadata: PostMetadata) => void
-  initialData?: Partial<PostMetadata>
-}
-
-// Publish Modal Component
-const PublishModal = React.memo<PublishModalProps>(({
-  isOpen,
-  onClose,
-  onPublish,
-  initialData = {}
-}) => {
-  const [metadata, setMetadata] = React.useState<PostMetadata>({
-    title: initialData.title || '',
-    description: initialData.description || '',
-    tags: initialData.tags || [],
-    category: initialData.category || '',
-    publishDate: initialData.publishDate || new Date(),
-    author: initialData.author || '',
-    slug: initialData.slug || '',
-  })
-
-  const [tagInput, setTagInput] = React.useState('')
-  const [isPublishing, setIsPublishing] = React.useState(false)
-
-  const handleAddTag = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault()
-      if (!metadata.tags.includes(tagInput.trim())) {
-        setMetadata(prev => ({
-          ...prev,
-          tags: [...prev.tags, tagInput.trim()]
-        }))
-      }
-      setTagInput('')
-    }
-  }
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setMetadata(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsPublishing(true)
-
-    try {
-      await onPublish(metadata)
-      onClose()
-    } catch (error) {
-      console.error('Failed to publish:', error)
-    } finally {
-      setIsPublishing(false)
-    }
-  }
-
-  const generateSlug = () => {
-    const slug = metadata.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-    setMetadata(prev => ({ ...prev, slug }))
-  }
-
-
-  if (!isOpen) return null
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-            Publish Post
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Add metadata for your post before publishing
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Title *
-            </label>
-            <Input />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description *
-            </label>
-            <textarea
-              required
-              rows={3}
-              value={metadata.description}
-              onChange={(e) => setMetadata(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Brief description of your post"
-            />
-          </div>
-
-          {/* Slug */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              URL Slug *
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                required
-                value={metadata.slug}
-                onChange={(e) => setMetadata(prev => ({ ...prev, slug: e.target.value }))}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="post-url-slug"
-              />
-              <Button
-                type="button"
-                onClick={generateSlug}
-                data-style="outline"
-                className="px-3 py-2"
-              >
-                Generate
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              URL: /posts/{metadata.slug || 'your-slug'}
-            </p>
-          </div>
-
-          {/* Author */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Author *
-            </label>
-            <input
-              type="text"
-              required
-              value={metadata.author}
-              onChange={(e) => setMetadata(prev => ({ ...prev, author: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Author name"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Category
-            </label>
-            <select
-              value={metadata.category}
-              onChange={(e) => setMetadata(prev => ({ ...prev, category: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="">Select a category</option>
-              <option value="technology">Technology</option>
-              <option value="design">Design</option>
-              <option value="development">Development</option>
-              <option value="business">Business</option>
-              <option value="lifestyle">Lifestyle</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tags
-            </label>
-            <input
-              type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleAddTag}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Type a tag and press Enter"
-            />
-            {metadata.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {metadata.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-md"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Publish Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Publish Date
-            </label>
-            <input
-              type="datetime-local"
-              value={metadata.publishDate.toISOString().slice(0, 16)}
-              onChange={(e) => setMetadata(prev => ({ ...prev, publishDate: new Date(e.target.value) }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Button
-              type="button"
-              onClick={onClose}
-              data-style="ghost"
-              disabled={isPublishing}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              data-style="default"
-              disabled={isPublishing}
-              className="min-w-24"
-            >
-              {isPublishing ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Publishing...
-                </>
-              ) : (
-                'Publish'
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-})
-
-PublishModal.displayName = "PublishModal"
 
 // Enhanced MainToolbarContent with Publish button
 const MainToolbarContent = React.memo<MainToolbarContentProps>(({
@@ -413,20 +162,6 @@ const MainToolbarContent = React.memo<MainToolbarContentProps>(({
       <Spacer />
 
       {isMobile && <ToolbarSeparator />}
-
-      {/* Publish Button */}
-      <ToolbarGroup aria-label="Publish">
-        <Button
-          onClick={onPublishClick}
-          data-style="default"
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
-        >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-          </svg>
-          Publish
-        </Button>
-      </ToolbarGroup>
     </>
   )
 })
@@ -617,7 +352,6 @@ export function SimpleEditor(
     { key: 'Ctrl+Z', action: 'Undo' },
     { key: 'Ctrl+Shift+Z', action: 'Redo' },
     { key: 'Ctrl+K', action: 'Add Link' },
-    { key: 'Ctrl+Shift+P', action: 'Publish' },
   ], [])
 
   // Handle mobile view changes with animation
@@ -630,27 +364,6 @@ export function SimpleEditor(
     setError(null)
   }, [])
 
-  // Handle publish
-  const handlePublish = React.useCallback(async (metadata: PostMetadata) => {
-    if (!editor) return
-
-    const content = editor.getHTML()
-    const postData = {
-      ...metadata,
-      content,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    console.log('Publishing post:', postData)
-
-    // Here you would typically send the data to your API
-    // Example: await publishPost(postData)
-
-    // Show success message
-    setError(null)
-    // You might want to redirect or show a success message here
-  }, [editor])
 
   const handleShowContent = () => {
     if (editor) {
@@ -707,7 +420,7 @@ export function SimpleEditor(
         <EditorContent
           editor={editor}
           role="presentation"
-          className="w-full border h-full min-h-[50vh] border-red-500  rounded-b-md select-text transition-all duration-200 ease-out focus:outline-none focus:ring-2 dark:focus:outline-none bg-transparent dark:bg-transparent"
+          className="w-full border h-full min-h-[50vh]   rounded-b-md select-text transition-all duration-200 ease-out focus:outline-none focus:ring-2 dark:focus:outline-none bg-transparent dark:bg-transparent"
         />
       </div>
       <div>
@@ -719,13 +432,6 @@ export function SimpleEditor(
           Show Content
         </Button>
       </div>
-
-      {/* Publish Modal */}
-      <PublishModal
-        isOpen={showPublishModal}
-        onClose={() => setShowPublishModal(false)}
-        onPublish={handlePublish}
-      />
     </EditorContext.Provider>
   )
 }
