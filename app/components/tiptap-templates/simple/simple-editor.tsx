@@ -199,11 +199,12 @@ MobileToolbarContent.displayName = "MobileToolbarContent"
 
 interface SimpleEditorProps {
   onContentChange: (content: JSONContent) => void;
+  initialContent?: JSONContent;
 }
 
 // Enhanced SimpleEditor with Publish Modal
 export function SimpleEditor(
-  { onContentChange }: SimpleEditorProps
+  { onContentChange, initialContent }: SimpleEditorProps
 ) {
   const isMobile = useMobile()
   const windowSize = useWindowSize()
@@ -219,7 +220,7 @@ export function SimpleEditor(
       const json = editor.getJSON();
       onContentChange?.(json);
     },
-    immediatelyRender: true,
+    immediatelyRender: false,
     editorProps: {
       attributes: {
         autocomplete: "off",
@@ -326,7 +327,7 @@ export function SimpleEditor(
         },
       }),
     ],
-    content: "",
+    content: initialContent,
     onCreate: () => {
       setIsLoading(false)
     },
