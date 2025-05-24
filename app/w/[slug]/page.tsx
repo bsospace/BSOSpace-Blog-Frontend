@@ -3,7 +3,7 @@
 import TiptapEditor from "@/app/components/TiptapEditor"
 import { SimpleEditor } from "@/app/components/tiptap-templates/simple/simple-editor";
 // import content from '@/app/components/tiptap-templates/simple/data/content.json';
-import { useState } from "react";
+import React, { useState } from "react";
 import { JSONContent } from "@tiptap/react";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Check, X, AlertCircle, Globe, Edit3, Calendar, User, Tag, FolderOpen, Star } from "lucide-react";
+import { axiosInstance } from "@/app/utils/api";
+import { use } from "react";
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
@@ -35,7 +37,7 @@ interface Metadata {
     slug: string;
 }
 
-export default function Page() {
+export default function EditPost({ params }: { params: Promise<{ slug: string }> }) {
     const [contentState, setContentState] = useState<JSONContent>();
     const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
     const [publishStatus, setPublishStatus] = useState<PublishStatus>('idle');
@@ -53,42 +55,64 @@ export default function Page() {
         author: '',
         slug: ''
     });
-    const navigate = useRouter();
 
+    const { slug } = use(params);
+
+    const saveContent = async () => {
+        try {
+            const response = await axiosInstance.post('/posts', {
+                short_slug: slug,
+                content: contentState,
+            });
+
+            if (response.status === 201) {
+                setSaveStatus('saved');
+                setLastSaved(new Date());
+                setTimeout(() => {
+                    setSaveStatus('idle');
+                }, 2000);
+            } else {
+                throw new Error('Failed to save content');
+            }
+
+        } catch (error) {
+            console.error('Error saving content:', error);
+        }
+    }
+
+
+    const getPostByShortSlug = async (short_slug: string) => {
+        try {
+            const response = await axiosInstance.get(`/posts/${short_slug}`);
+            if (response.status === 200) {
+                const post = response.data.data;
+                const parsedContent = JSON.parse(post.content);
+                setContentState(parsedContent);
+            }
+        } catch (error) {
+            console.error('Error fetching post:', error);
+        }
+    }
+
+
+    // auto save
     useEffect(() => {
-        console.log('contentState', contentState);
-
-        // Auto-save logic when content changes
-        if (contentState && saveStatus !== 'saving') {
-            setSaveStatus('saving');
-
-            // Simulate save operation
+        if (contentState) {
             const saveTimeout = setTimeout(() => {
-                try {
-                    // Here you would normally save to your backend
-                    // For now, we'll simulate a successful save
-                    setSaveStatus('saved');
-                    setLastSaved(new Date());
-
-                    // Reset to idle after 2 seconds
-                    setTimeout(() => {
-                        setSaveStatus('idle');
-                    }, 2000);
-                } catch (error) {
-                    setSaveStatus('error');
-                    console.error('Save failed:', error);
-                }
+                saveContent();
             }, 1000); // Simulate 1 second save delay
 
             return () => clearTimeout(saveTimeout);
         }
     }, [contentState]);
 
+    useEffect(() => {
+        getPostByShortSlug(slug);
+    }, [slug]);
+
     const handleManualSave = async () => {
         if (saveStatus === 'saving') return;
-
         setSaveStatus('saving');
-
         try {
             // Simulate manual save operation
             await new Promise(resolve => setTimeout(resolve, 1500));
@@ -320,9 +344,20 @@ export default function Page() {
             </Card>
 
             {/* Editor */}
-            <SimpleEditor
-                onContentChange={setContentState}
-            />
+
+
+            {contentState ? (
+                <SimpleEditor
+                    onContentChange={setContentState}
+                    initialContent={contentState}
+                />
+            ) : (
+                <div className="h-96 flex items-center justify-center">
+                    <p className="text-gray-500">Loading editor...</p>
+                </div>
+            )}
+
+
 
             {/* Publish Modal */}
             <Dialog open={showPublishModal} onOpenChange={setShowPublishModal}>
@@ -382,7 +417,7 @@ export default function Page() {
                                 Tags
                             </Label>
                             <div className="flex flex-wrap gap-2">
-                                {metadata.tags.map((tag, index) => (
+                                {/* {metadata.tags.map((tag, index) => (
                                     <Badge key={index} variant="secondary" className="gap-1">
                                         {tag}
                                         <Button
@@ -394,7 +429,7 @@ export default function Page() {
                                             <X className="h-3 w-3" />
                                         </Button>
                                     </Badge>
-                                ))}
+                                ))} */}
                             </div>
                             <div className="flex gap-2">
                                 <Input
