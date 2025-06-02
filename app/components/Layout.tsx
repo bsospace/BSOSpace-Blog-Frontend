@@ -7,7 +7,7 @@ import Link from "next/link";
 import axios from "axios";
 import Script from "next/script";
 import { AuthContext } from "../contexts/authContext";
-import { ChevronDown, LogOut, Settings, SquarePen, User, UserCircle } from "lucide-react";
+import { ChevronDown, LogOut, Notebook, Settings, SquarePen, User, UserCircle } from "lucide-react";
 import { getnerateId } from "@/lib/utils";
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -184,6 +184,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                             >
                               <SquarePen className="w-5 h-5" />
                               <span>เขียนบทความ</span>
+                            </Link>
+                            <Link
+                              href={`/w`}
+                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <Notebook className="w-5 h-5" />
+                              <span>บทความของฉัน</span>
                             </Link>
                             <Link
                               href={`${'/@'}${user.username}`}
