@@ -24,3 +24,13 @@ export function getnerateId() {
 
   return result;
 }
+
+
+export const formatDate = (dateString: string) => {
+  if (!dateString || dateString === "0001-01-01T00:00:00Z") return 'Not set';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
