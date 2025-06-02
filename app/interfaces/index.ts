@@ -30,6 +30,7 @@ export interface User extends BaseModel {
 export interface Post extends BaseModel {
   id: string;
   slug: string;
+  short_slug: string;
   title: string;
   description?: string;
   thumbnail?: string;
