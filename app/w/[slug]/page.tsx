@@ -64,6 +64,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             const response = await axiosInstance.post('/posts', {
                 short_slug: slug,
                 content: contentState,
+                title: metadata.title,
             });
 
             if (response.status === 201) {
@@ -90,6 +91,12 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 const post = response.data.data;
                 const parsedContent = JSON.parse(post.content);
                 setContentState(parsedContent);
+                if (post.title) {
+                    setMetadata({
+                        ...metadata,
+                        title: post.title
+                    })
+                }
                 setIsLoadingoOldContent(false);
             }
         } catch (error) {
@@ -113,6 +120,47 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     useEffect(() => {
         getPostByShortSlug(slug);
     }, [slug]);
+
+    useEffect(() => {
+        if (!contentState) return;
+
+        // Try to find the first h1 heading
+        const firstHeading = contentState.content?.find(
+            (node) => node.type === 'heading' && node.attrs?.level === 1
+        );
+
+        let titleText = '';
+
+        if (firstHeading?.content) {
+            const titleText = firstHeading.content
+                .map((child: any) => child.text || '')
+                .join('')
+                .trim();
+        }
+
+        // If no h1 found or it's empty, fallback to any text node
+        if (!titleText && contentState.content) {
+            for (const node of contentState.content) {
+                if (node.content) {
+                    titleText = node.content
+                        .map((child: any) => child.text)
+                        .filter(Boolean)
+                        .join('');
+                    if (titleText) break;
+                }
+            }
+        }
+
+        if (titleText) {
+            setMetadata((prev) => ({
+                ...prev,
+                title: titleText,
+            }));
+            console.log('title (fallback or h1):', titleText);
+        }
+    }, [contentState]);
+    
+    
 
     const handleManualSave = async () => {
         if (saveStatus === 'saving') return;
