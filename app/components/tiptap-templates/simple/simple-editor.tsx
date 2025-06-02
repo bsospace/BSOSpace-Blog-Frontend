@@ -424,15 +424,6 @@ export function SimpleEditor(
           className="w-full border h-full min-h-[50vh]   rounded-b-md select-text transition-all duration-200 ease-out focus:outline-none focus:ring-2 dark:focus:outline-none bg-transparent dark:bg-transparent"
         />
       </div>
-      <div>
-        <Button
-          onClick={handleShowContent}
-          data-style="default"
-          className="mt-4"
-        >
-          Show Content
-        </Button>
-      </div>
     </EditorContext.Provider>
   )
 }
