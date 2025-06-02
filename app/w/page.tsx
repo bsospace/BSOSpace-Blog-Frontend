@@ -37,7 +37,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Post } from '../interfaces';
 import { axiosInstance } from '../utils/api';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getnerateId } from '@/lib/utils';
 import { PostCard } from './components/post-card';
 import { PostListItem } from './components/post-item';
 import { useRouter } from 'next/navigation';
@@ -73,9 +73,7 @@ const PostsManagement = () => {
 
   // Event Handlers
   const handleCreatePost = () => {
-    // Navigate to create post page or open modal
-    console.log('Creating new post...');
-    // Example: router.push('/posts/create');
+    router.push(`/w/${getnerateId()}`)
   };
 
   const handleViewPost = (postId: string) => {
@@ -157,7 +155,7 @@ const PostsManagement = () => {
   };
 
   const filteredAndSortedPosts = posts
-    .filter(post => {
+    ?.filter(post => {
       const title = post.title || '';
       const description = post.description || '';
       return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -265,7 +263,7 @@ const PostsManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Posts</p>
-                <p className="text-lg sm:text-2xl font-bold">{posts.length}</p>
+                <p className="text-lg sm:text-2xl font-bold">{posts?.length || 0}</p>
               </div>
               <div className="p-2 sm:p-3 bg-violet-100 rounded-lg">
                 <FileText className="w-4 h-4 sm:w-6 sm:h-6 text-violet-600" />
@@ -280,7 +278,7 @@ const PostsManagement = () => {
               <div>
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Views</p>
                 <p className="text-lg sm:text-2xl font-bold">
-                  {posts.reduce((sum, post) => sum + (post.views || 0), 0).toLocaleString()}
+                  {posts?.reduce((sum, post) => sum + (post.views || 0), 0).toLocaleString() || 0}
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
@@ -296,7 +294,7 @@ const PostsManagement = () => {
               <div>
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Likes</p>
                 <p className="text-lg sm:text-2xl font-bold">
-                  {posts.reduce((sum, post) => sum + (post.likes || 0), 0).toLocaleString()}
+                  {posts?.reduce((sum, post) => sum + (post.likes || 0), 0).toLocaleString() || 0}
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-pink-100 rounded-lg">
@@ -312,7 +310,7 @@ const PostsManagement = () => {
               <div>
                 <p className="text-xs sm:text-sm font-medium text-muted-foreground">Avg. Read Time</p>
                 <p className="text-lg sm:text-2xl font-bold">
-                  {posts.length > 0 ? Math.round(posts.reduce((sum, post) => sum + (post.read_time || 0), 0) / posts.length) : 0}m
+                  {posts?.length > 0 ? Math.round(posts.reduce((sum, post) => sum + (post.read_time || 0), 0) / posts.length) : 0}m
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
@@ -396,7 +394,7 @@ const PostsManagement = () => {
       )}
 
       {/* Posts Display */}
-      {filteredAndSortedPosts.length === 0 ? (
+      {filteredAndSortedPosts?.length === 0 ? (
         <Card>
           <CardContent className="p-6 sm:p-12 text-center">
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -420,7 +418,7 @@ const PostsManagement = () => {
           ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
           : "space-y-3 sm:space-y-4"
         }>
-          {filteredAndSortedPosts.map((post) => (
+          {filteredAndSortedPosts?.map((post) => (
             viewMode === 'grid'
               ? <PostCard 
                   key={post.id} 
