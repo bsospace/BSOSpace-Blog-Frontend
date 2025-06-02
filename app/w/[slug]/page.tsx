@@ -44,6 +44,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [isPublished, setIsPublished] = useState(false);
+    const [isLoadingOldContent, setIsLoadingoOldContent] = useState(true);
     const [newTag, setNewTag] = useState('');
     const [metadata, setMetadata] = useState<Metadata>({
         title: '',
@@ -83,14 +84,17 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
     const getPostByShortSlug = async (short_slug: string) => {
         try {
+            setIsLoadingoOldContent(true);
             const response = await axiosInstance.get(`/posts/${short_slug}`);
             if (response.status === 200) {
                 const post = response.data.data;
                 const parsedContent = JSON.parse(post.content);
                 setContentState(parsedContent);
+                setIsLoadingoOldContent(false);
             }
         } catch (error) {
             console.error('Error fetching post:', error);
+            setIsLoadingoOldContent(false);
         }
     }
 
@@ -346,7 +350,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             {/* Editor */}
 
 
-            {contentState ? (
+            {contentState || !isLoadingOldContent ? (
                 <SimpleEditor
                     onContentChange={setContentState}
                     initialContent={contentState}
