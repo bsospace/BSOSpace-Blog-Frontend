@@ -79,7 +79,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       ></Script>
 
       {/* Header */}
-      <header className="sticky top-0 py-2 px-4 z-50 border-b border-slate-800 shadow-md">
+      <header className="sticky top-0 py-2 px-4 z-50 border-b border-slate-800 shadow-md bg-white dark:bg-gray-900">
         <div className="container mx-auto flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
