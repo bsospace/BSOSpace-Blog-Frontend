@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { fetchPosts } from "../_action/posts.action";
 import BlogCard from "../components/Blog";
 import { Post } from "../interfaces";
-import { FiSearch } from "react-icons/fi";
+import { FiCode, FiCpu, FiSearch, FiTrendingUp, FiZap } from "react-icons/fi";
 
 export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,7 +15,7 @@ export default function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [limit,setLimit] = useState(5);
+  const [limit, setLimit] = useState(5);
   const [hasNextPage, setHasNextPage] = useState(false);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -77,66 +77,87 @@ export default function HomePage() {
   }, [page, searchQuery]);
 
   return (
-    <div className="container mx-auto">
-      <header className="h-full mb-12 flex justify-center items-center flex-col">
-        <h1 className="text-heading-2-medium md:my-24 mb-4 mt-12 md:text-hero-bold font-bold text-center bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
-          Be Simple but Outstanding
-        </h1>
-
-        <div className="relative mt-6 w-full max-w-lg shadow-sm dark:hover:shadow-white-500">
-          <input
-            type="text"
-            placeholder="ค้นหาบทความ"
-            className="w-full p-3 pl-10 rounded-md dark:bg-[#4A4A4A] dark:text-gray-100 focus:outline-none"
-            value={searchQuery}
-            onChange={(e) => {
-              setPage(1);
-              setSearchQuery(e.target.value);
-            }}
-          />
-          <div className="absolute left-3 top-4">
-            <FiSearch
-              className="w-4 h-4"
-              style={{
-                background: "linear-gradient(90deg, #9499FF 0%, #E7AF65 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className="container mx-auto px-6 py-8">
+        {/* Header Section */}
+        <header className="text-center mb-16 relative">
+          {/* Background tech elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-10 left-1/4 w-64 h-64 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute top-20 right-1/4 w-48 h-48 bg-gradient-to-br from-red-500/10 to-yellow-500/10 rounded-full blur-3xl"></div>
           </div>
-        </div>
-      </header>
 
-      <section className="flex gap-4 w-full">
-        <div className="w-full">
-          <h3 className="md:text-heading-4-medium py-4">
-            <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 dark:from-purple-400 dark:via-pink-500 dark:to-orange-400 bg-clip-text text-transparent">
-              #
-            </span>
-            Latest From the BSO Blog
-          </h3>
+          <div className="relative z-10">
+            <div className="flex justify-center items-center mb-6">
+              <FiCode className="w-8 h-8 text-orange-400 mr-3" />
+              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 bg-clip-text text-transparent">
+                Be Simple but Outstanding
+              </h1>
+              <FiCpu className="w-8 h-8 text-red-400 ml-3" />
+            </div>
 
-          <div className="w-full flex flex-col gap-4">
+            {/* Tech search bar */}
+            <div className="relative max-w-2xl mx-auto">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="ค้นหาบทความ..."
+                  className="w-full p-4 pl-12 pr-6 rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-700/50 text-white placeholder-slate-400 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all duration-300"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setPage(1);
+                    setSearchQuery(e.target.value);
+                  }}
+                />
+                <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400" />
+
+                {/* Search button */}
+                <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 rounded-xl text-white font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-300">
+                  <FiZap className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Animated border */}
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-red-500/20 to-yellow-500/20 rounded-2xl blur-sm opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <section className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center">
+              <FiTrendingUp className="w-6 h-6 text-orange-400 mr-3" />
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                Latest From the BSO Blog
+              </h2>
+            </div>
+          </div>
+
+          {/* Blog Posts */}
+          <div className="space-y-8">
             {loading ? (
-              <div className="text-center py-10 w-full flex justify-center border-b dark:border-none shadow-sm rounded-md min-h-48 h-full bg-white p-6 text-gray-900 transition-transform transform dark:bg-[#1F1F1F] dark:text-gray-100 dark:hover:shadow-white-500">
-                <div className="loader"></div>
+              <div className="text-center py-10 w-full flex justify-center border-b dark:border-none shadow-sm rounded-md min-h-48 h-full bg-slate-800/50 p-6 text-gray-900 transition-transform transform dark:text-gray-100">
+                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : posts && posts.length > 0 ? (
-              posts?.map((post) => (
-                <BlogCard key={post.id} {...post} published={true} />
+              posts.map((post) => (
+                <BlogCard key={post.id} post={post} />
               ))
             ) : (
-              <p className="text-lg text-gray-500 text-center">
-                No posts available.
+              <p className="text-lg text-slate-400 text-center py-10">
+                ไม่พบบทความ
               </p>
             )}
 
             <div ref={observerRef} className="text-center py-10 w-full flex justify-center">
-              {loadingMore && <div className="loader smooth-loader"></div>}
+              {loadingMore && (
+                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }
