@@ -234,7 +234,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                           <div className="space-y-3">
                             <button
                               onClick={navigateToLogin}
-                                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110 text-white font-medium rounded-lg transition-all shadow"
+                              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110 text-white font-medium rounded-lg transition-all shadow"
                             >
                               เข้าสู่ระบบ
                             </button>
@@ -253,6 +253,12 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-grow w-full mx-auto md:p-6 p-4">
+
+        {/* Background tech elements */}
+        <div className="absolute inset-0 overflow-hidden mt-16">
+          <div className="absolute top-10 left-1/4 w-64 mt-16 h-64 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 right-1/4 w-48 h-48 bg-gradient-to-br from-red-500/10 to-yellow-500/10 rounded-full blur-3xl"></div>
+        </div>
         {children}
       </main>
 
@@ -260,7 +266,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="text-center py-3 border-t border-slate-800">
         <div className="flex justify-center items-center space-x-4 text-slate-400">
           <FiCode className="w-5 h-5 text-orange-400" />
-          <span className="text-sm">Be Simple but Outstanding | Version: {version} | &copy; { new Date().getFullYear()} BSO Space</span>
+          <span className="text-sm">Be Simple but Outstanding | Version: {version} | &copy; {new Date().getFullYear()} BSO Space</span>
           <FiCpu className="w-5 h-5 text-red-400" />
         </div>
       </footer>
