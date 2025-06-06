@@ -167,7 +167,11 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
         setSaveStatus('saving');
         try {
             // Simulate manual save operation
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await axiosInstance.post(`/publish/${(await params).slug}`, {
+                slug: metadata.slug || generateSlug(metadata.title),
+                title: metadata.title,
+            });
+
             setSaveStatus('saved');
             setLastSaved(new Date());
 
@@ -185,8 +189,13 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
         try {
             // Simulate publish operation
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Simulate manual save operation
+            const response = await axiosInstance.put(`posts/publish/${(await params).slug}`, {
+                slug: metadata.slug || generateSlug(metadata.title),
+                title: metadata.title,
+            });
 
+            
             // Here you would send both content and metadata to your backend
             console.log('Publishing content:', contentState);
             console.log('Publishing metadata:', metadata);
@@ -259,13 +268,48 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     };
 
     const generateSlug = (title: string) => {
-        return title
-            .toLowerCase()
-            .replace(/[^a-z0-9 -]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
+        const thaiToEng: { [key: string]: string } = {
+            'ก': 'k', 'ข': 'k', 'ค': 'k', 'ฆ': 'k',
+            'ง': 'ng',
+            'จ': 'j',
+            'ฉ': 'ch', 'ช': 'ch', 'ฌ': 'ch',
+            'ซ': 's', 'ศ': 's', 'ษ': 's', 'ส': 's',
+            'ญ': 'y', 'ย': 'y',
+            'ฎ': 'd', 'ด': 'd',
+            'ต': 't', 'ฏ': 't', 'ถ': 't', 'ท': 't', 'ธ': 't', 'ฐ': 't',
+            'ณ': 'n', 'น': 'n',
+            'บ': 'b',
+            'ป': 'p', 'พ': 'p', 'ผ': 'p', 'ภ': 'p',
+            'ฝ': 'f', 'ฟ': 'f',
+            'ม': 'm',
+            'ร': 'r',
+            'ล': 'l', 'ฬ': 'l',
+            'ว': 'w',
+            'ห': 'h', 'ฮ': 'h',
+            'อ': 'a',
+        };
+
+        const lowerTitle = title.trim().toLowerCase();
+
+        // Keep Thai characters and alphanumerics for the main slug
+        const mainSlug = lowerTitle
+            .replace(/[^ก-๙a-z0-9\s]/g, '') // remove special chars except Thai and a-z0-9
+            .replace(/\s+/g, '-') // replace spaces with dash
+            .replace(/-+/g, '-') // remove multiple dashes
             .trim();
+
+        // Generate English part by converting Thai letters
+        const engSlug = lowerTitle
+            .replace(/[^\u0E00-\u0E7F]/g, '') // keep only Thai characters
+            .split('')
+            .map(char => thaiToEng[char] || '')
+            .join('')
+            .replace(/[^a-z0-9]/g, '') // ensure only a-z0-9 remain
+            .replace(/-+/g, '-');
+
+        return engSlug ? `${mainSlug}-${engSlug}` : mainSlug;
     };
+    
 
     const handleMetadataChange = (field: keyof Metadata, value: any) => {
         setMetadata(prev => {
