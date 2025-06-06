@@ -81,16 +81,10 @@ export default function HomePage() {
       <div className="container mx-auto px-6 py-8">
         {/* Header Section */}
         <header className="text-center mb-16 relative">
-          {/* Background tech elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-10 left-1/4 w-64 h-64 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-3xl"></div>
-            <div className="absolute top-20 right-1/4 w-48 h-48 bg-gradient-to-br from-red-500/10 to-yellow-500/10 rounded-full blur-3xl"></div>
-          </div>
-
           <div className="relative z-10">
             <div className="flex justify-center items-center mb-6">
               <FiCode className="w-8 h-8 text-orange-400 mr-3" />
-              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-7xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 bg-clip-text text-transparent">
                 Be Simple but Outstanding
               </h1>
               <FiCpu className="w-8 h-8 text-red-400 ml-3" />
@@ -127,8 +121,8 @@ export default function HomePage() {
         <section className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
-              <FiTrendingUp className="w-6 h-6 text-orange-400 mr-3" />
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+              <FiTrendingUp className="md:w-6 md:h-6 text-orange-400 mr-3" />
+              <h2 className="md:text-3xl text-sm font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
                 Latest From the BSO Blog
               </h2>
             </div>
