@@ -16,13 +16,20 @@ import { JSONContent } from "@tiptap/react";
 import { axiosInstance } from "@/app/utils/api";
 import { Post } from "@/app/interfaces";
 import { SEOProvider } from "@/app/contexts/seoContext";
+import { useParams } from 'next/navigation';
 
-export default function PostPage({ params }: { params: { slug: string, username: string } }) {
+
+export default function PostPage() {
+
 
     const [isLoading, setIsLoading] = useState(true);
     const [contentState, setContentState] = useState<JSONContent>();
     const [post, setPost] = useState<Post | null>(null);
     const [toc, setToc] = useState<{ level: number; text: string; href: string }[]>([]);
+
+    const params = useParams<{ slug: string, username:string }>();
+    const { slug, username } = params;
+
 
     const [metadata, setMetadata] = useState({
         title: "Loading...",
@@ -100,9 +107,7 @@ export default function PostPage({ params }: { params: { slug: string, username:
 
 
     useEffect(() => {
-        const { username, slug } = params;
         if (username && slug) {
-
             console.log("Fetching content for:", username, slug);
             const decodedSlug = decodeURIComponent(slug);
             const cleanUsername = username.replace('%40', '')
