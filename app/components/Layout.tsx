@@ -9,6 +9,7 @@ import Script from "next/script";
 import { AuthContext } from "../contexts/authContext";
 import { ChevronDown, LogOut, Notebook, Settings, SquarePen, User, UserCircle } from "lucide-react";
 import { getnerateId } from "@/lib/utils";
+import { FiCode, FiCpu } from "react-icons/fi";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -78,7 +79,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       ></Script>
 
       {/* Header */}
-      <header className="sticky top-0 py-2 px-4 z-50 bg-white dark:bg-[#1F1F1F] shadow-md">
+      <header className="sticky top-0 py-2 px-4 z-50 border-b border-slate-800 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
@@ -255,11 +256,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white dark:bg-[#1F1F1F] py-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto text-center md:text-body-15pt-medium text-xs text-gray-600 dark:text-gray-400">
-          Be Simple but Outstanding | Version: {version} | &copy; 2025 BSO Space
-          Blog. All rights reserved.
+      {/* Footer tech elements */}
+      <footer className="text-center py-3 border-t border-slate-800">
+        <div className="flex justify-center items-center space-x-4 text-slate-400">
+          <FiCode className="w-5 h-5 text-orange-400" />
+          <span className="text-sm">Be Simple but Outstanding | Version: {version} | &copy; { new Date().getFullYear()} BSO Space</span>
+          <FiCpu className="w-5 h-5 text-red-400" />
         </div>
       </footer>
     </div>
