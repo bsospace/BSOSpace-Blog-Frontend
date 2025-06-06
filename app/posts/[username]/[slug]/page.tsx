@@ -22,16 +22,41 @@ export default function PostPage({ params }: { params: { slug: string, username:
     const [isLoading, setIsLoading] = useState(true);
     const [contentState, setContentState] = useState<JSONContent>();
     const [post, setPost] = useState<Post | null>(null);
+    const [toc, setToc] = useState<{ level: number; text: string; href: string }[]>([]);
 
     const [metadata, setMetadata] = useState({
         title: "Loading...",
         description: "Loading...",
-        image: "https://picsum.photos/800/400",
+        image: "/default-thumbnail.png",
         author: '',
         authorImage: '',
         publishDate: '',
         readTime: '0 min read'
     });
+
+    function generateTableOfContents(contentState: JSONContent): {
+        level: number;
+        text: string;
+        href: string;
+    }[] {
+        const toc: {
+            level: number;
+            text: string;
+            href: string;
+        }[] = [];
+
+        console.log("Generating Table of Contents from contentState:", contentState);
+
+        contentState?.content?.forEach((block) => {
+            if (block.type === "heading" && block.attrs && [2, 3, 4].includes(block.attrs.level)) {
+                const text = block.content?.map((c) => c.text).join("") || "";
+                const slug = "#" + text.trim().toLowerCase().replace(/\s+/g, "-");
+                toc.push({ level: block.attrs.level, text, href: slug });
+            }
+        });
+
+        return toc;
+    }
 
 
     const fetchContent = async (username: string, slug: string) => {
@@ -52,12 +77,16 @@ export default function PostPage({ params }: { params: { slug: string, username:
                         ...metadata,
                         title: post.title,
                         description: post.description || "",
-                        image: post.thumbnail || "https://picsum.photos/800/400",
+                        image: post.thumbnail || "/default-thumbnail.png",
                         author: post.author?.username || "Unknown Author",
-                        authorImage: post.author?.avatar || "https://picsum.photos/50/50",
+                        authorImage: post.author?.avatar || "/default-avatar.png",
                         publishDate: post.published_at ? new Date(post.published_at).toLocaleDateString() : "Not Published",
                         readTime: post.read_time ? `${post.read_time} min read` : "0 min read"
                     })
+                    const tableOfContents = generateTableOfContents(parsedContent);
+
+                    console.log("Generated Table of Contents:", tableOfContents);
+                    setToc(tableOfContents);
                 }
                 setIsLoading(false);
             }
@@ -67,6 +96,8 @@ export default function PostPage({ params }: { params: { slug: string, username:
             // Handle error appropriately, e.g., show a message to the user
         }
     }
+
+
 
     useEffect(() => {
         const { username, slug } = params;
@@ -140,28 +171,33 @@ export default function PostPage({ params }: { params: { slug: string, username:
 
                 <div className="bg-white dark:bg-gray-900">
                     <div className="container mx-auto px-4 py-8 max-w-4xl">
-                        <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center gap-2 mb-4">
-                                <AlignJustify className="text-gray-900 dark:text-white" />
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Table of Contents</h3>
-                            </div>
-                            <Popover>
-                                <PopoverTrigger>
-                                    <Button variant="outline" size="sm" className="flex items-center gap-2 justify-between w-full bg-white dark:bg-gray-800 text-left dark:text-white">
-                                        <span>Show Contents</span>
-                                        <IoChevronDown className="w-4 h-4" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80 max-h-60 overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-                                    <div className="space-y-2">
-                                        <a href="#introduction" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded">1. Introduction</a>
-                                        <a href="#getting-started" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded">2. Getting Started</a>
-                                        <a href="#advanced-topics" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded">3. Advanced Topics</a>
-                                        <a href="#conclusion" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded">4. Conclusion</a>
+                        {
+                            toc.length > 0 && (
+                                <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <AlignJustify className="text-gray-900 dark:text-white" />
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Table of Contents</h3>
                                     </div>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
+                                    <Popover>
+                                        <PopoverTrigger>
+                                            <Button variant="outline" size="sm" className="flex items-center gap-2 justify-between w-full bg-white dark:bg-gray-800 text-left dark:text-white">
+                                                <span>Show Contents</span>
+                                                <IoChevronDown className="w-4 h-4" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80 max-h-60 overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+                                            <div className="space-y-2">
+                                                {toc.map((item, index) => (
+                                                    <Link href={item.href} key={index} className={`block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${item.level === 2 ? 'pl-4' : item.level === 3 ? 'pl-6' : ''}`}>
+                                                        <span className={`text-sm ${item.level === 2 ? 'font-semibold' : item.level === 3 ? 'font-medium' : 'font-normal'}`}>{item.text}</span>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            )
+                        }
 
                         <div className="prose prose-lg max-w-none dark:prose-invert">
                             <PreviewEditor content={contentState ?? { type: 'doc', content: [] }} />
