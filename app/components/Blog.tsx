@@ -5,58 +5,59 @@ import React, { FC } from "react";
 import Link from "next/link";
 import { Post } from "../interfaces";
 import { FiBookmark, FiClock, FiEye, FiHeart } from "react-icons/fi";
+import { formatDate } from "@/lib/utils";
 
-const BlogCard: FC<Post> = ({
-  title,
-  description,
-  slug,
-  thumbnail,
-  published_at,
-  likes,
-  views,
-  read_time,
-  author,
-  tags
-}) => {
-  // Date formatting for Thai locale
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    });
-  };
-
+const BlogCard = ({ post }
+  : {
+    post: Post;
+  } & React.HTMLAttributes<HTMLDivElement>
+) => {
   return (
-    <Link href={`/posts/@${author?.username}/${slug}`} className="block group">
-      <div className="flex bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-md transition-all duration-300">
-        {/* Thumbnail side - takes up less space */}
-        <div className="relative w-1/3 flex-shrink-0">
+    <div className="group relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl overflow-hidden border border-slate-700/50 hover:border-orange-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10">
+      {/* Animated border effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/10 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+
+
+      {/* Glowing orb effect */}
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+      <div className="relative z-10 flex h-full">
+        {/* Thumbnail Section */}
+        <div className="relative w-2/5 flex-shrink-0">
           <div className="h-full aspect-[4/3] overflow-hidden">
             <img
-              src={thumbnail || "/default-thumbnail.png"}
-              alt={title}
-              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+              src={post?.thumbnail || "/default-thumbnail.png"}
+              alt={post.title}
+              className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
             />
+            {/* Tech overlay */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/50 via-transparent to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+            {/* Floating tech elements */}
+            <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
+              <div className="flex space-x-2">
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse delay-100"></div>
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse delay-200"></div>
+              </div>
+            </div>
           </div>
 
-          {/* Bookmark button - more subtly positioned */}
-          <button className="absolute top-2 right-2 bg-white/80 dark:bg-gray-800/80 p-1.5 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <FiBookmark className="w-3 h-3 text-gray-700 dark:text-gray-200" />
+          {/* Bookmark with tech styling */}
+          <button className="absolute top-4 right-4 bg-black/50 backdrop-blur-md p-2 rounded-xl border border-orange-500/30 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-orange-500/20">
+            <FiBookmark className="w-4 h-4 text-orange-400" />
           </button>
         </div>
 
-        {/* Content side - optimized spacing */}
-        <div className="w-2/3 p-3 flex flex-col">
-          {/* Tags in horizontal inline display */}
-          {tags && tags.length > 0 && (
-            <div className="md:flex md:flex-wrap hidden gap-1 mb-1">
-              {tags.slice(0, 6).map((tag) => (
+        {/* Content Section */}
+        <div className="w-3/5 p-6 flex flex-col">
+          {/* Tech Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {post.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag.id}
-                  className="px-1.5 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300"
+                  className="px-3 py-1 text-xs font-mono bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-300 rounded-full border border-orange-500/30 hover:border-orange-400 transition-colors cursor-pointer"
                 >
                   #{tag.name}
                 </span>
@@ -64,46 +65,57 @@ const BlogCard: FC<Post> = ({
             </div>
           )}
 
-          {/* Title - more compact */}
-          <h2 className="text-base font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">
-            {title}
-          </h2>
+          {/* Title with tech styling */}
+          <Link
+            href={`/posts/@${post.author?.username}/${post.slug}`}
+          >
+            <h2 className="text-xl font-bold text-white mb-3 line-clamp-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-orange-400 group-hover:to-red-400 group-hover:bg-clip-text transition-all duration-500">
+              {post.title}
+            </h2>
+          </Link>
 
-          {/* Description - shortened */}
-          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-2 flex-grow">
-            {description}
+          {/* Description */}
+          <p className="text-slate-300 text-sm mb-4 line-clamp-3 flex-grow leading-relaxed">
+            {post.description}
           </p>
 
-          {/* Bottom info row */}
-          <div className="flex items-center justify-between mt-auto pt-1 border-t border-gray-100 dark:border-gray-700">
-            {/* Author info - simplified */}
-            <div className="flex items-center">
-              <img
-                src={author?.avatar || `/default-avatar.png`}
-                alt={author?.username || "Author"}
-                className="w-5 h-5 rounded-full mr-1.5 object-cover"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {author?.username || "ผู้เขียน"}
-              </p>
+          {/* Bottom section */}
+          <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-700/50">
+            {/* Author info with tech styling */}
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <img
+                  src={post.author?.avatar || `/default-avatar.png`}
+                  alt={post.author?.username || "Author"}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-orange-500/30"
+                />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-slate-800"></div>
+              </div>
+              <div>
+                <p className="text-orange-300 text-sm font-medium">@{post.author?.username || "ผู้เขียน"}</p>
+                <p className="text-slate-400 text-xs">{formatDate(post.published_at ?? '')}</p>
+              </div>
             </div>
 
-            {/* Stats - more compact */}
-            <div className="flex items-center space-x-2">
-              <span className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                <FiClock className="w-3 h-3 mr-0.5" />
-                {read_time || 0}
-              </span>
-              <span className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                <FiEye className="w-3 h-3 mr-0.5" />
-                {views || 0}
-              </span>
+            {/* Stats with tech icons */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1 text-slate-400 text-sm">
+                <FiClock className="w-4 h-4 text-orange-400" />
+                <span>{post.read_time || 0}m</span>
+              </div>
+              <div className="flex items-center space-x-1 text-slate-400 text-sm">
+                <FiEye className="w-4 h-4 text-red-400" />
+                <span>{(post.views || 0).toLocaleString()}</span>
+              </div>
+              <div className="flex items-center space-x-1 text-slate-400 text-sm">
+                <FiHeart className="w-4 h-4 text-pink-400" />
+                <span>{post.likes || 0}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
-
 export default BlogCard;
