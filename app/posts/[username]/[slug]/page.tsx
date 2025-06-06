@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
+
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -9,25 +12,77 @@ import content from "@/app/components/tiptap-templates/simple/data/content.json"
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlignJustify } from "lucide-react";
+import { JSONContent } from "@tiptap/react";
+import { axiosInstance } from "@/app/utils/api";
+import { Post } from "@/app/interfaces";
+import { SEOProvider } from "@/app/contexts/seoContext";
 
-export default function PostPage({ params }: { params: { slug: string } }) {
-    const mockData = {
-        header: "My Sample Blog Post",
-        description: "This is a sample blog post description that shows how the preview works.",
-        image: "https://picsum.photos/800/400",
-        tags: ["programming", "typescript", "react", "nextjs"],
-        content: content,
-        author: "John Doe",
-        publishDate: "March 15, 2024",
-        readTime: "5 min read"
-    };
+export default function PostPage({ params }: { params: { slug: string, username: string } }) {
 
     const [isLoading, setIsLoading] = useState(true);
+    const [contentState, setContentState] = useState<JSONContent>();
+    const [post, setPost] = useState<Post | null>(null);
+
+    const [metadata, setMetadata] = useState({
+        title: "Loading...",
+        description: "Loading...",
+        image: "https://picsum.photos/800/400",
+        author: '',
+        authorImage: '',
+        publishDate: '',
+        readTime: '0 min read'
+    });
+
+
+    const fetchContent = async (username: string, slug: string) => {
+        try {
+
+            console.log("Fetching content for:", username, slug);
+
+            const response = await axiosInstance.get(`/posts/public/${username}/${slug}`);
+            if (response.status === 200) {
+                const post = response.data.data as Post;
+                const parsedContent = JSON.parse(post.content);
+                setContentState(parsedContent);
+                setPost(post);
+
+                console.log("Post content fetched successfully:", post.title);
+                if (post.title) {
+                    setMetadata({
+                        ...metadata,
+                        title: post.title,
+                        description: post.description || "",
+                        image: post.thumbnail || "https://picsum.photos/800/400",
+                        author: post.author?.username || "Unknown Author",
+                        authorImage: post.author?.avatar || "https://picsum.photos/50/50",
+                        publishDate: post.published_at ? new Date(post.published_at).toLocaleDateString() : "Not Published",
+                        readTime: post.read_time ? `${post.read_time} min read` : "0 min read"
+                    })
+                }
+                setIsLoading(false);
+            }
+
+        } catch (error) {
+            console.error("Error fetching content:", error);
+            // Handle error appropriately, e.g., show a message to the user
+        }
+    }
 
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1000);
-        return () => clearTimeout(timer);
-    }, []);
+        const { username, slug } = params;
+        if (username && slug) {
+
+            console.log("Fetching content for:", username, slug);
+            const decodedSlug = decodeURIComponent(slug);
+            const cleanUsername = username.replace('%40', '')
+
+            console.log("Decoded slug:", decodedSlug);
+            console.log("Cleaned username:", cleanUsername);
+            fetchContent(cleanUsername, decodedSlug);
+        } else {
+            setIsLoading(false);
+        }
+    }, [params]);
 
     if (isLoading) {
         return (
@@ -50,33 +105,33 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                             <IoChevronForward className="w-4 h-4" />
                             <Link href="/home" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Blog</Link>
                             <IoChevronForward className="w-4 h-4" />
-                            <span className="text-gray-900 dark:text-white font-medium">{mockData.header}</span>
+                            <span className="text-gray-900 dark:text-white font-medium truncate">{metadata.title}</span>
                         </nav>
 
                         <div className="mb-8">
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-                                {mockData.header}
+                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight break-words">
+                                {metadata.title}
                             </h1>
                             <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
-                                {mockData.description}
+                                {metadata.description}
                             </p>
                             <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mb-6">
-                                <div className="flex items-center gap-2"><FaUser /><span>{mockData.author}</span></div>
-                                <div className="flex items-center gap-2"><FaCalendar /><span>{mockData.publishDate}</span></div>
-                                <div className="flex items-center gap-2"><FaClock /><span>{mockData.readTime}</span></div>
+                                <div className="flex items-center gap-2"><FaUser /><span>{metadata.author}</span></div>
+                                <div className="flex items-center gap-2"><FaCalendar /><span>{metadata.publishDate}</span></div>
+                                <div className="flex items-center gap-2"><FaClock /><span>{metadata.readTime}</span></div>
                             </div>
                             <div className="flex flex-wrap gap-2 mb-8">
-                                {mockData.tags.map((tag, index) => (
+                                {/* {metadata.tags.map((tag, index) => (
                                     <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                                         #{tag}
                                     </span>
-                                ))}
+                                ))} */}
                             </div>
                         </div>
 
                         <div className="mb-8">
                             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                                <img src={mockData.image} alt={mockData.header} className="w-full h-64 md:h-96 object-cover" />
+                                <img src={metadata.image} alt={metadata.title} className="w-full h-64 md:h-96 object-cover" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                             </div>
                         </div>
@@ -109,7 +164,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                         </div>
 
                         <div className="prose prose-lg max-w-none dark:prose-invert">
-                            <PreviewEditor content={mockData.content} />
+                            <PreviewEditor content={contentState ?? { type: 'doc', content: [] }} />
                         </div>
 
                         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -134,18 +189,18 @@ export default function PostPage({ params }: { params: { slug: string } }) {
 
                         <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
                             <div className="flex items-start gap-4">
-                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-                                    {mockData.author.charAt(0)}
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-xl">
+                                    {metadata.authorImage ? <img src={metadata.authorImage} alt={metadata.author} className="w-full h-full rounded-full object-cover" /> : (metadata.author?.charAt(0) || 'A')}
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About {mockData.author}</h4>
+                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About {metadata.author}</h4>
                                     <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                                         A passionate developer and writer who loves to share knowledge about modern web development,
                                         React, TypeScript, and best practices in software engineering.
                                     </p>
                                     <div className="mt-3">
                                         <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-                                            Follow {mockData.author} →
+                                            Follow {metadata.author} →
                                         </button>
                                     </div>
                                 </div>
