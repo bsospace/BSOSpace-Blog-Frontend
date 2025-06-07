@@ -13,7 +13,6 @@ const envConfig: IEvnConfig = {
     callBackUrl: process.env.NEXT_PUBLIC_CALLBACK_URL || ''
 };
 
-console.table(envConfig);
 
 export const checkEnvConfig = () => {
     // Define only the required fields
@@ -36,7 +35,7 @@ try {
     console.log('All required environment variables are correctly set.');
 } catch (error) {
     if (error instanceof Error) {
-        console.error(error.message);
+        console.error(error.message)
     } else {
         console.error('An unknown error occurred.');
     }
