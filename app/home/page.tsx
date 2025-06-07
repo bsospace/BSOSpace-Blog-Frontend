@@ -80,6 +80,10 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <div className="container mx-auto px-6 py-8">
         {/* Header Section */}
+        <div className="absolute inset-0 overflow-hidden mt-16">
+          <div className="absolute top-10 left-1/4 w-64 mt-16 h-64 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 right-1/4 w-48 h-48 bg-gradient-to-br from-red-500/10 to-yellow-500/10 rounded-full blur-3xl"></div>
+        </div>
         <header className="text-center mb-16 relative">
           <div className="relative z-10">
             <div className="flex justify-center items-center mb-6">

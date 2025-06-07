@@ -255,10 +255,6 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main className="flex-grow w-full mx-auto md:p-6 p-4">
 
         {/* Background tech elements */}
-        <div className="absolute inset-0 overflow-hidden mt-16">
-          <div className="absolute top-10 left-1/4 w-64 mt-16 h-64 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute top-20 right-1/4 w-48 h-48 bg-gradient-to-br from-red-500/10 to-yellow-500/10 rounded-full blur-3xl"></div>
-        </div>
         {children}
       </main>
 
