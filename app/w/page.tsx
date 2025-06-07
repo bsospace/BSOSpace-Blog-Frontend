@@ -41,9 +41,11 @@ import { formatDate, getnerateId } from '@/lib/utils';
 import { PostCard } from './components/post-card';
 import { PostListItem } from './components/post-item';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../contexts/authContext';
 
 const PostsManagement = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<keyof Post>('created_at');
@@ -76,10 +78,8 @@ const PostsManagement = () => {
     router.push(`/w/${getnerateId()}`)
   };
 
-  const handleViewPost = (postId: string) => {
-    console.log('Viewing post:', postId);
-    // Example: router.push(`/posts/${postId}`);
-    // or window.open(`/posts/${postId}`, '_blank');
+  const handleViewPost = (slug: string) => {
+    router.push(`/posts/@${user?.username}/${slug}`);
   };
 
   const handleEditPost = (shortSlug: string) => {
@@ -257,8 +257,8 @@ const PostsManagement = () => {
       </div>
 
       {/* Stats Dashboard */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
-        <Card>
+      <div className="flex md:flex-row gap-4 flex-col">
+        <Card className='w-full'>
           <CardContent className="p-3 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -272,7 +272,7 @@ const PostsManagement = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className='w-full'>
           <CardContent className="p-3 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -288,7 +288,7 @@ const PostsManagement = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className=' w-full'>
           <CardContent className="p-3 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -304,7 +304,7 @@ const PostsManagement = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className=' w-full'>
           <CardContent className="p-3 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
