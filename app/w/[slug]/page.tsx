@@ -23,6 +23,8 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, Check, X, AlertCircle, Globe, Edit3, Calendar, User, Tag, FolderOpen, Star, ImageIcon, Upload } from "lucide-react";
 import { axiosInstance } from "@/app/utils/api";
 import { use } from "react";
+import { useToast, toast } from '@/hooks/use-toast';
+import { ToastAction } from "@radix-ui/react-toast";
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
@@ -61,6 +63,8 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     });
 
     const { slug } = use(params);
+
+    const { toast } = useToast();
 
     const saveContent = async () => {
         try {
@@ -216,16 +220,25 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             setIsPublished(true);
             setShowPublishModal(false);
 
+            toast({
+                title: 'Published Successfully',
+                description: 'Your content has been published successfully.',
+            });
+
             setTimeout(() => {
                 setPublishStatus('idle');
             }, 3000);
         } catch (error) {
             setPublishStatus('error');
             console.error('Publish failed:', error);
+            toast({
+                title: 'Publish Failed',
+                description: 'There was an error publishing your content. Please try again.',
+                variant: 'destructive',
+                action: <ToastAction onClick={() => handlePublish()} altText="Try again">Try again</ToastAction>,
+            });
         }
     };
-
-    console.log('Metadata:', metadata);
 
     const handleUnpublish = async () => {
         setPublishStatus('publishing');
@@ -239,8 +252,19 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
             setIsPublished(false);
             setPublishStatus('idle');
+
+            toast({
+                title: 'Unpublished Successfully',
+                description: 'Your content has been unpublished successfully.',
+            });
+
         } catch (error) {
             setPublishStatus('error');
+            toast({
+                title: 'Unpublish Failed',
+                description: 'There was an error unpublishing your content. Please try again.',
+                variant: 'destructive',
+            });
         }
     };
 

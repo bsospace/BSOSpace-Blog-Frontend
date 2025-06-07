@@ -15,8 +15,8 @@ import { AlignJustify } from "lucide-react";
 import { JSONContent } from "@tiptap/react";
 import { axiosInstance } from "@/app/utils/api";
 import { Post } from "@/app/interfaces";
-import { SEOProvider } from "@/app/contexts/seoContext";
 import { useParams } from 'next/navigation';
+import { toast, useToast } from "@/hooks/use-toast"
 
 
 export default function PostPage() {
@@ -27,7 +27,7 @@ export default function PostPage() {
     const [post, setPost] = useState<Post | null>(null);
     const [toc, setToc] = useState<{ level: number; text: string; href: string }[]>([]);
 
-    const params = useParams<{ slug: string, username:string }>();
+    const params = useParams<{ slug: string, username: string }>();
     const { slug, username } = params;
 
 
@@ -100,6 +100,13 @@ export default function PostPage() {
 
         } catch (error) {
             console.error("Error fetching content:", error);
+            setIsLoading(false);
+            setContentState({ type: 'doc', content: [] }); // Set empty content state on error
+            toast({
+                title: "Error",
+                description: "Failed to fetch post content. Please try again later.",
+                variant: "destructive",
+            })
             // Handle error appropriately, e.g., show a message to the user
         }
     }
