@@ -225,11 +225,22 @@ body {
 }
 
 .tiptap-toolbar {
-  @apply flex items-center max-w-screen-xl gap-1 rounded-md p-2 bg-white dark:bg-gray-900 z-10 transition-all duration-300 ease-out;
+  @apply flex items-center max-w-screen-xl gap-1 rounded-md p-2 bg-white dark:bg-gray-900 z-10 transition-all duration-300 ease-out overflow-x-auto;
+}
+
+/* scroll bar style */
+.tiptap-toolbar::-webkit-scrollbar {
+  height: 6px;
+  background: transparent;
+}
+
+.tiptap-toolbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, #f97316, #facc15);
+  border-radius: 4px;
 }
 
 .tiptap-toolbar-group {
-  @apply flex items-center gap-1;
+  @apply flex items-center gap-1 ;
 }
 
 /* =========================
