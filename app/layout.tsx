@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/authContext";
 import Providers from "./components/providers";
 
 const inter = Inter({ subsets: ["latin"] });
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "BSO Space Blog",
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <Providers>
+            <Toaster />
             <Layout>{children}</Layout>
           </Providers>
         </AuthProvider>
