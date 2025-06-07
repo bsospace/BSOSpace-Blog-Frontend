@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import TiptapEditor from "@/app/components/TiptapEditor"
@@ -19,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Check, X, AlertCircle, Globe, Edit3, Calendar, User, Tag, FolderOpen, Star } from "lucide-react";
+import { Loader2, Check, X, AlertCircle, Globe, Edit3, Calendar, User, Tag, FolderOpen, Star, ImageIcon, Upload } from "lucide-react";
 import { axiosInstance } from "@/app/utils/api";
 import { use } from "react";
 
@@ -31,6 +32,7 @@ interface Metadata {
     description: string;
     tags: string[];
     category: string;
+    thumbnail: string;
     featured: boolean;
     publishDate: string;
     author: string;
@@ -51,6 +53,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
         description: '',
         tags: [],
         category: '',
+        thumbnail: '',
         featured: false,
         publishDate: new Date().toISOString().split('T')[0],
         author: '',
@@ -94,8 +97,14 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 if (post.title) {
                     setMetadata({
                         ...metadata,
-                        title: post.title
+                        title: post.title,
+                        description: post.description || '',
+                        tags: post.tags || [],
+                        category: post.category || '',
+                        thumbnail: post.thumbnail || '',
                     })
+
+                    setIsPublished(post.published);
                 }
                 setIsLoadingoOldContent(false);
             }
@@ -156,11 +165,8 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 ...prev,
                 title: titleText,
             }));
-            console.log('title (fallback or h1):', titleText);
         }
     }, [contentState]);
-    
-    
 
     const handleManualSave = async () => {
         if (saveStatus === 'saving') return;
@@ -170,6 +176,8 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             const response = await axiosInstance.post(`/publish/${(await params).slug}`, {
                 slug: metadata.slug || generateSlug(metadata.title),
                 title: metadata.title,
+                thumbnail: metadata.thumbnail,
+                discription: metadata.description,
             });
 
             setSaveStatus('saved');
@@ -193,9 +201,13 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             const response = await axiosInstance.put(`posts/publish/${(await params).slug}`, {
                 slug: metadata.slug || generateSlug(metadata.title),
                 title: metadata.title,
+                thumbnail: metadata.thumbnail,
+                description: metadata.description,
             });
 
-            
+            console.log('Publish response:', response);
+
+
             // Here you would send both content and metadata to your backend
             console.log('Publishing content:', contentState);
             console.log('Publishing metadata:', metadata);
@@ -213,11 +225,18 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
         }
     };
 
+    console.log('Metadata:', metadata);
+
     const handleUnpublish = async () => {
         setPublishStatus('publishing');
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const response = await axiosInstance.put(`posts/unpublish/${(await params).slug}`);
+            if (response.status !== 200) {
+                throw new Error('Failed to unpublish content');
+            }
+
             setIsPublished(false);
             setPublishStatus('idle');
         } catch (error) {
@@ -309,8 +328,31 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
         return engSlug ? `${mainSlug}-${engSlug}` : mainSlug;
     };
-    
 
+
+    const uploadThumbnail = async (file: File) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await axiosInstance.post('/media/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                const url = response?.data?.data?.image_url
+
+                console.log('Image uploaded successfully:', url);
+                handleMetadataChange('thumbnail', url);
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Image upload failed:', error);
+        }
+    }
     const handleMetadataChange = (field: keyof Metadata, value: any) => {
         setMetadata(prev => {
             const updated = { ...prev, [field]: value };
@@ -318,6 +360,10 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             // Auto-generate slug when title changes
             if (field === 'title' && value) {
                 updated.slug = generateSlug(value);
+            }
+
+            if (field === 'thumbnail' && value instanceof File) {
+                uploadThumbnail(value);
             }
 
             return updated;
@@ -453,8 +499,6 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 </div>
             )}
 
-
-
             {/* Publish Modal */}
             <Dialog open={showPublishModal} onOpenChange={setShowPublishModal}>
                 <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -466,6 +510,61 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                     </DialogHeader>
 
                     <div className="space-y-6 py-4">
+                        {/* Blog Cover Image Upload */}
+                        <div className="space-y-3">
+                            <Label className="flex items-center gap-2">
+                                <ImageIcon className="h-4 w-4" />
+                                Blog Cover Image
+                            </Label>
+
+                            <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                                {metadata.thumbnail ? (
+                                    <div className="space-y-3">
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={metadata.thumbnail}
+                                                alt="Cover preview"
+                                                className="max-h-32 rounded-lg object-cover"
+                                            />
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                                                onClick={() => handleMetadataChange('thumbnail', '')}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                        <p className="text-sm text-gray-600">Click to change image</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                                        <p className="text-sm text-gray-600">
+                                            Click to upload cover image or drag and drop
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            PNG, JPG, WebP up to 5MB
+                                        </p>
+                                    </div>
+                                )}
+
+                                <input
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            handleMetadataChange('thumbnail', file);
+                                        }
+                                    }}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                />
+                            </div>
+                        </div>
+
+                        <Separator />
+
                         {/* Title & Slug */}
                         <div className="space-y-4">
                             <div className="space-y-2">
@@ -478,16 +577,6 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                     value={metadata.title}
                                     onChange={(e) => handleMetadataChange('title', e.target.value)}
                                     placeholder="Enter post title"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="slug">URL Slug</Label>
-                                <Input
-                                    id="slug"
-                                    value={metadata.slug}
-                                    onChange={(e) => handleMetadataChange('slug', e.target.value)}
-                                    placeholder="url-friendly-slug"
                                 />
                             </div>
                         </div>
@@ -512,21 +601,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                 <Tag className="h-4 w-4" />
                                 Tags
                             </Label>
-                            <div className="flex flex-wrap gap-2">
-                                {/* {metadata.tags.map((tag, index) => (
-                                    <Badge key={index} variant="secondary" className="gap-1">
-                                        {tag}
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-auto p-0 text-muted-foreground hover:text-foreground"
-                                            onClick={() => removeTag(tag)}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </Button>
-                                    </Badge>
-                                ))} */}
-                            </div>
+
                             <div className="flex gap-2">
                                 <Input
                                     value={newTag}
@@ -570,47 +645,6 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                         <SelectItem value="tutorial">Tutorial</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="author" className="flex items-center gap-2">
-                                    <User className="h-4 w-4" />
-                                    Author
-                                </Label>
-                                <Input
-                                    id="author"
-                                    value={metadata.author}
-                                    onChange={(e) => handleMetadataChange('author', e.target.value)}
-                                    placeholder="Author name"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Publish Date & Featured */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="publishDate" className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4" />
-                                    Publish Date
-                                </Label>
-                                <Input
-                                    id="publishDate"
-                                    type="date"
-                                    value={metadata.publishDate}
-                                    onChange={(e) => handleMetadataChange('publishDate', e.target.value)}
-                                />
-                            </div>
-
-                            <div className="flex items-center space-x-3 pt-6">
-                                <Checkbox
-                                    id="featured"
-                                    checked={metadata.featured}
-                                    onCheckedChange={(checked) => handleMetadataChange('featured', checked)}
-                                />
-                                <Label htmlFor="featured" className="flex items-center gap-2 cursor-pointer">
-                                    <Star className="h-4 w-4" />
-                                    Featured post
-                                </Label>
                             </div>
                         </div>
                     </div>
