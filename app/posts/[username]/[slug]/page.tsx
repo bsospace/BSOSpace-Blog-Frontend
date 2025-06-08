@@ -2,13 +2,13 @@
 /* eslint-disable @next/next/no-img-element */
 
 "use client";
+import React from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaCalendar, FaClock, FaUser } from "react-icons/fa";
 import { IoChevronDown, IoChevronForward } from "react-icons/io5";
 import ScrollProgressBar from "@/app/components/ScrollProgress";
 import { PreviewEditor } from "@/app/components/tiptap-templates/simple/view-editor";
-import content from "@/app/components/tiptap-templates/simple/data/content.json";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlignJustify } from "lucide-react";
@@ -17,6 +17,8 @@ import { axiosInstance } from "@/app/utils/api";
 import { Post } from "@/app/interfaces";
 import { useParams } from 'next/navigation';
 import { toast, useToast } from "@/hooks/use-toast"
+import { AxiosError } from "axios";
+import NotFound from "@/app/components/NotFound";
 
 
 export default function PostPage() {
@@ -26,6 +28,7 @@ export default function PostPage() {
     const [contentState, setContentState] = useState<JSONContent>();
     const [post, setPost] = useState<Post | null>(null);
     const [toc, setToc] = useState<{ level: number; text: string; href: string }[]>([]);
+    const [notFound, setNotFound] = useState(false);
 
     const params = useParams<{ slug: string, username: string }>();
     const { slug, username } = params;
@@ -40,6 +43,15 @@ export default function PostPage() {
         publishDate: '',
         readTime: '0 min read'
     });
+
+
+    /**
+     * Generates a table of contents from the content state of a post.
+     * It extracts headings of levels 2, 3, and 4, and creates an array of objects
+     * representing the table of contents, each containing the heading level, text, and href.
+     * @param contentState The content state of the post, which is a JSONContent object.
+     * @returns An array of objects representing the table of contents, each containing the heading level, text, and href.
+     */
 
     function generateTableOfContents(contentState: JSONContent): {
         level: number;
@@ -66,11 +78,17 @@ export default function PostPage() {
     }
 
 
+    /*
+     * Fetches the content of a post based on the username and slug.
+     * It retrieves the post data from the API, parses the content, and updates the state.
+     * If the post is successfully fetched, it also generates the metadata and table of contents.
+     * If an error occurs, it sets an empty content state and shows a toast notification.
+     * @param {string} username - The username of the post author.
+     * @param {string} slug - The slug of the post.
+    */
+    
     const fetchContent = async (username: string, slug: string) => {
         try {
-
-            console.log("Fetching content for:", username, slug);
-
             const response = await axiosInstance.get(`/posts/public/${username}/${slug}`);
             if (response.status === 200) {
                 const post = response.data.data as Post;
@@ -78,7 +96,6 @@ export default function PostPage() {
                 setContentState(parsedContent);
                 setPost(post);
 
-                console.log("Post content fetched successfully:", post.title);
                 if (post.title) {
                     setMetadata({
                         ...metadata,
@@ -96,18 +113,23 @@ export default function PostPage() {
                     setToc(tableOfContents);
                 }
                 setIsLoading(false);
-            }
+            } 
 
-        } catch (error) {
-            console.error("Error fetching content:", error);
-            setIsLoading(false);
-            setContentState({ type: 'doc', content: [] }); // Set empty content state on error
-            toast({
-                title: "Error",
-                description: "Failed to fetch post content. Please try again later.",
-                variant: "destructive",
-            })
-            // Handle error appropriately, e.g., show a message to the user
+        } catch (error: AxiosError | any) {
+
+            if (error.response) {
+                if (error.response.status === 404) {
+                    setNotFound(true);
+                    setIsLoading(false);
+                } else if (error.response.status === 500) {
+                    setIsLoading(false);
+                    toast({
+                        title: "Server Error",
+                        description: "An internal server error occurred. Please try again later.",
+                        variant: "destructive",
+                    });
+                }
+            }
         }
     }
 
@@ -115,12 +137,12 @@ export default function PostPage() {
 
     useEffect(() => {
         if (username && slug) {
-            console.log("Fetching content for:", username, slug);
+
+            // Decode the username and slug to handle any URL encoding
             const decodedSlug = decodeURIComponent(slug);
             const cleanUsername = username.replace('%40', '')
 
-            console.log("Decoded slug:", decodedSlug);
-            console.log("Cleaned username:", cleanUsername);
+            // Fetch the content for the post
             fetchContent(cleanUsername, decodedSlug);
         } else {
             setIsLoading(false);
@@ -135,6 +157,14 @@ export default function PostPage() {
         );
     }
 
+
+    if (notFound) { 
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <NotFound/>
+            </div>
+        );
+    }
     return (
         <>
             <ScrollProgressBar />
