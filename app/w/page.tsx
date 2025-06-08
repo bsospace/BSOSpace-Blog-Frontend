@@ -424,7 +424,7 @@ const PostsManagement = () => {
                   key={post.id} 
                   post={post} 
                   deleteConfirm={deleteConfirm}
-                  onView={() => handleViewPost(post.id)}
+                  onView={() => handleViewPost(post.slug)}
                   onEdit={() => handleEditPost(post.short_slug)}
                   onDelete={() => handleDeletePost(post.id)}
                   onShare={() => handleSharePost(post)}
@@ -434,7 +434,7 @@ const PostsManagement = () => {
                   key={post.id} 
                   post={post}
                   deleteConfirm={deleteConfirm}
-                  onView={() => handleViewPost(post.id)}
+                  onView={() => handleViewPost(post.slug)}
                 onEdit={() => handleEditPost(post.short_slug)}
                   onDelete={() => handleDeletePost(post.id)}
                   onShare={() => handleSharePost(post)}
