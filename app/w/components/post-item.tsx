@@ -58,7 +58,7 @@ export const PostListItem: React.FC<PostListItemProps> = ({
                         <div className="flex items-center justify-between gap-2 mb-1">
                             <h3
                                 className="font-semibold text-sm line-clamp-2 hover:text-primary transition-colors cursor-pointer flex-1"
-                                onClick={() => onView(post.id)}
+                                onClick={() => onView(post.slug)}
                             >
                                 {post.title || "untitled"}
                             </h3>
@@ -145,7 +145,7 @@ export const PostListItem: React.FC<PostListItemProps> = ({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem onClick={() => onView(post.id)} className="text-xs">
+                            <DropdownMenuItem onClick={() => onView(post.slug)} className="text-xs">
                                 <Eye className="w-3 h-3 mr-2" />
                                 View Post
                             </DropdownMenuItem>
@@ -192,7 +192,7 @@ export const PostListItem: React.FC<PostListItemProps> = ({
                             <div className="flex-1 min-w-0">
                                 <h3
                                     className="font-semibold text-sm md:text-base lg:text-lg truncate hover:text-primary transition-colors cursor-pointer"
-                                    onClick={() => onView(post.id)}
+                                    onClick={() => onView(post.slug)}
                                 >
                                     {post.title || "untitled"}
                                 </h3>
@@ -277,7 +277,7 @@ export const PostListItem: React.FC<PostListItemProps> = ({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40 md:w-48">
-                            <DropdownMenuItem onClick={() => onView(post.id)} className="text-xs md:text-sm">
+                            <DropdownMenuItem onClick={() => onView(post.slug)} className="text-xs md:text-sm">
                                 <Eye className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                                 View Post
                             </DropdownMenuItem>

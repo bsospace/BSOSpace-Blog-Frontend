@@ -153,7 +153,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40 sm:w-48">
-                        <DropdownMenuItem onClick={() => onView(post.id)} className="text-xs sm:text-sm">
+                        <DropdownMenuItem onClick={() => onView(post.slug)} className="text-xs sm:text-sm">
                             <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                             View Post
                         </DropdownMenuItem>
