@@ -350,7 +350,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             .replace(/[^a-z0-9]/g, '') // ensure only a-z0-9 remain
             .replace(/-+/g, '-');
 
-        return engSlug ? `${mainSlug}-${engSlug}` : mainSlug;
+        return engSlug + "-" + getnerateId() ? `${mainSlug}-${engSlug}-${getnerateId()}` : mainSlug + '-' + getnerateId();
     };
 
 
@@ -709,15 +709,6 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                             >
                                 Retry
                             </Button>
-                        </AlertDescription>
-                    </Alert>
-                )}
-
-                {publishStatus === 'published' && (
-                    <Alert className="border-green-200 bg-green-50">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="text-green-800">
-                            Content published successfully!
                         </AlertDescription>
                     </Alert>
                 )}
