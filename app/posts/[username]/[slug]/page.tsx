@@ -19,6 +19,7 @@ import { useParams } from 'next/navigation';
 import { toast, useToast } from "@/hooks/use-toast"
 import { AxiosError } from "axios";
 import NotFound from "@/app/components/NotFound";
+import { SEOProvider, useSEO } from "@/app/contexts/seoContext";
 
 
 export default function PostPage() {
@@ -43,6 +44,24 @@ export default function PostPage() {
         publishDate: '',
         readTime: '0 min read'
     });
+
+
+    const [currentURL, setCurrentURL] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const fullURL = `${window.location.origin}/posts/${username}/${slug}`;
+            setCurrentURL(fullURL);
+        }
+    }, [username, slug]);
+
+    const seoData = {
+        title: metadata.title,
+        description: metadata.description,
+        image: metadata.image,
+        url: currentURL ?? "",
+    };
+
 
 
     /**
@@ -157,6 +176,7 @@ export default function PostPage() {
         );
     }
 
+    
 
     if (notFound) { 
         return (
@@ -166,7 +186,7 @@ export default function PostPage() {
         );
     }
     return (
-        <>
+        <SEOProvider value={seoData}>
             <ScrollProgressBar />
 
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 rounded-md">
@@ -287,6 +307,6 @@ export default function PostPage() {
                     </div>
                 </div>
             </div>
-        </>
+        </SEOProvider>
     );
 }
