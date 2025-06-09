@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Check, X, AlertCircle, Globe, Edit3, Calendar, User, Tag, FolderOpen, Star, ImageIcon, Upload } from "lucide-react";
+import { Loader2, Check, X, AlertCircle, Globe, Edit3, Tag, FolderOpen, ImageIcon, Upload } from "lucide-react";
 import { axiosInstance } from "@/app/utils/api";
 import { use } from "react";
 import { useToast, toast } from '@/hooks/use-toast';
@@ -354,10 +354,12 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     };
 
 
+    const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
     const uploadThumbnail = async (file: File) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
+            setIsUploadingThumbnail(true);
 
             const response = await axiosInstance.post('/media/upload', formData, {
                 headers: {
@@ -373,8 +375,11 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             } else {
                 throw new Error('Failed to upload image');
             }
+
+            setIsUploadingThumbnail(false);
         } catch (error) {
             console.error('Image upload failed:', error);
+            setIsUploadingThumbnail(false);
         }
     }
     const handleMetadataChange = (field: keyof Metadata, value: any) => {
@@ -541,27 +546,28 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                 Blog Cover Image
                             </Label>
 
-                            <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                                {metadata.thumbnail ? (
-                                    <div className="space-y-3">
-                                        <div className="relative inline-block">
-                                            <img
-                                                src={metadata.thumbnail}
-                                                alt="Cover preview"
-                                                className="max-h-32 rounded-lg object-cover"
-                                            />
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                                                onClick={() => handleMetadataChange('thumbnail', '')}
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </Button>
+                            <div className=" min-h-64 relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-2 text-center hover:border-gray-400 transition-colors">
+                                {metadata.thumbnail && !isUploadingThumbnail ? (
+                                    <>
+                                        <div className="space-y-3">
+                                            <div className="relative inline-block">
+                                                <img
+                                                    src={metadata.thumbnail}
+                                                    alt={`Thumbnail for ${metadata.title}`}
+                                                    className="max-h-64  rounded-lg object-cover"
+                                                />
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                                                    onClick={() => handleMetadataChange('thumbnail', '')}
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <p className="text-sm text-gray-600">Click to change image</p>
-                                    </div>
-                                ) : (
+                                    </>
+                                ) : !isUploadingThumbnail ? (
                                     <div className="space-y-2">
                                         <Upload className="h-8 w-8 mx-auto text-gray-400" />
                                         <p className="text-sm text-gray-600">
@@ -571,7 +577,15 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                             PNG, JPG, WebP up to 5MB
                                         </p>
                                     </div>
-                                )}
+                                ) : isUploadingThumbnail ? (
+                                    <>
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                                            <span className="text-sm text-gray-500">Uploading...</span>
+                                        </div>
+                                    </>
+                                ) : null}
+
 
                                 <input
                                     type="file"
