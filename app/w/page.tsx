@@ -42,10 +42,13 @@ import { PostCard } from './components/post-card';
 import { PostListItem } from './components/post-item';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/authContext';
+import DeleteModal from './components/delete-modal';
+import { useToast } from '@/hooks/use-toast';
 
 const PostsManagement = () => {
   const router = useRouter();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<keyof Post>('created_at');
@@ -87,21 +90,28 @@ const PostsManagement = () => {
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (deleteConfirm !== postId) {
-      setDeleteConfirm(postId);
-      return;
-    }
-
     try {
       await axiosInstance.delete(`/posts/${postId}`);
       setPosts(posts.filter(post => post.id !== postId));
       setDeleteConfirm(null);
-      console.log('Post deleted successfully');
+
+      // tost notification or success message can be added here
+      toast({
+        title: 'Post Deleted',
+        description: 'Your post has been successfully deleted.',
+        variant: 'default',
+      })
+
     } catch (err) {
       console.error('Error deleting post:', err);
-      setError('Failed to delete post');
+      toast({
+        title: 'Error',
+        description: 'Failed to delete post. Please try again.',
+        variant: 'default'
+      });
     }
   };
+
 
   const handleSharePost = async (post: Post) => {
     const shareUrl = `${window.location.origin}/posts/${post.id}`;
@@ -217,19 +227,6 @@ const PostsManagement = () => {
             </Card>
           ))}
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-4 sm:p-8">
-        <Alert variant="destructive">
-          <Zap className="h-4 w-4" />
-          <AlertDescription>
-            {error}
-          </AlertDescription>
-        </Alert>
       </div>
     );
   }
@@ -383,16 +380,6 @@ const PostsManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Alert */}
-      {deleteConfirm && (
-        <Alert>
-          <Trash2 className="h-4 w-4" />
-          <AlertDescription>
-            Click delete again to confirm removal of this post.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Posts Display */}
       {filteredAndSortedPosts?.length === 0 ? (
         <Card>
@@ -420,29 +407,41 @@ const PostsManagement = () => {
         }>
           {filteredAndSortedPosts?.map((post) => (
             viewMode === 'grid'
-              ? <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  deleteConfirm={deleteConfirm}
-                  onView={() => handleViewPost(post.slug)}
-                  onEdit={() => handleEditPost(post.short_slug)}
-                  onDelete={() => handleDeletePost(post.id)}
-                  onShare={() => handleSharePost(post)}
-                  onLike={() => handleLikePost(post.id)}
-                />
-              : <PostListItem 
-                  key={post.id} 
-                  post={post}
-                  deleteConfirm={deleteConfirm}
-                  onView={() => handleViewPost(post.slug)}
+              ? <PostCard
+                key={post.id}
+                post={post}
+                deleteConfirm={deleteConfirm}
+                onView={() => handleViewPost(post.slug)}
                 onEdit={() => handleEditPost(post.short_slug)}
-                  onDelete={() => handleDeletePost(post.id)}
-                  onShare={() => handleSharePost(post)}
-                  onLike={() => handleLikePost(post.id)}
-                />
+                onDelete={() => setDeleteConfirm(post.id)}
+                onShare={() => handleSharePost(post)}
+                onLike={() => handleLikePost(post.id)}
+              />
+              : <PostListItem
+                key={post.id}
+                post={post}
+                deleteConfirm={deleteConfirm}
+                onView={() => handleViewPost(post.slug)}
+                onEdit={() => handleEditPost(post.short_slug)}
+                onDelete={() => setDeleteConfirm(post.id)}
+                onShare={() => handleSharePost(post)}
+                onLike={() => handleLikePost(post.id)}
+              />
           ))}
         </div>
       )}
+
+      <>
+        <DeleteModal
+          isOpen={!!deleteConfirm}
+          onOpenChange={(open) => {
+            if (!open) setDeleteConfirm(null);
+          }}
+          onAction={() => handleDeletePost(deleteConfirm!)}
+          title="Are you sure?"
+          description="This action cannot be undone. Are you sure you want to proceed?"
+        />
+      </>
     </div>
   );
 };
