@@ -41,6 +41,7 @@ export default function PostPage() {
         image: "/default-thumbnail.png",
         author: '',
         authorImage: '',
+        authorBio: '',
         publishDate: '',
         readTime: '0 min read'
     });
@@ -124,7 +125,8 @@ export default function PostPage() {
                         author: post.author?.username || "Unknown Author",
                         authorImage: post.author?.avatar || "/default-avatar.png",
                         publishDate: post.published_at ? new Date(post.published_at).toLocaleDateString() : "Not Published",
-                        readTime: post.read_time ? `${post.read_time} min read` : "0 min read"
+                        readTime: post.read_time ? `${post.read_time} min read` : "0 min read",
+                        authorBio: post.author?.bio || "No bio available",
                     })
                     const tableOfContents = generateTableOfContents(parsedContent);
 
@@ -266,7 +268,7 @@ export default function PostPage() {
                         </div>
 
                         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                            <div className="flex flex-wrap items-center justify-between gap-4">
+                            {/* <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <span className="text-sm text-gray-600 dark:text-gray-300">Share this article:</span>
                                     <div className="flex gap-2">
@@ -282,7 +284,7 @@ export default function PostPage() {
                                     <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-white bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Bookmark</button>
                                     <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">Subscribe</button>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
                         <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
@@ -293,8 +295,7 @@ export default function PostPage() {
                                 <div className="flex-1">
                                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About {metadata.author}</h4>
                                     <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                                        A passionate developer and writer who loves to share knowledge about modern web development,
-                                        React, TypeScript, and best practices in software engineering.
+                                        {metadata.authorBio}
                                     </p>
                                     <div className="mt-3">
                                         <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
