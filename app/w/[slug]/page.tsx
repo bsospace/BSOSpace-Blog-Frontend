@@ -78,7 +78,9 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 setSaveStatus('saved');
                 setLastSaved(new Date());
                 setTimeout(() => {
-                    setSaveStatus('idle');
+                    if (!isPublished) {
+                        setSaveStatus('idle');
+                    }
                 }, 2000);
             } else {
                 throw new Error('Failed to save content');
@@ -123,6 +125,10 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     useEffect(() => {
         if (contentState) {
             const saveTimeout = setTimeout(() => {
+                if (isPublished) {
+                    setSaveStatus('idle');
+                    return;
+                } // Don't auto-save if the post is published
                 saveContent();
             }, 1000); // Simulate 1 second save delay
 
@@ -446,14 +452,20 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                         </div>
 
                         {/* Last Saved Time */}
-                        {lastSaved && (
+                        {lastSaved && !isPublished ? (
                             <>
                                 <Separator orientation="vertical" className="h-4" />
                                 <span className="text-sm text-muted-foreground">
                                     Last saved {formatLastSaved(lastSaved)}
                                 </span>
                             </>
-                        )}
+                        ) : <>
+                            <Separator orientation="vertical" className="h-4" />
+                            <span className="text-sm text-muted-foreground">
+                                Published post will not be automatically saved.
+                            </span>
+                        </>
+                        }
 
                         {/* Publish Status */}
                         {isPublished && (
@@ -507,6 +519,16 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                 >
                                     <Edit3 className="h-4 w-4" />
                                     Edit Metadata
+                                </Button>
+
+                                <Button
+                                    variant="default"
+                                    onClick={() => saveContent()}
+                                    disabled={saveStatus === "saved"}
+                                    size="sm"
+                                    className="gap-2"
+                                >
+                                    Save Changes
                                 </Button>
                             </>
                         )}
