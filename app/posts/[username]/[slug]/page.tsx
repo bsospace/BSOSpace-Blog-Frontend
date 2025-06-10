@@ -204,7 +204,7 @@ export default function PostPage() {
                         </nav>
 
                         <div className="mb-8">
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight break-words">
+                            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight break-words">
                                 {metadata.title}
                             </h1>
                             <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
