@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Home, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 
 export default function NotFound() {
     const [mounted, setMounted] = useState(false);
@@ -61,17 +63,19 @@ export default function NotFound() {
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
                 <Link
                     href="/"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110 text-white font-medium rounded-lg transition-all shadow"
                 >
-                    <Home className="w-5 h-5" />
-                    <span>กลับไปหน้าหลัก</span>
+                    <Button variant="default" className="flex items-center gap-2 min-w-44">
+                        <Home className="w-5 h-5" />
+                        <span>กลับไปหน้าหลัก</span>
+                    </Button>
                 </Link>
                 <Link
                     href="javascript:history.back()"
-                    className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-all"
                 >
-                    <ArrowLeft className="w-5 h-5" />
-                    <span>กลับไปหน้าก่อนหน้า</span>
+                    <Button variant="outline" className="flex items-center gap-2 min-w-44">
+                        <ArrowLeft className="w-5 h-5" />
+                        <span>ย้อนกลับ</span>
+                    </Button>
                 </Link>
             </div>
 
