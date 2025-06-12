@@ -1,0 +1,381 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": null,
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Getting Started with DevSecOps"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "src": "https://image-service.bsospace.com/2025_01_27_163637-cPPbyykWM71J.png",
+        "alt": "Uploaded image",
+        "title": "Uploaded image"
+      }
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Welcome to the "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "italic"
+            },
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "var(--tt-highlight-yellow)"
+              }
+            }
+          ],
+          "text": "DevSecOps Starter Guide"
+        },
+        {
+          "type": "text",
+          "text": "! This guide introduces core principles of integrating "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "security"
+        },
+        {
+          "type": "text",
+          "text": " into your development and operations workflow from day one."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Follow this guide or explore the "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "https://owasp.org/www-project-devsecops-guideline/",
+                "target": "_blank",
+                "rel": "noopener noreferrer nofollow"
+              }
+            }
+          ],
+          "text": "OWASP DevSecOps guideline"
+        },
+        {
+          "type": "text",
+          "text": " for best practices."
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "docker run --rm devsecops-pipeline"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Core Features"
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic"
+                }
+              ],
+              "text": "Shift security left by embedding testing, scanning, and monitoring tools early in your CI/CD pipeline."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Adopt tools like "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "var(--tt-highlight-blue)"
+              }
+            }
+          ],
+          "text": "Snyk, SonarQube, and Trivy"
+        },
+        {
+          "type": "text",
+          "text": " to secure code, dependencies, and containers automatically."
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSITa7J2EGrNT3v64UP0zwnQmqHe4ySUN3eLQ&s",
+        "alt": "DevSecOps Pipeline",
+        "title": "DevSecOps Pipeline"
+      }
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Security as Code"
+                },
+                {
+                  "type": "text",
+                  "text": ": Define policies, rules, and scans as part of your codebase."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Automated Scanning"
+                },
+                {
+                  "type": "text",
+                  "text": ": Detect vulnerabilities in packages and containers early."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ],
+                  "text": "Compliance Monitoring"
+                },
+                {
+                  "type": "text",
+                  "text": ": Ensure adherence to standards like "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "ISO 27001"
+                },
+                {
+                  "type": "text",
+                  "text": ", "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "NIST"
+                },
+                {
+                  "type": "text",
+                  "text": ", and more."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "italic"
+            }
+          ],
+          "text": "→ "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSITa7J2EGrNT3v64UP0zwnQmqHe4ySUN3eLQ&s",
+                "target": "_blank",
+                "rel": "noopener noreferrer nofollow"
+              }
+            }
+          ],
+          "text": "Learn more about DevSecOps"
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Next Steps"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Customize the pipeline to fit your organization’s risk profile, and foster collaboration between development, security, and operations teams."
+        }
+      ]
+    },
+    {
+      "type": "taskList",
+      "content": [
+        {
+          "type": "taskItem",
+          "attrs": {
+            "checked": true
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Enable static code analysis"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "taskItem",
+          "attrs": {
+            "checked": false
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Set up container vulnerability scanning"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "taskItem",
+          "attrs": {
+            "checked": false
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Automate dependency checks with SCA tools"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

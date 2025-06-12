@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    container_name: production-bso-blog
+    ports:
+      - "9009:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    command: npm start
+    restart: unless-stopped
