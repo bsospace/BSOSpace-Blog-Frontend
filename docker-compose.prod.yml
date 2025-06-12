@@ -1,68 +1,23 @@
 services:
-  db:
-    image: pgvector/pgvector:pg17
-    container_name: blog-postgres-db
-    restart: always
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${PG_EXTERNAL_PORT}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7
-    container_name: blog-redis-db
-    restart: always
-    ports:
-      - "${REDIS_EXTERNAL_PORT}:6379"
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: blog-pgadmin
-    restart: always
-    env_file:
-      - .env
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "${PGADMIN_PORT}:80"
-
-  backend:
+  web:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile.prod
-    container_name: blog-backend-go-app
+    image: bso-prod-image
+    container_name: bso-blog-production
+    environment:
+      NODE_ENV: production
+    ports:
+      - "9009:3000"
     env_file:
       - .env
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      APP_ENV: ${APP_ENV}
-      PORT: ${PORT}
-      GIN_MODE: release
-    ports:
-      - "${PORT}:${PORT}"
-    depends_on:
-      - db
-      - redis
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - production-network
+      - centralized-postgresql_db-network
+    restart: unless-stopped
 
-  extractor:
-    build:
-      context: ./extractor
-      dockerfile: Dockerfile
-    container_name: blog-extractor-python-app
-    restart: always
-    ports:
-      - "5002:5002"
-
-volumes:
-  postgres_data:
+networks:
+  production-network:
+    driver: bridge
+  centralized-postgresql_db-network:
+    external: true
