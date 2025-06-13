@@ -26,6 +26,7 @@ import { use } from "react";
 import { useToast, toast } from '@/hooks/use-toast';
 import { ToastAction } from "@radix-ui/react-toast";
 import Loading from "@/app/components/Loading";
+import NewUserModal from "@/app/components/NewUserModal";
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
@@ -449,6 +450,8 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full">
+
+            <NewUserModal />
             {/* Header Bar */}
             <Card className="w-full max-w-screen-xl mb-6">
                 <CardContent className="flex items-center justify-between p-4">
