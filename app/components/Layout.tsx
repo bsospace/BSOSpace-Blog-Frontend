@@ -163,10 +163,10 @@ export default function Layout({ children }: { children: ReactNode }) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-lg text-gray-900 dark:text-white truncate leading-tight">
-                              {user.username || user.email.split("@")[0]}
+                                {user.username || user.email.split("@")[0]}
                               </p>
                               <p className="text-sm text-gray-500 dark:text-gray-400 truncate leading-tight">
-                              {user.email}
+                                {user.email}
                               </p>
                             </div>
                           </div>
@@ -200,8 +200,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                               href={`${'/@'}${user.username}`}
                               className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-600 cursor-not-allowed"
                               onClick={(e) => {
-                              e.preventDefault();
-                              setIsOpen(false);
+                                e.preventDefault();
+                                setIsOpen(false);
                               }}
                             >
                               <UserCircle className="w-5 h-5" />
@@ -211,8 +211,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                               href="/settings"
                               className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-600 cursor-not-allowed"
                               onClick={(e) => {
-                              e.preventDefault();
-                              setIsOpen(false);
+                                e.preventDefault();
+                                setIsOpen(false);
                               }}
                             >
                               <Settings className="w-5 h-5" />
@@ -234,23 +234,57 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <h3 className="font-semibold text-xl mb-1 bg-gradient-to-r from-orange-400 to-orange-600 text-transparent bg-clip-text">
                               ยินดีต้อนรับ
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              เข้าสู่ระบบเพื่อเข้าถึงโปรไฟล์ของคุณ
-                            </p>
-                          </div>
-
-
-                          <div className="space-y-3">
-                            <Button
-                              variant="default"
-                              className="w-full"
-                              onClick={navigateToLogin}
-                            >
-                              เข้าสู่ระบบ
-                            </Button>
+                            <div className="mt-4 space-y-1">
+                              <Link
+                                href={`/w/${getnerateId()}`}
+                                className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <SquarePen className="w-5 h-5" />
+                                <span>เขียนบทความ</span>
+                              </Link>
+                              <Link
+                                href={`/w`}
+                                className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Notebook className="w-5 h-5" />
+                                <span>บทความของฉัน</span>
+                              </Link>
+                              <Link
+                                href={``}
+                                className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setIsOpen(false);
+                                }}
+                              >
+                                <UserCircle className="w-5 h-5" />
+                                <span>โปรไฟล์ของฉัน (เร็วๆนี้)</span>
+                              </Link>
+                              <Link
+                                href="/settings"
+                                className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setIsOpen(false);
+                                }}
+                              >
+                                <Settings className="w-5 h-5" />
+                                <span>ตั้งค่า (เร็วๆนี้)</span>
+                              </Link>
+                            </div>
+                            <div className="space-y-3 mt-4">
+                              <Button
+                                variant="default"
+                                className="w-full"
+                                onClick={navigateToLogin}
+                              >
+                                เข้าสู่ระบบ
+                              </Button>
+                            </div>
                           </div>
                         </>
-
                       )}
                     </div>
                   </div>
