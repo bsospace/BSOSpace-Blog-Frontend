@@ -78,6 +78,14 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
             if (response.status === 201) {
                 setSaveStatus('saved');
                 setLastSaved(new Date());
+
+                console.log('Content saved successfully:', response.data);
+                setMetadata(prev => ({
+                    ...prev,
+                    id: response.data.data.post_id,
+                }));
+
+                localStorage.setItem('pid', response.data.data.post_id);
                 setTimeout(() => {
                     if (!isPublished) {
                         setSaveStatus('idle');
@@ -549,9 +557,9 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                     initialContent={contentState}
                 />
             ) : (
-                    <>
-                        <Loading label="Editor loading..." className="w-full h-[80vh] flex items-center justify-center" />
-                    </>
+                <>
+                    <Loading label="Editor loading..." className="w-full h-[80vh] flex items-center justify-center" />
+                </>
             )}
 
             {/* Publish Modal */}
