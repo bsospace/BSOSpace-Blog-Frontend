@@ -1,82 +1,147 @@
-"use client";
-import { useContext, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AuthContext } from "@/app/contexts/authContext";
+'use client'
 
-export default function Login() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Github, Info, CheckCircle, PencilLine, BookOpen, X } from 'lucide-react'
+import Image from 'next/image'
+import { useAuth } from '@/app/contexts/authContext'
 
-  const { setIsFetching } = useContext(AuthContext);
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+export default function LoginPage() {
+  const router = useRouter()
+  const { oauthLogin } = useAuth()
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false)
+  const [showPolicyModal, setShowPolicyModal] = useState(false)
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        setIsFetching(true);
-        router.push("/admin/posts");
-      } else {
-        const data = await response.json();
-        setError(data.error as string);
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError(error as string);
+  const handleLogin = (provider: 'google' | 'discord' | 'github') => {
+    if (!acceptedPolicy) {
+      setShowPolicyModal(true)
+      return
     }
-  };
+    oauthLogin(provider)
+  }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 p-2 rounded">
-            {error}
+    <div className="flex items-center h-full justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-black relative">
+
+      {/* Login card */}
+      <div className="relative z-10 max-w-md w-full p-6 bg-gray-900/40 backdrop-blur-md rounded-xl shadow-xl border border-gray-700/40">
+        <div className="flex justify-center mb-6">
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 opacity-20 blur-lg"></div>
+
+            <Image
+              src="/BSO LOGO.svg"
+              alt="Blog Logo"
+              width={64}
+              height={64}
+              className="rounded-xl object-contain"
+            />
+
           </div>
-        )}
-        <div>
-          <label htmlFor="email" className="block text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-          />
         </div>
-        <div>
-          <label htmlFor="password" className="block text-gray-700">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-          />
+
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-white mb-2">Login</h1>
+          <p className="text-gray-300 text-sm">Access article management, share ideas, and manage your content</p>
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Login
-        </button>
-      </form>
+
+        <div className="mb-6 p-3 bg-gray-800/30 rounded-lg border border-gray-600/40 shadow-inner">
+          <div className="flex items-start">
+            <input
+              type="checkbox"
+              checked={acceptedPolicy}
+              onChange={() => setAcceptedPolicy(!acceptedPolicy)}
+              className="w-5 h-5 mt-1 text-indigo-600 border-gray-400 rounded"
+            />
+            <label className="ml-2 text-sm text-gray-200 cursor-pointer">
+              I accept the terms and conditions
+            </label>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowPolicyModal(true)}
+            className="mt-2 text-xs text-indigo-300 underline hover:text-indigo-100 flex items-center"
+          >
+            Read details <Info className="ml-1 w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={() => handleLogin('google')}
+            disabled={!acceptedPolicy}
+            className="w-full px-4 py-2 bg-red-600/80 hover:bg-red-700 text-white rounded-xl flex items-center justify-center disabled:opacity-50"
+          >
+            <span className="mr-2">🔓</span> Login with Google
+          </button>
+          <button
+            onClick={() => handleLogin('discord')}
+            disabled={!acceptedPolicy}
+            className="w-full px-4 py-2 bg-indigo-600/80 hover:bg-indigo-700 text-white rounded-xl flex items-center justify-center disabled:opacity-50"
+          >
+            <span className="mr-2">💬</span> Login with Discord
+          </button>
+          <button
+            onClick={() => handleLogin('github')}
+            disabled={!acceptedPolicy}
+            className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-xl flex items-center justify-center disabled:opacity-50"
+          >
+            <Github className="w-4 h-4 mr-2" />
+            Login with GitHub
+          </button>
+        </div>
+      </div>
+
+      {/* Policy Modal with Iframe */}
+      {showPolicyModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-gray-900 border border-gray-600 rounded-xl max-w-4xl w-full h-[80vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-600">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                <Info className="mr-2 text-blue-400" />
+                Terms of Use and Privacy Policy
+              </h2>
+              <button
+                onClick={() => setShowPolicyModal(false)}
+                className="text-gray-400 hover:text-white p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Iframe Container */}
+            <div className="flex-1 p-4">
+              <iframe
+                src="https://policies.bsospace.com/"
+                className="w-full h-full rounded-lg border border-gray-600"
+                title="Terms of Use and Privacy Policy"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end space-x-2 p-4 border-t border-gray-600">
+              <button
+                onClick={() => {
+                  setAcceptedPolicy(true)
+                  setShowPolicyModal(false)
+                }}
+                className="flex items-center px-4 py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Accept
+              </button>
+              <button
+                onClick={() => setShowPolicyModal(false)}
+                className="px-4 py-2 text-gray-300 bg-gray-700/50 rounded hover:bg-gray-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
