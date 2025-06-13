@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/app/contexts/authContext';
 import { z } from 'zod';
+import { axiosInstance } from '../utils/api';
 
 // Zod validation schema
 const userProfileSchema = z.object({
@@ -17,7 +18,7 @@ const userProfileSchema = z.object({
         .min(1, 'Username is required')
         .min(3, 'Username must be at least 3 characters')
         .max(20, 'Username must be less than 20 characters')
-        .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
+        .regex(/^[a-zA-Z0-9][a-zA-Z0-9_@.]*$/, 'Username must start with letter or number and can only contain letters, numbers, @, underscores, and dots'),
     firstName: z
         .string()
         .max(50, 'First name must be less than 50 characters')
@@ -128,14 +129,15 @@ export default function NewUserModal(): JSX.Element {
 
             localStorage.setItem('userProfile', JSON.stringify(profileData));
 
-            // TODO: Uncomment when API is ready
-            // await updateUserProfile({
-            //     username: username.trim(),
-            //     first_name: firstName.trim() || null,
-            //     last_name: lastName.trim() || null,
-            //     bio: bio.trim() || null,
-            // });
-            // refreshUser(); // refresh from server if needed
+            //  send to server
+            const response = await axiosInstance.put('/user/update', {
+                username: profileData.username,
+                first_name: profileData.first_name,
+                last_name: profileData.last_name,
+                bio: profileData.bio
+            });
+            
+            console.log('Profile saved successfully:', response.data);
 
             setOpen(false);
         } catch (err) {
@@ -152,10 +154,28 @@ export default function NewUserModal(): JSX.Element {
         setOpen(false);
     };
 
-    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const value = e.target.value.toLowerCase().replace(/[^a-zA-Z0-9_]/g, '');
+    const handleUsernameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.toLowerCase().replace(/^@|[^a-zA-Z0-9_@.]/g, '');
         setUsername(value);
         // Clear username error when user starts typing
+        try {
+            const resposne = await axiosInstance.get(`/user/check-username?username=${value}`);
+
+            const result = resposne.data.data as boolean;
+            if (result && value !== user?.username) { // If data is false, username is taken
+                setErrors(prev => ({ ...prev, username: 'Username is already taken' }));
+            } else {
+                setErrors(prev => ({ ...prev, username: undefined }));
+            }
+            console.log('Username check response:', resposne.data);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                const errorMessage = error.errors[0].message;
+                setErrors(prev => ({ ...prev, username: errorMessage }));
+            }
+        }
+
+
         if (errors.username) {
             setErrors(prev => ({ ...prev, username: undefined }));
         }
