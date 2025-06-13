@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { ReactNode, useContext, useEffect, useState, useRef } from "react";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -10,6 +11,7 @@ import { AuthContext } from "../contexts/authContext";
 import { ChevronDown, LogOut, Notebook, Settings, SquarePen, User, UserCircle } from "lucide-react";
 import { getnerateId } from "@/lib/utils";
 import { FiCode, FiCpu } from "react-icons/fi";
+import { Button } from "@/components/ui/button";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -160,11 +162,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-lg text-gray-900 dark:text-white truncate">
-                                {user.username || user.email.split("@")[0]}
+                              <p className="font-medium text-lg text-gray-900 dark:text-white truncate leading-tight">
+                              {user.username || user.email.split("@")[0]}
                               </p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                {user.email}
+                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate leading-tight">
+                              {user.email}
                               </p>
                             </div>
                           </div>
@@ -196,19 +198,25 @@ export default function Layout({ children }: { children: ReactNode }) {
                             </Link>
                             <Link
                               href={`${'/@'}${user.username}`}
-                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
-                              onClick={() => setIsOpen(false)}
+                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                              onClick={(e) => {
+                              e.preventDefault();
+                              setIsOpen(false);
+                              }}
                             >
                               <UserCircle className="w-5 h-5" />
-                              <span>โปรไฟล์ของฉัน</span>
+                              <span>โปรไฟล์ของฉัน (เร็วๆนี้)</span>
                             </Link>
                             <Link
                               href="/settings"
-                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300"
-                              onClick={() => setIsOpen(false)}
+                              className="flex no-underline items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                              onClick={(e) => {
+                              e.preventDefault();
+                              setIsOpen(false);
+                              }}
                             >
                               <Settings className="w-5 h-5" />
-                              <span>ตั้งค่า</span>
+                              <span>ตั้งค่า (เร็วๆนี้)</span>
                             </Link>
                             <button
                               onClick={handleLogout}
@@ -223,7 +231,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         <>
                           {/* Logged-out State */}
                           <div className="py-3 text-center text-gray-700 dark:text-gray-300 mb-4">
-                            <h3 className="font-semibold text-xl mb-1 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                            <h3 className="font-semibold text-xl mb-1 bg-gradient-to-r from-orange-400 to-orange-600 text-transparent bg-clip-text">
                               ยินดีต้อนรับ
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -231,13 +239,15 @@ export default function Layout({ children }: { children: ReactNode }) {
                             </p>
                           </div>
 
+
                           <div className="space-y-3">
-                            <button
+                            <Button
+                              variant="default"
+                              className="w-full"
                               onClick={navigateToLogin}
-                              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:brightness-110 text-white font-medium rounded-lg transition-all shadow"
                             >
                               เข้าสู่ระบบ
-                            </button>
+                            </Button>
                           </div>
                         </>
 
