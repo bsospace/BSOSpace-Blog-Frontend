@@ -112,6 +112,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                     })
 
                     setIsPublished(post.published);
+                    localStorage.setItem('pid', post.id);
                 }
                 setIsLoadingoOldContent(false);
             }
