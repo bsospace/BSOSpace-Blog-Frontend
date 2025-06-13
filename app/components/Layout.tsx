@@ -186,7 +186,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                               onClick={() => setIsOpen(false)}
                             >
                               <SquarePen className="w-5 h-5" />
-                              <span>เขียนบทความ</span>
+                              <span>Write story</span>
                             </Link>
                             <Link
                               href={`/w`}
@@ -194,7 +194,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                               onClick={() => setIsOpen(false)}
                             >
                               <Notebook className="w-5 h-5" />
-                              <span>บทความของฉัน</span>
+                              <span>My stories</span>
                             </Link>
                             <Link
                               href={`${'/@'}${user.username}`}
@@ -205,7 +205,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                               }}
                             >
                               <UserCircle className="w-5 h-5" />
-                              <span>โปรไฟล์ของฉัน (เร็วๆนี้)</span>
+                              <span>Profile (Comming soon)</span>
                             </Link>
                             <Link
                               href="/settings"
@@ -216,14 +216,14 @@ export default function Layout({ children }: { children: ReactNode }) {
                               }}
                             >
                               <Settings className="w-5 h-5" />
-                              <span>ตั้งค่า (เร็วๆนี้)</span>
+                              <span>Setting (Comming soon)</span>
                             </Link>
                             <button
                               onClick={handleLogout}
                               className="w-full no-underline flex items-center gap-3 px-3 py-2.5 mt-2 text-sm text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-gray-800 transition-colors"
                             >
                               <LogOut className="w-5 h-5" />
-                              <span>ออกจากระบบ</span>
+                              <span>Sign out</span>
                             </button>
                           </div>
                         </>
@@ -232,7 +232,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                           {/* Logged-out State */}
                           <div className="py-3 text-center text-gray-700 dark:text-gray-300 mb-4">
                             <h3 className="font-semibold text-xl mb-1 bg-gradient-to-r from-orange-400 to-orange-600 text-transparent bg-clip-text">
-                              ยินดีต้อนรับ
+                              Welcome
                             </h3>
                             <div className="mt-4 space-y-1">
                               <Link
@@ -241,7 +241,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 onClick={() => setIsOpen(false)}
                               >
                                 <SquarePen className="w-5 h-5" />
-                                <span>เขียนบทความ</span>
+                                <span>Write story</span>
                               </Link>
                               <Link
                                 href={`/w`}
@@ -249,7 +249,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 onClick={() => setIsOpen(false)}
                               >
                                 <Notebook className="w-5 h-5" />
-                                <span>บทความของฉัน</span>
+                                <span>My stories</span>
                               </Link>
                               <Link
                                 href={``}
@@ -260,7 +260,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 }}
                               >
                                 <UserCircle className="w-5 h-5" />
-                                <span>โปรไฟล์ของฉัน (เร็วๆนี้)</span>
+                                <span>Profile (Comming soon)</span>
                               </Link>
                               <Link
                                 href="/settings"
@@ -271,7 +271,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 }}
                               >
                                 <Settings className="w-5 h-5" />
-                                <span>ตั้งค่า (เร็วๆนี้)</span>
+                                <span>Setting (Comming soon)</span>
                               </Link>
                             </div>
                             <div className="space-y-3 mt-4">
@@ -280,7 +280,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 className="w-full"
                                 onClick={navigateToLogin}
                               >
-                                เข้าสู่ระบบ
+                                Login
                               </Button>
                             </div>
                           </div>
