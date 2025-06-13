@@ -25,6 +25,7 @@ import { axiosInstance } from "@/app/utils/api";
 import { use } from "react";
 import { useToast, toast } from '@/hooks/use-toast';
 import { ToastAction } from "@radix-ui/react-toast";
+import Loading from "@/app/components/Loading";
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
@@ -178,7 +179,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
         }
     }, [contentState]);
 
-    const handleManualSave = async () => {
+    const handleManualPublish = async () => {
         if (saveStatus === 'saving') return;
         setSaveStatus('saving');
         try {
@@ -192,6 +193,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
             setSaveStatus('saved');
             setLastSaved(new Date());
+            setIsPublished(true);
 
             setTimeout(() => {
                 setSaveStatus('idle');
@@ -452,20 +454,21 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                         </div>
 
                         {/* Last Saved Time */}
-                        {lastSaved && !isPublished ? (
+                        {lastSaved ? (
                             <>
                                 <Separator orientation="vertical" className="h-4" />
                                 <span className="text-sm text-muted-foreground">
                                     Last saved {formatLastSaved(lastSaved)}
                                 </span>
                             </>
-                        ) : <>
-                            <Separator orientation="vertical" className="h-4" />
-                            <span className="text-sm text-muted-foreground">
-                                Published post will not be automatically saved.
-                            </span>
-                        </>
-                        }
+                        ) : isPublished ? (
+                            <>
+                                <Separator orientation="vertical" className="h-4" />
+                                <span className="text-sm text-muted-foreground">
+                                    Published post will not be automatically saved.
+                                </span>
+                            </>
+                        ) : null}
 
                         {/* Publish Status */}
                         {isPublished && (
@@ -545,9 +548,9 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                     initialContent={contentState}
                 />
             ) : (
-                <div className="h-96 flex items-center justify-center">
-                    <p className="text-gray-500">Loading editor...</p>
-                </div>
+                    <>
+                        <Loading label="Editor loading..." className="w-full h-[80vh] flex items-center justify-center" />
+                    </>
             )}
 
             {/* Publish Modal */}
@@ -659,11 +662,12 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                         <div className="space-y-3">
                             <Label className="flex items-center gap-2">
                                 <Tag className="h-4 w-4" />
-                                Tags
+                                Tags (in comming soon...)
                             </Label>
 
                             <div className="flex gap-2">
                                 <Input
+                                    disabled
                                     value={newTag}
                                     onChange={(e) => setNewTag(e.target.value)}
                                     onKeyPress={(e) => {
@@ -688,11 +692,12 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                             <div className="space-y-2">
                                 <Label className="flex items-center gap-2">
                                     <FolderOpen className="h-4 w-4" />
-                                    Category
+                                    Category (in comming soon...)
                                 </Label>
                                 <Select
                                     value={metadata.category}
                                     onValueChange={(value) => handleMetadataChange('category', value)}
+                                    disabled={true}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select category" />
@@ -740,7 +745,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={handleManualSave}
+                                onClick={handleManualPublish}
                                 className="ml-4"
                             >
                                 Retry
