@@ -376,6 +376,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
         try {
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('post_id', localStorage.getItem('pid') || '');
             setIsUploadingThumbnail(true);
 
             const response = await axiosInstance.post('/media/upload', formData, {
@@ -627,7 +628,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                            handleMetadataChange('thumbnail', file);
+                                            uploadThumbnail(file);
                                         }
                                     }}
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
