@@ -18,6 +18,7 @@ export interface User extends BaseModel {
   username?: string;
   bio?: string;
   role: UserRole;
+  new_user?: boolean;
 
   posts?: Post[];
   comments?: Comment[];
