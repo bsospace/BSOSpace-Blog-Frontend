@@ -6,6 +6,7 @@ import { fetchPosts } from "../_action/posts.action";
 import BlogCard from "../components/Blog";
 import { Post } from "../interfaces";
 import { FiCode, FiCpu, FiSearch, FiTrendingUp, FiZap } from "react-icons/fi";
+import Loading from "../components/Loading";
 
 export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,28 +16,52 @@ export default function HomePage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
   const [hasNextPage, setHasNextPage] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const getPosts = useCallback(async (newPage = page) => {
+  // Improved debounced search
+  const debouncedSearch = useCallback((query: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchQuery(query);
+      setPage(1);
+      setPosts([]);
+    }, 300);
+  }, []);
+
+  const getPosts = useCallback(async (pageNum = 1, isLoadMore = false) => {
     try {
-      if (newPage === 1) setLoading(true);
-      else setLoadingMore(true);
+      if (pageNum === 1 && !isLoadMore) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
-      const res = await fetchPosts(newPage, limit, searchQuery);
+      const res = await fetchPosts(pageNum, 5, searchQuery);
 
-      setPosts(res.data);
+      if (pageNum === 1) {
+        setPosts(res.data);
+      } else {
+        setPosts(prevPosts => [...prevPosts, ...res.data]);
+      }
+
       setHasNextPage(res.meta.hasNextPage);
+      setPage(pageNum);
 
     } catch (err) {
-      console.error("Failed to load posts");
+      console.error("Failed to load posts:", err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      setIsFirstLoad(false);
     }
-  }, [page, limit, searchQuery]);
+  }, [searchQuery]);
 
   const getPopularPosts = useCallback(async () => {
     try {
@@ -44,20 +69,31 @@ export default function HomePage() {
       const res = await fetchPosts(1, 5);
       setPopularPosts(res.data);
     } catch (err) {
-      console.error("Failed to load popular posts");
+      console.error("Failed to load popular posts:", err);
     } finally {
       setLoadingPopular(false);
     }
   }, []);
 
+  // Improved Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !loadingMore) {
-          setLimit((prevLimit) => prevLimit + 5);
+        const [entry] = entries;
+        if (
+          entry.isIntersecting &&
+          hasNextPage &&
+          !loadingMore &&
+          !loading &&
+          posts?.length > 0
+        ) {
+          getPosts(page + 1, true);
         }
       },
-      { threshold: 1.0 }
+      {
+        threshold: 0.1,
+        rootMargin: '100px'
+      }
     );
 
     if (observerRef.current) {
@@ -69,12 +105,32 @@ export default function HomePage() {
         observer.unobserve(observerRef.current);
       }
     };
-  }, [hasNextPage, loadingMore]);
+  }, [hasNextPage, loadingMore, loading, posts?.length, page, getPosts]);
 
+  // Initial load and search effect
   useEffect(() => {
-    getPosts();
-    getPopularPosts();
-  }, [page, searchQuery]);
+    if (isFirstLoad) {
+      getPosts(1);
+      getPopularPosts();
+    } else {
+      getPosts(1);
+    }
+  }, [searchQuery]);
+
+  // Handle search input
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    debouncedSearch(value);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -84,6 +140,7 @@ export default function HomePage() {
           <div className="absolute top-10 left-1/4 w-64 mt-16 h-64 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-full blur-3xl"></div>
           <div className="absolute top-20 right-1/4 w-48 h-48 bg-gradient-to-br from-red-500/10 to-yellow-500/10 rounded-full blur-3xl"></div>
         </div>
+
         <header className="text-center mb-16 relative">
           <div className="relative z-10">
             <div className="flex justify-center items-center mb-6">
@@ -94,18 +151,14 @@ export default function HomePage() {
               <FiCpu className="w-8 h-8 text-red-400 ml-3" />
             </div>
 
-            {/* Tech search bar */}
+            {/* Improved search bar */}
             <div className="relative max-w-2xl mx-auto">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="ค้นหาบทความ..."
                   className="w-full p-4 pl-12 pr-6 rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-700/50 text-white placeholder-slate-400 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all duration-300"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setPage(1);
-                    setSearchQuery(e.target.value);
-                  }}
+                  onChange={handleSearchChange}
                 />
                 <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-orange-400" />
 
@@ -134,25 +187,50 @@ export default function HomePage() {
 
           {/* Blog Posts */}
           <div className="space-y-8">
-            {loading ? (
+            {loading && posts?.length === 0 ? (
               <div className="text-center py-10 w-full flex justify-center border-b dark:border-none shadow-sm rounded-md min-h-48 h-full bg-slate-800/50 p-6 text-gray-900 transition-transform transform dark:text-gray-100">
                 <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
-            ) : posts && posts.length > 0 ? (
-              posts.map((post) => (
-                <BlogCard key={post.id} post={post} />
-              ))
-            ) : (
-              <p className="text-lg text-slate-400 text-center py-10">
-                ไม่พบบทความ
-              </p>
-            )}
+            ) : posts && posts?.length > 0 ? (
+              <>
+                {posts.map((post, index) => (
+                  <BlogCard key={`${post.id}-${index}`} post={post} />
+                ))}
 
-            <div ref={observerRef} className="text-center py-10 w-full flex justify-center">
-              {loadingMore && (
-                <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-              )}
-            </div>
+                {/* Lazy loading trigger */}
+                {hasNextPage && (
+                  <div
+                    ref={observerRef}
+                    className="text-center py-10 w-full flex justify-center"
+                  >
+                    {loadingMore && (
+                      <Loading label="Loading more..." />
+                    )}
+                  </div>
+                )}
+
+                {/* End of content indicator */}
+                {!hasNextPage && posts?.length > 5 && (
+                  <div className="text-center py-8">
+                    <p className="text-slate-400 text-sm">
+                      You have already read all stories 🎉
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-20">
+                <div className="mb-4">
+                  <FiSearch className="w-16 h-16 text-slate-600 mx-auto" />
+                </div>
+                <p className="text-lg text-slate-400 mb-2">
+                  Not found any posts
+                </p>
+                <p className="text-sm text-slate-500">
+                  Try searching for something else or check back later.
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </div>
