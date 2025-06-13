@@ -1,12 +1,11 @@
 'use client'
 
-
+import Loading from '@/app/components/Loading'
 import { useAuth } from '@/app/contexts/authContext'
 import { useEffect } from 'react'
 
 const Callback = () => {
-    const { setIsFetching, setIsLoggedIn } =
-        useAuth()
+    const { setIsFetching, setIsLoggedIn } = useAuth()
 
     useEffect(() => {
         // Get tokens from query parameters
@@ -37,7 +36,11 @@ const Callback = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    return <p>Processing login...</p>
+    return (
+        <>
+            <Loading label='Logging in....' />
+        </>
+    )
 }
 
 export default Callback
