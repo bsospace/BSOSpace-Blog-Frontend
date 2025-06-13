@@ -20,6 +20,7 @@ import { toast, useToast } from "@/hooks/use-toast"
 import { AxiosError } from "axios";
 import NotFound from "@/app/components/NotFound";
 import { SEOProvider, useSEO } from "@/app/contexts/seoContext";
+import Loading from "@/app/components/Loading";
 
 
 export default function PostPage() {
@@ -106,7 +107,7 @@ export default function PostPage() {
      * @param {string} username - The username of the post author.
      * @param {string} slug - The slug of the post.
     */
-    
+
     const fetchContent = async (username: string, slug: string) => {
         try {
             const response = await axiosInstance.get(`/posts/public/${username}/${slug}`);
@@ -134,7 +135,7 @@ export default function PostPage() {
                     setToc(tableOfContents);
                 }
                 setIsLoading(false);
-            } 
+            }
 
         } catch (error: AxiosError | any) {
 
@@ -172,18 +173,18 @@ export default function PostPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-            </div>
+            <>
+                <Loading label="Loading post..." />
+            </>
         );
     }
 
-    
 
-    if (notFound) { 
+
+    if (notFound) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <NotFound/>
+                <NotFound />
             </div>
         );
     }
@@ -298,7 +299,7 @@ export default function PostPage() {
                                         {metadata.authorBio}
                                     </p>
                                     <div className="mt-3">
-                                        <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                                        <button className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium">
                                             Follow {metadata.author} →
                                         </button>
                                     </div>
