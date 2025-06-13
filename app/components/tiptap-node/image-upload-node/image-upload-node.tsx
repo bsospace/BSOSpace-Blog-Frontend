@@ -398,7 +398,9 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
     accept: "image/*",
     upload: async (file, onProgress, signal) => {
       const formData = new FormData()
+      const postId = localStorage.getItem("pid") ||  null
       formData.append("file", file)
+      formData.append("post_id", postId || "")
 
       try {
         const response = await axiosInstance.post(
