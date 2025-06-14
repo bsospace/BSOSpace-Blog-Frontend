@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/app/contexts/authContext';
 import { z } from 'zod';
-import { axiosInstance } from '../utils/api';
+import { axiosInstance } from '@/app/utils/api';
 
 // Zod validation schema
 const userProfileSchema = z.object({
