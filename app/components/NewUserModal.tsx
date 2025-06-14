@@ -68,7 +68,6 @@ export default function NewUserModal(): JSX.Element {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            console.log('NewUserModal user:', user);
 
             // Check if user has previously declined
             const hasDeclined = localStorage.getItem('userProfileDeclined');
