@@ -158,15 +158,15 @@ export default function NewUserModal(): JSX.Element {
         setUsername(value);
         // Clear username error when user starts typing
         try {
-            const resposne = await axiosInstance.get(`/user/check-username?username=${value}`);
+            const response = await axiosInstance.get(`/user/check-username?username=${value}`);
 
-            const result = resposne.data.data as boolean;
+            const result = response.data.data as boolean;
             if (result && value !== user?.username) { // If data is false, username is taken
                 setErrors(prev => ({ ...prev, username: 'Username is already taken' }));
             } else {
                 setErrors(prev => ({ ...prev, username: undefined }));
             }
-            console.log('Username check response:', resposne.data);
+            console.log('Username check response:', response.data);
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const errorMessage = error.errors[0].message;
