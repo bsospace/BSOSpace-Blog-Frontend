@@ -11,7 +11,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { SEOProvider } from "./contexts/seoContext";
 import HelmetContextProvider from "./contexts/HelmetProvider";
 import AuthGuard from "./contexts/auth-gard";
-import { SocketProvider } from "./contexts/socket-context";
 
 export const metadata: Metadata = {
   title: "BSO Space Blog",
@@ -25,7 +24,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <SocketProvider>
           <AuthGuard>
             <HelmetContextProvider>
               <SEOProvider>
@@ -38,7 +36,6 @@ export default function RootLayout({
               </SEOProvider>
             </HelmetContextProvider>
           </AuthGuard>
-        </SocketProvider>
       </body>
     </html >
   );
