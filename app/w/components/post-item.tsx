@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 import React from 'react';
 import {
@@ -14,9 +15,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Post } from '../../interfaces';
+import { Post, statusDescriptions } from '../../interfaces';
 import { formatDate } from '@/lib/utils';
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 interface PostListItemProps {
     post: Post;
     deleteConfirm: string | null;
@@ -25,6 +26,7 @@ interface PostListItemProps {
     onDelete: (postId: string) => void;
     onShare: (post: Post) => void;
     onLike: (postId: string) => void;
+    getPostStatusClass: (status: string) => string;
 }
 
 export const PostListItem: React.FC<PostListItemProps> = ({
@@ -35,6 +37,7 @@ export const PostListItem: React.FC<PostListItemProps> = ({
     onDelete,
     onShare,
     onLike,
+    getPostStatusClass
 }) => (
     <Card className="transition-all duration-300 hover:shadow-md w-full">
         <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6">
@@ -63,17 +66,8 @@ export const PostListItem: React.FC<PostListItemProps> = ({
                                 {post.title || "untitled"}
                             </h3>
                             <Badge variant="outline" className="text-xs flex-shrink-0 ml-2">
-                                {post.published_at ? (
-                                    <>
-                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
-                                        Live
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1" />
-                                        Draft
-                                    </>
-                                )}
+                                <div className={getPostStatusClass(post.status)} />
+                                <span>{post.status}</span>
                             </Badge>
                         </div>
                         <p className="text-muted-foreground text-xs line-clamp-2 mb-2">
@@ -197,19 +191,22 @@ export const PostListItem: React.FC<PostListItemProps> = ({
                                     {post.title || "untitled"}
                                 </h3>
                             </div>
-                            <Badge variant="outline" className="text-xs flex-shrink-0">
-                                {post.published_at ? (
-                                    <>
-                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
-                                        Live
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1" />
-                                        Draft
-                                    </>
-                                )}
-                            </Badge>
+                            <div className='cursor-pointer flex items-center gap-1 hover:scale-110'> 
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Badge variant="outline" className="text-xs w-fit">
+                                                <div className={getPostStatusClass(post.status)} />
+                                                <span>{post.status.toLowerCase()}</span>
+                                            </Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">
+                                            {statusDescriptions[post.status]}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
+
                         </div>
 
                         <p className="text-muted-foreground text-xs md:text-sm line-clamp-1 lg:line-clamp-2 mb-2">
