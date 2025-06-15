@@ -59,6 +59,9 @@ importers:
       '@tinymce/tinymce-react':
         specifier: ^5.1.1
         version: 5.1.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tiptap/core':
+        specifier: ^2.14.0
+        version: 2.14.0(@tiptap/pm@2.14.0)
       '@tiptap/extension-bubble-menu':
         specifier: ^2.11.9
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
@@ -72,10 +75,10 @@ importers:
         specifier: ^2.11.9
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
       '@tiptap/extension-highlight':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-image':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-link':
         specifier: ^2.11.9
@@ -87,25 +90,25 @@ importers:
         specifier: ^2.11.9
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
       '@tiptap/extension-subscript':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-superscript':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-task-item':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
       '@tiptap/extension-task-list':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-text-align':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-typography':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-underline':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/pm':
         specifier: ^2.11.9
@@ -114,7 +117,7 @@ importers:
         specifier: ^2.11.9
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tiptap/starter-kit':
-        specifier: ^2.11.9
+        specifier: ^2.14.0
         version: 2.14.0
       '@types/highlight.js':
         specifier: ^10.1.0
