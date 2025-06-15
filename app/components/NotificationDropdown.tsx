@@ -40,7 +40,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
 
   // WebSocket: Listen for incoming noti
   useWebSocket((message) => {
-    if (message.event === "notification") {
+    if (message.event.split(":")[0] === "notification") {
       const payload = message.payload || {};
       const newNoti: Notification = {
         id: Date.now(), // ถ้ายังไม่มี ID จริง
@@ -131,7 +131,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
                           <div className="w-2 h-2 bg-blue-500 rounded-full mt-1" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{n.message}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 normal-case">{n.message}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-500">{n.time}</p>
                     </div>
                   </div>
