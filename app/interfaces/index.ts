@@ -27,7 +27,7 @@ export interface User extends BaseModel {
 }
 
 // ==================== Post ====================
-interface PostStatus {
+export interface PostStatus {
   status: 'DRAFT' | 'PROCESSING' | 'PUBLISHED' | 'REJECTED';
 }
 
