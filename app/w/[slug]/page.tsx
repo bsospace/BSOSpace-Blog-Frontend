@@ -27,6 +27,7 @@ import { useToast, toast } from '@/hooks/use-toast';
 import { ToastAction } from "@radix-ui/react-toast";
 import Loading from "@/app/components/Loading";
 import NewUserModal from "@/app/components/NewUserModal";
+import { generateHtmlFromContent } from "@/app/components/tiptap-templates/simple/generate-html";
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
@@ -192,6 +193,8 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     const handleManualPublish = async () => {
         if (saveStatus === 'saving') return;
         setSaveStatus('saving');
+
+
         try {
             // Simulate manual save operation
             const response = await axiosInstance.post(`/publish/${(await params).slug}`, {
@@ -217,6 +220,10 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     const handlePublish = async () => {
         setPublishStatus('publishing');
 
+        if (!contentState) return;
+        const htmlContent = generateHtmlFromContent(contentState)
+        console.log('HTML Content:', htmlContent);
+
         try {
             // Simulate publish operation
             // Simulate manual save operation
@@ -225,6 +232,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 title: metadata.title,
                 thumbnail: metadata.thumbnail,
                 description: metadata.description,
+                html_content: htmlContent,
             });
 
             console.log('Publish response:', response);
