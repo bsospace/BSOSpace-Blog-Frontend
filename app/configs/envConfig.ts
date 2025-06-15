@@ -4,13 +4,15 @@ interface IEvnConfig {
     apiBaseUrl: string;
     openIdApiUrl: string;
     callBackUrl: string;
+    ws: string;
 }
 
 const envConfig: IEvnConfig = {
     nodeEnv: process.env.NODE_ENV || 'development',
     apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || '',
     openIdApiUrl: process.env.NEXT_PUBLIC_OPENID_API_URL || '',
-    callBackUrl: process.env.NEXT_PUBLIC_CALLBACK_URL || ''
+    callBackUrl: process.env.NEXT_PUBLIC_CALLBACK_URL || '',
+    ws: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8088/api/v1/ws'
 };
 
 
@@ -20,7 +22,8 @@ export const checkEnvConfig = () => {
         'nodeEnv',
         'apiBaseUrl',
         'openIdApiUrl',
-        'callBackUrl'
+        'callBackUrl',
+        'ws'
     ];
 
     for (const field of requiredFields) {
