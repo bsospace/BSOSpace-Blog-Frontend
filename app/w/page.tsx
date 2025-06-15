@@ -152,17 +152,21 @@ const PostsManagement = () => {
     }
   };
 
-  const getRandomGradient = () => {
-    const gradients = [
-      'bg-gradient-to-br from-violet-500 to-purple-600',
-      'bg-gradient-to-br from-blue-500 to-cyan-600',
-      'bg-gradient-to-br from-green-500 to-emerald-600',
-      'bg-gradient-to-br from-orange-500 to-red-600',
-      'bg-gradient-to-br from-pink-500 to-rose-600',
-      'bg-gradient-to-br from-indigo-500 to-blue-600'
-    ];
-    return gradients[Math.floor(Math.random() * gradients.length)];
-  };
+
+  const getPostStatusClass = (status: string) => {
+    switch (status) {
+      case 'DRAFT':
+        return 'w-2 h-2 bg-yellow-400 rounded-full mr-1 flex-shrink-0';
+      case 'PROCESSING':
+        return 'w-2 h-2 bg-blue-400 rounded-full mr-1 flex-shrink-0';
+      case 'PUBLISHED':
+        return 'w-2 h-2 bg-green-400 rounded-full mr-1 flex-shrink-0';
+      case 'REJECTED':
+        return 'w-2 h-2 bg-red-400 rounded-full mr-1 flex-shrink-0';
+      default:
+        return '';
+    }
+  }
 
   const filteredAndSortedPosts = posts
     ?.filter(post => {
@@ -416,6 +420,7 @@ const PostsManagement = () => {
                 onDelete={() => setDeleteConfirm(post.id)}
                 onShare={() => handleSharePost(post)}
                 onLike={() => handleLikePost(post.id)}
+                getPostStatusClass={getPostStatusClass}
               />
               : <PostListItem
                 key={post.id}
@@ -426,6 +431,7 @@ const PostsManagement = () => {
                 onDelete={() => setDeleteConfirm(post.id)}
                 onShare={() => handleSharePost(post)}
                 onLike={() => handleLikePost(post.id)}
+                getPostStatusClass={getPostStatusClass}
               />
           ))}
         </div>
