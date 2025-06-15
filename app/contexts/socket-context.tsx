@@ -25,7 +25,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const socketRef = useRef<WebSocket | null>(null)
 
     useEffect(() => {
-        // if (!user) return
+        if (!user) return
 
         const token = localStorage.getItem('accessToken')
         const wsUrl = `${envConfig.ws}?token=Bearer ${token}`;
