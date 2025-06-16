@@ -65,7 +65,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
 
     // Status helpers
     const canAutoSave = () => {
-        return post?.status === 'DRAFT' || post?.status === 'REJECTED';
+        return post?.status === 'DRAFT' || post?.status === 'REJECTED' || !post;
     };
 
     const canManualEdit = () => {
