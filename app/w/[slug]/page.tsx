@@ -28,6 +28,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 type PublishStatus = 'idle' | 'publishing' | 'published' | 'error';
 
 interface Metadata {
+    id?: string;
     title: string;
     description: string;
     tags: string[];
@@ -49,6 +50,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
     const [showPublishModal, setShowPublishModal] = useState(false);
     const [isLoadingOldContent, setIsLoadingOldContent] = useState(true);
     const [metadata, setMetadata] = useState<Metadata>({
+        id: '',
         title: '',
         description: '',
         tags: [],
@@ -325,6 +327,7 @@ export default function EditPost({ params }: { params: Promise<{ slug: string }>
                 onEditMetadata={() => setShowPublishModal(true)}
                 onManualSave={() => saveContent(true)}
                 canManualEdit={canManualEdit()}
+                metadata={metadata}
             />
 
             {/* Editor */}
