@@ -2,13 +2,13 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { 
-    Loader2, 
-    Check, 
-    X, 
-    AlertCircle, 
-    Globe, 
-    Edit3, 
+import {
+    Loader2,
+    Check,
+    X,
+    AlertCircle,
+    Globe,
+    Edit3,
     Clock,
     CheckCircle,
     XCircle,
@@ -29,6 +29,18 @@ interface PostStatusHeaderProps {
     onEditMetadata: () => void;
     onManualSave: () => void;
     canManualEdit: boolean;
+    metadata?: {
+        id?: string;
+        title: string;
+        description: string;
+        tags: string[];
+        category: string;
+        thumbnail: string;
+        featured: boolean;
+        publishDate: string;
+        author: string;
+        slug: string;
+    }
 }
 
 export const PostStatusHeader: React.FC<PostStatusHeaderProps> = ({
@@ -40,7 +52,8 @@ export const PostStatusHeader: React.FC<PostStatusHeaderProps> = ({
     onUnpublish,
     onEditMetadata,
     onManualSave,
-    canManualEdit
+    canManualEdit,
+    metadata
 }) => {
     const formatLastSaved = (date: Date | null) => {
         if (!date) return '';
@@ -130,7 +143,12 @@ export const PostStatusHeader: React.FC<PostStatusHeaderProps> = ({
                     description: 'Content review failed - please revise and resubmit'
                 };
             default:
-                return null;
+                return {
+                    icon: <Edit3 className="h-4 w-4 text-gray-600" />,
+                    text: 'Draft',
+                    color: 'text-gray-600',
+                    description: 'Not published yet - auto-saving enabled'
+                };
         }
     };
 
@@ -194,7 +212,7 @@ export const PostStatusHeader: React.FC<PostStatusHeaderProps> = ({
 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-2">
-                    {post?.status === 'DRAFT' || post?.status === 'REJECTED' ? (
+                    {post?.status === 'DRAFT' || post?.status === 'REJECTED' || metadata?.id !== "" ? (
                         <Button
                             onClick={onPublish}
                             disabled={publishStatus === 'publishing'}
