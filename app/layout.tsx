@@ -24,18 +24,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthGuard>
-          <HelmetContextProvider>
-            <SEOProvider>
-              <AuthProvider>
-                <Providers>
-                  <Toaster />
-                  <Layout>{children}</Layout>
-                </Providers>
-              </AuthProvider>
-            </SEOProvider>
-          </HelmetContextProvider>
-        </AuthGuard>
+          <AuthGuard>
+            <HelmetContextProvider>
+              <SEOProvider>
+                <AuthProvider>
+                  <Providers>
+                    <Toaster />
+                    <Layout>{children}</Layout>
+                  </Providers>
+                </AuthProvider>
+              </SEOProvider>
+            </HelmetContextProvider>
+          </AuthGuard>
       </body>
     </html >
   );

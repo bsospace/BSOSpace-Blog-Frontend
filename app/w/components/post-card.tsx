@@ -14,8 +14,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Post } from '../../interfaces';
+import { Post, statusDescriptions } from '../../interfaces';
 import { formatDate } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PostCardProps {
     post: Post;
@@ -25,6 +26,7 @@ interface PostCardProps {
     onDelete: (postId: string) => void;
     onShare: (post: Post) => void;
     onLike: (postId: string) => void;
+    getPostStatusClass: (status: string) => string;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -35,6 +37,7 @@ export const PostCard: React.FC<PostCardProps> = ({
     onDelete,
     onShare,
     onLike,
+    getPostStatusClass
 }) => (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full max-w-sm mx-auto sm:max-w-none">
         {/* Thumbnail Section */}
@@ -91,19 +94,22 @@ export const PostCard: React.FC<PostCardProps> = ({
                     <span className="hidden md:inline">{formatDate(post.created_at)}</span>
                     <span className="md:hidden">{new Date(post.created_at).toLocaleDateString()}</span>
                 </div>
-                <Badge variant="outline" className="text-xs w-fit">
-                    {post.published_at ? (
-                        <>
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1 flex-shrink-0" />
-                            <span>Live</span>
-                        </>
-                    ) : (
-                        <>
-                            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1 flex-shrink-0" />
-                            <span>Draft</span>
-                        </>
-                    )}
-                </Badge>
+
+                <div className='cursor-pointer flex items-center gap-1 hover:scale-110'>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Badge variant="outline" className="text-xs w-fit">
+                                    <div className={getPostStatusClass(post.status)} />
+                                    <span>{post.status.toLowerCase()}</span>
+                                </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                                {statusDescriptions[post.status]}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
             </div>
 
             {/* Action Buttons */}

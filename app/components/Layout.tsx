@@ -12,6 +12,7 @@ import { ChevronDown, LogOut, Notebook, Settings, SquarePen, User, UserCircle } 
 import { getnerateId } from "@/lib/utils";
 import { FiCode, FiCpu } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -111,6 +112,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               >
                 YouTube
               </a>
+              <NotificationDropdown/>
             </nav>
 
             {/* Divider - only show on desktop */}

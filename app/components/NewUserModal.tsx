@@ -58,10 +58,10 @@ export default function NewUserModal(): JSX.Element {
     const { user } = useAuth();
     const [open, setOpen] = useState<boolean>(false);
 
-    const [username, setUsername] = useState<string>('');
-    const [firstName, setFirstName] = useState<string>('');
-    const [lastName, setLastName] = useState<string>('');
-    const [bio, setBio] = useState<string>('');
+    const [username, setUsername] = useState<string>(user?.username || '');
+    const [firstName, setFirstName] = useState<string>(user?.first_name || '');
+    const [lastName, setLastName] = useState<string>(user?.last_name || '');
+    const [bio, setBio] = useState<string>(user?.bio || '');
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

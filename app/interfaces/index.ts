@@ -27,6 +27,16 @@ export interface User extends BaseModel {
 }
 
 // ==================== Post ====================
+export interface PostStatus {
+  status: 'DRAFT' | 'PROCESSING' | 'PUBLISHED' | 'REJECTED';
+}
+
+export const statusDescriptions: Record<PostStatus["status"], string> = {
+  DRAFT: "Not published yet",
+  PROCESSING: "Content is being reviewed by AI",
+  PUBLISHED: "Published",
+  REJECTED: "Content review failed or rejected by AI",
+};
 
 export interface Post extends BaseModel {
   id: string;
@@ -44,6 +54,7 @@ export interface Post extends BaseModel {
   likes: number;
   views: number;
   read_time: number;
+  status: PostStatus['status'];
 
   author_id: string;
   author?: User;
