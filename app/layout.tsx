@@ -14,6 +14,30 @@ import AuthGuard from "./contexts/auth-gard";
 
 export const metadata: Metadata = {
   title: "BSO Space Blog",
+  description:
+    "BSO Blog is a collaborative blogging platform created by Software Engineering students, aimed at sharing knowledge, cutting-edge techniques, and real-world experiences.",
+  openGraph: {
+    title: "BSO Space Blog",
+    description:
+      "BSO Blog is a collaborative blogging platform created by Software Engineering students, aimed at sharing knowledge, cutting-edge techniques, and real-world experiences.",
+    url: "https://blog.bsospace.com",
+    type: "website",
+    images: [
+      {
+        url: "https://blog.bsospace.com/blog-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "BSO Space Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BSO Space Blog",
+    description:
+      "BSO Blog is a collaborative blogging platform created by Software Engineering students, aimed at sharing knowledge, cutting-edge techniques, and real-world experiences.",
+    images: ["https://blog.bsospace.com/blog-image.webp"],
+  },
 };
 
 export default function RootLayout({
