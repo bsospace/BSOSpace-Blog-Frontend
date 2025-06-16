@@ -1,3 +1,6 @@
+import envConfig from "../configs/envConfig"
+import { useAuth } from "../contexts/authContext"
+
 type WSListener = (event: MessageEvent) => void
 
 let socket: WebSocket | null = null
@@ -8,7 +11,7 @@ export const connectWebSocket = () => {
   const token = localStorage.getItem('accessToken')
   if (!token) return
 
-  socket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}?token=Bearer ${token}`)
+  socket = new WebSocket(`${envConfig.ws}?token=Bearer ${token}`)
 
   socket.onopen = () => {
     isConnected = true
