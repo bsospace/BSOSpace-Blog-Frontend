@@ -40,10 +40,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
 
   const [user, setUser] = useState<User | null>(null);
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
   useEffect(() => {
     // Check user authentication status
     const checkLogin = async () => {
+
+      if (!token) {
+        setIsLoggedIn(false);
+        setIsFetching(false);
+        setUser(null);
+        return;
+      }
+      
       try {
         const response = await axiosInstance.get('/auth/me');
         if (response.data.success) {
