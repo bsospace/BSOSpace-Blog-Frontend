@@ -236,7 +236,7 @@ export default function PostPage() {
 
                 <div className="bg-white dark:bg-gray-900">
                     <div className="container mx-auto px-4 py-8 max-w-4xl">
-                        {
+                        {/* {
                             toc.length > 0 && (
                                 <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                                     <div className="flex items-center gap-2 mb-4">
@@ -262,7 +262,7 @@ export default function PostPage() {
                                     </Popover>
                                 </div>
                             )
-                        }
+                        } */}
 
                         <div className="prose prose-lg max-w-none dark:prose-invert">
                             <PreviewEditor content={contentState ?? { type: 'doc', content: [] }} />
