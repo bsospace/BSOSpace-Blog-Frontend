@@ -68,6 +68,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         setIsLoggedIn(false);
         setIsFetching(false);
         setUser(null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       }
     };
 
