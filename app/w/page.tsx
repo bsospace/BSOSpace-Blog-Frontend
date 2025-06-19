@@ -152,6 +152,25 @@ const PostsManagement = () => {
     }
   };
 
+  const onToggleAiMode = async (postId: string) => {
+    try {
+      const response = await axiosInstance.post(`/ai/${postId}/on`);
+      toast({
+        title: 'AI Mode under update',
+        description: 'AI mode update in progress',
+        variant: 'default',
+      });
+
+    } catch (err) {
+      console.error('Error toggling AI mode:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to update AI mode. Please try again.',
+        variant: 'default'
+      });
+    }
+  }
+
 
   const getPostStatusClass = (status: string) => {
     switch (status) {
@@ -421,6 +440,7 @@ const PostsManagement = () => {
                 onShare={() => handleSharePost(post)}
                 onLike={() => handleLikePost(post.id)}
                 getPostStatusClass={getPostStatusClass}
+                onToggleAiMode={() => onToggleAiMode(post.id)}
               />
               : <PostListItem
                 key={post.id}
