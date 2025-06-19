@@ -8,7 +8,9 @@ import {
     Edit3,
     Trash2,
     Share2,
-    MoreVertical
+    MoreVertical,
+    Bot,
+    Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +28,9 @@ interface PostCardProps {
     onDelete: (postId: string) => void;
     onShare: (post: Post) => void;
     onLike: (postId: string) => void;
+    onToggleAiMode: (postId: string) => void; // เพิ่ม prop สำหรับ AI Mode
     getPostStatusClass: (status: string) => string;
+    isAiModeEnabled?: boolean; // เพิ่ม prop สำหรับสถานะ AI Mode
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -37,7 +41,9 @@ export const PostCard: React.FC<PostCardProps> = ({
     onDelete,
     onShare,
     onLike,
-    getPostStatusClass
+    onToggleAiMode,
+    getPostStatusClass,
+    isAiModeEnabled = false
 }) => (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 w-full max-w-sm mx-auto sm:max-w-none">
         {/* Thumbnail Section */}
@@ -48,6 +54,15 @@ export const PostCard: React.FC<PostCardProps> = ({
                 alt={post.title || "Post Image"}
                 className="w-full h-full object-cover"
             />
+
+            {/* AI Mode Indicator */}
+            {isAiModeEnabled && (
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-1.5 rounded-full shadow-lg">
+                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-white animate-pulse" />
+                    </div>
+                </div>
+            )}
 
             {/* Overlay Stats */}
             <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 md:bottom-4 md:left-4 md:right-4 flex justify-between items-end">
@@ -125,6 +140,30 @@ export const PostCard: React.FC<PostCardProps> = ({
                     >
                         <Edit3 className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Button>
+                    
+                    {/* AI Mode Button */}
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant={isAiModeEnabled ? "default" : "ghost"}
+                                    size="sm"
+                                    className={`h-7 w-7 p-0 sm:h-8 sm:w-8 md:h-9 md:w-9 transition-all duration-200 ${
+                                        isAiModeEnabled 
+                                            ? 'bg-gradient-to-r from-blue-500 to-purple-600  text-white shadow-lg' 
+                                            : ''
+                                    }`}
+                                    onClick={() => onToggleAiMode(post.id)}
+                                >
+                                    <Bot className={`w-3 h-3 sm:w-4 sm:h-4 ${isAiModeEnabled ? 'animate-pulse' : ''}`} />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                                {isAiModeEnabled ? 'Disable AI Mode' : 'Enable AI Mode'}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+
                     <Button
                         variant="ghost"
                         size="sm"
@@ -166,6 +205,14 @@ export const PostCard: React.FC<PostCardProps> = ({
                         <DropdownMenuItem onClick={() => onEdit(post.id)} className="text-xs sm:text-sm">
                             <Edit3 className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                             Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={() => onToggleAiMode(post.id)}
+                            className="text-xs sm:text-sm"
+                        >
+                            <Bot className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                            {isAiModeEnabled ? 'Disable AI Mode' : 'Enable AI Mode'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
