@@ -44,6 +44,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/authContext';
 import DeleteModal from './components/delete-modal';
 import { useToast } from '@/hooks/use-toast';
+import { useWebSocket } from '../contexts/use-web-socket';
 
 const PostsManagement = () => {
   const router = useRouter();
@@ -75,6 +76,26 @@ const PostsManagement = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  // WebSocket: Listen for incoming noti
+  useWebSocket((message) => {
+    if (message.event == "notification:ai_mode_enabled") {
+      const payload = message.payload || {};
+
+      const postId = payload.content;
+      const post = posts.find(p => p.id === postId);
+      if (post) {
+        // Update the post's AI mode status
+        setPosts(posts.map(p => p.id === postId ? { ...p, ai_ready: true } : p));
+        toast({
+          title: 'AI Mode Enabled',
+          description: `AI mode has been enabled for post: ${post.title}`,
+          variant: 'default',
+        });
+      }
+    }
+  });
+
 
   // Event Handlers
   const handleCreatePost = () => {
@@ -154,7 +175,10 @@ const PostsManagement = () => {
 
   const onToggleAiMode = async (postId: string) => {
     try {
-      const response = await axiosInstance.post(`/ai/${postId}/on`);
+
+      // set post status ai_ready to true
+      setPosts(posts.map(p => p.id === postId ? { ...p, ai_chat_open: true } : p));
+      await axiosInstance.post(`/ai/${postId}/on`);
       toast({
         title: 'AI Mode under update',
         description: 'AI mode update in progress',
@@ -166,6 +190,26 @@ const PostsManagement = () => {
       toast({
         title: 'Error',
         description: 'Failed to update AI mode. Please try again.',
+        variant: 'default'
+      });
+    }
+  }
+
+  const onToggleAiModeOff = async (postId: string) => {
+    try {
+      // set post status ai_ready to false
+      setPosts(posts.map(p => p.id === postId ? { ...p, ai_chat_open: false } : p));
+      await axiosInstance.post(`/ai/${postId}/off`);
+      toast({
+        title: 'AI Mode disabled',
+        description: 'AI mode has been disabled for this post.',
+        variant: 'default',
+      });
+    } catch (err) {
+      console.error('Error toggling AI mode off:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to disable AI mode. Please try again.',
         variant: 'default'
       });
     }
@@ -441,6 +485,7 @@ const PostsManagement = () => {
                 onLike={() => handleLikePost(post.id)}
                 getPostStatusClass={getPostStatusClass}
                 onToggleAiMode={() => onToggleAiMode(post.id)}
+                onToggleAiModeOff={() => onToggleAiModeOff(post.id)}
               />
               : <PostListItem
                 key={post.id}
