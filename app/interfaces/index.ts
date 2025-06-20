@@ -55,8 +55,8 @@ export interface Post extends BaseModel {
   views: number;
   read_time: number;
   status: PostStatus['status'];
-  AIChatOpen?: boolean;
-  AIReady?: boolean;
+  ai_chat_open?: boolean;
+  ai_ready?: boolean;
 
   author_id: string;
   author?: User;
