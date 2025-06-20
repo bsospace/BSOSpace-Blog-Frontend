@@ -21,6 +21,160 @@ interface AIProps {
   setIsTyping?: (isTyping: boolean) => void;
 }
 
+// Markdown parser function
+const parseMarkdown = (text: string): React.ReactNode => {
+  if (!text) return null;
+
+  // Split text by code blocks first (triple backticks)
+  const codeBlockRegex = /```([\s\S]*?)```/g;
+  const parts: (string | { type: 'codeblock'; content: string })[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    // Add text before code block
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    // Add code block
+    parts.push({ type: 'codeblock', content: match[1] });
+    lastIndex = match.index + match[0].length;
+  }
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.map((part, index) => {
+    if (typeof part === 'object' && part.type === 'codeblock') {
+      return (
+        <pre key={index} className="bg-gray-800 text-gray-100 p-3 rounded-md my-2 overflow-x-auto">
+          <code>{part.content}</code>
+        </pre>
+      );
+    }
+
+    // Process inline markdown for text parts
+    return parseInlineMarkdown(part as string, index);
+  });
+};
+
+const parseInlineMarkdown = (text: string, keyPrefix: number): React.ReactNode => {
+  const elements: React.ReactNode[] = [];
+  let currentIndex = 0;
+
+  // Define regex patterns for different markdown elements
+  const patterns = [
+    { regex: /\*\*(.*?)\*\*/g, component: 'strong' }, // **bold**
+    { regex: /\*(.*?)\*/g, component: 'em' }, // *italic*
+    { regex: /`(.*?)`/g, component: 'code' }, // `code`
+    { regex: /~~(.*?)~~/g, component: 'del' }, // ~~strikethrough~~
+    { regex: /\[(.*?)\]\((.*?)\)/g, component: 'link' }, // [text](url)
+  ];
+
+  // Find all matches and their positions
+  const matches: Array<{
+    start: number;
+    end: number;
+    content: string;
+    component: string;
+    url?: string;
+  }> = [];
+
+  patterns.forEach((pattern) => {
+    let match;
+    const regex = new RegExp(pattern.regex.source, 'g');
+    
+    while ((match = regex.exec(text)) !== null) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        content: match[1],
+        component: pattern.component,
+        url: match[2] // for links
+      });
+    }
+  });
+
+  // Sort matches by start position
+  matches.sort((a, b) => a.start - b.start);
+
+  // Remove overlapping matches (keep the first one)
+  const validMatches = matches.filter((match, index) => {
+    return !matches.slice(0, index).some(prevMatch => 
+      match.start < prevMatch.end && match.end > prevMatch.start
+    );
+  });
+
+  // Build the result
+  validMatches.forEach((match, index) => {
+    // Add text before the match
+    if (match.start > currentIndex) {
+      const textBefore = text.slice(currentIndex, match.start);
+      if (textBefore) {
+        elements.push(textBefore);
+      }
+    }
+
+    // Add the formatted element
+    const key = `${keyPrefix}-${index}`;
+    switch (match.component) {
+      case 'strong':
+        elements.push(<strong key={key} className="font-bold">{match.content}</strong>);
+        break;
+      case 'em':
+        elements.push(<em key={key} className="italic">{match.content}</em>);
+        break;
+      case 'code':
+        elements.push(
+          <code key={key} className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-sm font-mono">
+            {match.content}
+          </code>
+        );
+        break;
+      case 'del':
+        elements.push(<del key={key} className="line-through">{match.content}</del>);
+        break;
+      case 'link':
+        elements.push(
+          <a key={key} href={match.url} target="_blank" rel="noopener noreferrer" 
+             className="text-blue-500 hover:text-blue-700 underline">
+            {match.content}
+          </a>
+        );
+        break;
+    }
+
+    currentIndex = match.end;
+  });
+
+  // Add remaining text
+  if (currentIndex < text.length) {
+    const remainingText = text.slice(currentIndex);
+    if (remainingText) {
+      elements.push(remainingText);
+    }
+  }
+
+  // Handle line breaks
+  return elements.length > 0 ? elements.map((element, index) => {
+    if (typeof element === 'string') {
+      return element.split('\n').map((line, lineIndex, array) => (
+        <React.Fragment key={`${keyPrefix}-line-${index}-${lineIndex}`}>
+          {line}
+          {lineIndex < array.length - 1 && <br />}
+        </React.Fragment>
+      ));
+    }
+    return element;
+  }) : text.split('\n').map((line, lineIndex, array) => (
+    <React.Fragment key={`${keyPrefix}-simple-${lineIndex}`}>
+      {line}
+      {lineIndex < array.length - 1 && <br />}
+    </React.Fragment>
+  ));
+};
+
 const BlogAIChat: React.FC<AIProps> = ({
   isOpen: initialIsOpen,
   messages: initialMessages,
@@ -39,7 +193,7 @@ const BlogAIChat: React.FC<AIProps> = ({
     {
       id: 1,
       type: 'bot',
-      content: 'สวัสดีครับ! ผมเป็น AI Assistant ของ blog นี้ ผมพร้อมตอบคำถามเกี่ยวกับเนื้อหา blog, การเขียน, หรือหัวข้อที่น่าสนใจ มีอะไรให้ช่วยไหมครับ?',
+      content: 'สวัสดีครับ! ผมเป็น **AI Assistant** ของ blog นี้ ผมพร้อมตอบคำถามเกี่ยวกับเนื้อหา blog, การเขียน, หรือหัวข้อที่น่าสนใจ มีอะไรให้ช่วยไหมครับ?\n\nคุณสามารถใช้ markdown ได้ เช่น:\n- **ตัวหนา**\n- *ตัวเอียง*\n- `โค้ด`\n- [ลิงก์](https://example.com)',
       timestamp: new Date()
     }
   ]);
@@ -56,25 +210,6 @@ const BlogAIChat: React.FC<AIProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const generateBotResponse = (userMessage: string) => {
-    const responses = {
-      'สวัสดี': 'สวัสดีครับ! ยินดีที่ได้พูดคุยกับคุณ มีคำถามอะไรเกี่ยวกับ blog ไหมครับ?',
-      'blog': 'blog นี้มีเนื้อหาหลากหลาย ตั้งแต่เทคโนโลยี การพัฒนาเว็บ ไปจนถึงเทคนิคการเขียน คุณสนใจหัวข้อไหนเป็นพิเศษครับ?',
-      'เขียน': 'การเขียน blog ที่ดีควรมีโครงสร้างชัดเจน เนื้อหาที่มีประโยชน์ และการใช้ภาษาที่เข้าใจง่าย คุณต้องการคำแนะนำด้านไหนเป็นพิเศษครับ?',
-      'เทคโนโลยี': 'เทคโนโลยีในปัจจุบันเปลี่ยนแปลงอย่างรวดเร็ว โดยเฉพาะ AI, Web Development, และ Mobile App คุณสนใจเทคโนโลยีด้านไหนครับ?',
-      'react': 'React เป็น JavaScript library ที่ยอดเยี่ยมสำหรับการสร้าง UI คุณต้องการเรียนรู้เกี่ยวกับ hooks, components, หรือ state management ครับ?',
-      'default': 'น่าสนใจมากครับ! ผมพร้อมช่วยตอบคำถามเกี่ยวกับ blog, การเขียน, เทคโนโลยี หรือหัวข้ออื่นๆ คุณมีคำถามเฉพาะเจาะจงไหมครับ?'
-    };
-
-    const lowerMessage = userMessage.toLowerCase();
-    for (const [key, response] of Object.entries(responses)) {
-      if (key !== 'default' && lowerMessage.includes(key)) {
-        return response;
-      }
-    }
-    return responses.default;
-  };
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
@@ -97,6 +232,15 @@ const BlogAIChat: React.FC<AIProps> = ({
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
+
+    // Add empty bot message for streaming
+    const botMessageId = messages.length + 2;
+    setMessages((prev) => [...prev, {
+      id: botMessageId,
+      type: 'bot',
+      content: '',
+      timestamp: new Date(),
+    }]);
 
     try {
       const res = await fetch(`${envConfig.apiBaseUrl}/ai/${Post?.id}/chat`, {
@@ -132,15 +276,11 @@ const BlogAIChat: React.FC<AIProps> = ({
 
               if (content) {
                 botMessage += content;
-                setMessages((prev) => [
-                  ...prev.slice(0, -1),
-                  {
-                    id: prev.length + 1,
-                    type: 'bot',
-                    content: botMessage,
-                    timestamp: new Date(),
-                  },
-                ]);
+                setMessages((prev) => prev.map(msg => 
+                  msg.id === botMessageId 
+                    ? { ...msg, content: botMessage }
+                    : msg
+                ));
               }
             } catch (e) {
               console.warn("Malformed chunk:", jsonText);
@@ -150,6 +290,12 @@ const BlogAIChat: React.FC<AIProps> = ({
       }
     } catch (err) {
       console.error('Streaming error:', err);
+      // Show error message
+      setMessages((prev) => prev.map(msg => 
+        msg.id === botMessageId 
+          ? { ...msg, content: 'ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง' }
+          : msg
+      ));
     } finally {
       setIsTyping(false);
     }
@@ -220,7 +366,7 @@ const BlogAIChat: React.FC<AIProps> = ({
                   <span className="font-medium">Blog AI Assistant</span>
                   <div className="relative">
                     <span className="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
-                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block animate-ping absolute right-0 top-[6px]"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block animate-ping absolute right-0 top-[7px]"></span>
                   </div>
                 </span>
               </div>
@@ -273,7 +419,9 @@ const BlogAIChat: React.FC<AIProps> = ({
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-foreground'
                     }`}>
-                    <p className={`text-sm ${message.type == "user" ? "text-white" : ""}`}>{message.content}</p>
+                    <div className={`text-sm ${message.type == "user" ? "text-white" : ""}`}>
+                      {parseMarkdown(message.content)}
+                    </div>
                     <p className={`text-xs mt-1 ${message.type === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
                       }`}>
                       {formatTime(message.timestamp)}
@@ -287,7 +435,7 @@ const BlogAIChat: React.FC<AIProps> = ({
             {isTyping && (
               <div className="flex justify-start">
                 <div className="flex mr-2">
-                  <div className="w-6 h-6 rounded-full flex items center justify-center bg-muted text-muted-foreground">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center bg-muted text-muted-foreground">
                     <Bot className="h-3 w-3" />
                   </div>
                 </div>
