@@ -3,18 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, MessageCircle, X, Minimize2, Maximize2, Minimize } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '../contexts/authContext';
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-}
+import envConfig from '../configs/envConfig';
+import { Post } from '../interfaces';
 
 interface AIProps {
   isOpen?: boolean;
   messages?: { id: number; type: 'user' | 'bot'; content: string; timestamp: Date }[];
   onClose?: () => void;
-  Post?: Post;
+  Post: Post;
   onSendMessage?: (message: string) => void;
   onToggle?: () => void;
   onInputChange?: (value: string) => void;
@@ -84,25 +80,71 @@ const BlogAIChat: React.FC<AIProps> = ({
       id: messages.length + 1,
       type: 'user',
       content: inputText,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
 
-    // Simulate AI thinking time
-    setTimeout(() => {
-      const botResponse = {
-        id: messages.length + 2,
-        type: 'bot',
-        content: generateBotResponse(inputText),
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, botResponse]);
+    try {
+      const res = await fetch(`${envConfig.apiBaseUrl}/ai/${Post?.id}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+        },
+        body: JSON.stringify({ prompt: inputText }),
+      });
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let botMessage = '';
+
+      if (!reader) throw new Error("No readable stream");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const jsonText = line.slice(6).trim();
+            if (!jsonText) continue;
+
+            try {
+              const parsed = JSON.parse(jsonText);
+              const content = parsed.text || '';
+
+              if (content) {
+                botMessage += content;
+                setMessages((prev) => [
+                  ...prev.slice(0, -1),
+                  {
+                    id: prev.length + 1,
+                    type: 'bot',
+                    content: botMessage,
+                    timestamp: new Date(),
+                  },
+                ]);
+              }
+            } catch (e) {
+              console.warn("Malformed chunk:", jsonText);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Streaming error:', err);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
+
+
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -139,10 +181,10 @@ const BlogAIChat: React.FC<AIProps> = ({
   }
 
   return (
-    <div className={`fixed z-50 ${isFullscreen 
-      ? 'inset-0 p-4' 
+    <div className={`fixed z-50 ${isFullscreen
+      ? 'inset-0 p-4'
       : 'bottom-8 right-4'
-    }`}>
+      }`}>
       {/* Chat Toggle Button */}
       {!isOpen && (
         <button
@@ -155,11 +197,10 @@ const BlogAIChat: React.FC<AIProps> = ({
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`bg-background border border-border rounded-lg shadow-lg flex flex-col ${
-          isFullscreen 
-            ? 'w-full h-full max-w-none max-h-none' 
-            : 'w-80 h-96'
-        }`}>
+        <div className={`bg-background border border-border rounded-lg shadow-lg flex flex-col ${isFullscreen
+          ? 'w-full h-full max-w-none max-h-none'
+          : 'w-80 h-96'
+          }`}>
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-border">
             <div className="flex items-center space-x-2">
@@ -203,17 +244,15 @@ const BlogAIChat: React.FC<AIProps> = ({
           </div>
 
           {/* Messages */}
-          <div className={`flex-1 overflow-y-auto p-4 space-y-3 ${
-            isFullscreen ? 'max-w-4xl mx-auto w-full' : ''
-          }`}>
+          <div className={`flex-1 overflow-y-auto p-4 space-y-3 ${isFullscreen ? 'max-w-4xl mx-auto w-full' : ''
+            }`}>
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex max-w-[85%] ${
-                  isFullscreen ? 'max-w-2xl' : 'max-w-[85%]'
-                } ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex max-w-[85%] ${isFullscreen ? 'max-w-2xl' : 'max-w-[85%]'
+                  } ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`flex-shrink-0 ${message.type === 'user' ? 'ml-2' : 'mr-2'}`}>
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ${message.type === 'user'
                       ? 'bg-primary text-primary-foreground'
@@ -257,18 +296,16 @@ const BlogAIChat: React.FC<AIProps> = ({
           </div>
 
           {/* Input */}
-          <div className={`p-4 border-t border-border ${
-            isFullscreen ? 'max-w-4xl mx-auto w-full' : ''
-          }`}>
+          <div className={`p-4 border-t border-border ${isFullscreen ? 'max-w-4xl mx-auto w-full' : ''
+            }`}>
             <div className="flex space-x-2">
               <Textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="พิมพ์ข้อความของคุณ..."
-                className={`flex-1 min-h-9 px-3 py-2 text-sm ${
-                  isFullscreen ? 'max-h-32' : 'max-h-20'
-                }`}
+                className={`flex-1 min-h-9 px-3 py-2 text-sm ${isFullscreen ? 'max-h-32' : 'max-h-20'
+                  }`}
                 rows={1}
               />
               <button

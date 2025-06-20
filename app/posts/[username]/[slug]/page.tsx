@@ -29,7 +29,7 @@ export default function PostPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [contentState, setContentState] = useState<JSONContent>();
-    const [post, setPost] = useState<Post | null>(null);
+    const [post, setPost] = useState<Post>();
     const [toc, setToc] = useState<{ level: number; text: string; href: string }[]>([]);
     const [notFound, setNotFound] = useState(false);
 
@@ -310,7 +310,11 @@ export default function PostPage() {
                     </div>
                 </div>
             </div>
-            <BlogAIChat/>
+            {
+                post?.ai_chat_open && post.ai_ready && (
+                    <BlogAIChat Post={post} />
+                )
+            }
         </SEOProvider>
     );
 }
