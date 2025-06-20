@@ -1,3 +1,4 @@
+'use client';
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, MessageCircle, X, Minimize2, Maximize2, Minimize } from 'lucide-react';
@@ -5,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '../contexts/authContext';
 import envConfig from '../configs/envConfig';
 import { Post } from '../interfaces';
+import { useRouter } from 'next/navigation'
 
 interface AIProps {
   isOpen?: boolean;
@@ -45,6 +47,7 @@ const BlogAIChat: React.FC<AIProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const router = useRouter();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,6 +78,14 @@ const BlogAIChat: React.FC<AIProps> = ({
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
+
+    // Check if user is authenticated
+    if (!user) {
+      const currentUrl = window.location.pathname + window.location.search;
+      const redirectUrl = encodeURIComponent(currentUrl);
+      router.push(`/auth/login?redirect=${redirectUrl}`);
+      return;
+    }
 
     const userMessage = {
       id: messages.length + 1,
@@ -144,8 +155,6 @@ const BlogAIChat: React.FC<AIProps> = ({
     }
   };
 
-
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -171,7 +180,6 @@ const BlogAIChat: React.FC<AIProps> = ({
       setIsOpen(false);
     }
   };
-
 
   function getUserAvatar() {
     if (user?.avatar) {
@@ -303,21 +311,22 @@ const BlogAIChat: React.FC<AIProps> = ({
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="พิมพ์ข้อความของคุณ..."
+                placeholder={!user ? "กรุณาเข้าสู่ระบบเพื่อแชท..." : "พิมพ์ข้อความของคุณ..."}
                 className={`flex-1 min-h-9 px-3 py-2 text-sm ${isFullscreen ? 'max-h-32' : 'max-h-20'
                   }`}
                 rows={1}
+                disabled={!user}
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputText.trim() || isTyping}
+                disabled={!inputText.trim() || isTyping || !user}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
               >
                 <Send className="h-4 w-4" />
               </button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Enter เพื่อส่ง • Shift+Enter บรรทัดใหม่
+              {!user ? "กรุณาเข้าสู่ระบบเพื่อใช้งาน AI Chat" : "Enter เพื่อส่ง • Shift+Enter บรรทัดใหม่"}
             </p>
           </div>
         </div>

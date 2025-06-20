@@ -311,7 +311,7 @@ export default function PostPage() {
                 </div>
             </div>
             {
-                post?.ai_chat_open && post.ai_ready && (
+                post?.ai_chat_open && post.ai_ready &&  (
                     <BlogAIChat Post={post} />
                 )
             }
