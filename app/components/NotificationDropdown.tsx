@@ -42,16 +42,17 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
   useWebSocket((message) => {
     if (message.event.split(":")[0] === "notification") {
       const payload = message.payload || {};
+      let content = payload.content || "";
       // Check if content is UUID format
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (payload.content && uuidRegex.test(payload.content)) {
-        return; // Skip if content is UUID
+        content = "You have a new notification";
       }
 
       const newNoti: Notification = {
-        id: Date.now(), // ถ้ายังไม่มี ID จริง
-        title: payload.title || "📣 การแจ้งเตือนใหม่",
-        message: payload.content || "ไม่มีข้อความเพิ่มเติม",
+        id: Date.now(),
+        title: `📣${payload.title}` || "📣 New notification.",
+        message: content,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isRead: false,
       };
