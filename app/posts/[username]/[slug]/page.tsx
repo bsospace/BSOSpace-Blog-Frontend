@@ -21,6 +21,7 @@ import { AxiosError } from "axios";
 import NotFound from "@/app/components/NotFound";
 import { SEOProvider, useSEO } from "@/app/contexts/seoContext";
 import Loading from "@/app/components/Loading";
+import BlogAIChat from "@/app/components/ai-chat";
 
 
 export default function PostPage() {
@@ -309,6 +310,7 @@ export default function PostPage() {
                     </div>
                 </div>
             </div>
+            <BlogAIChat/>
         </SEOProvider>
     );
 }
