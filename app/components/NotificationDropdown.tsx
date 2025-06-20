@@ -42,6 +42,12 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
   useWebSocket((message) => {
     if (message.event.split(":")[0] === "notification") {
       const payload = message.payload || {};
+      // Check if content is UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (payload.content && uuidRegex.test(payload.content)) {
+        return; // Skip if content is UUID
+      }
+
       const newNoti: Notification = {
         id: Date.now(), // ถ้ายังไม่มี ID จริง
         title: payload.title || "📣 การแจ้งเตือนใหม่",
