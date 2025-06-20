@@ -4,7 +4,7 @@
 import React, { FC } from "react";
 import Link from "next/link";
 import { Post } from "../interfaces";
-import { FiBookmark, FiClock, FiEye, FiHeart } from "react-icons/fi";
+import { FiBookmark, FiClock, FiEye, FiHeart, FiMessageCircle, FiCpu } from "react-icons/fi";
 import { formatDate } from "@/lib/utils";
 
 const BlogCard = ({ post }
@@ -24,7 +24,7 @@ const BlogCard = ({ post }
       <div className="relative z-10 flex flex-col md:flex-row group-hover:scale-105 transition-transform duration-500">
         {/* Thumbnail Section */}
         <div className="relative w-full md:w-2/5 flex-shrink-0">
-          <div className="h-48 sm:h-56 md:h-64 overflow-hidden">
+          <div className="h-48 sm:h-56 md:h-72 overflow-hidden">
             <img
               src={post?.thumbnail || "/default-thumbnail.png"}
               alt={post.title}
@@ -41,6 +41,17 @@ const BlogCard = ({ post }
                 <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse delay-200"></div>
               </div>
             </div>
+
+            {/* AI Processing Badge */}
+            {post.ai_chat_open && !post.ai_ready && (
+              <div className="absolute bottom-4 left-4">
+                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-600/90 to-orange-600/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-yellow-400/30 shadow-lg">
+                  <FiCpu className="w-3 h-3 text-yellow-300 animate-pulse" />
+                  <span className="text-xs font-medium text-yellow-100">AI Processing</span>
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce"></div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Bookmark with tech styling */}
@@ -62,6 +73,18 @@ const BlogCard = ({ post }
                   #{tag.name}
                 </span>
               ))}
+            </div>
+          )}
+
+          {/* AI Mode Indicator in Content */}
+          {post.ai_chat_open && (
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20">
+                <FiMessageCircle className="w-2.5 h-2.5 text-orange-400" />
+                <span className="text-[10px] text-orange-300 font-medium">
+                  {post.ai_ready ? "Interactive AI Chat Available" : "AI Processing Content"}
+                </span>
+              </div>
             </div>
           )}
 
@@ -120,6 +143,13 @@ const BlogCard = ({ post }
                 <FiHeart className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400" />
                 <span>{post.likes || 0}</span>
               </div>
+              {/* AI Chat Indicator in Stats */}
+                {post.ai_ready && post.ai_chat_open && (
+                <div className="flex items-center gap-1 text-xs text-orange-400">
+                  <FiCpu className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>AI</span>
+                </div>
+                )}
             </div>
           </div>
 
