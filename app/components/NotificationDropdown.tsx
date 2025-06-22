@@ -50,10 +50,11 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
         throw new Error('Invalid response format');
       }
 
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       const newNotifications: Notification[] = apiData.notification.map((n: any) => ({
         id: n.id,
         title: n.title || "📣 New notification.",
-        content: n.content || "",
+        content: uuidRegex.test(n.content) ? "You have a new notification" : n.content || "",
         created_at: new Date(n.seen_at !== "0001-01-01T00:00:00Z" ? n.seen_at : new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         seen: n.seen || false,
         updated_at: n.seen_at || new Date().toISOString(),
