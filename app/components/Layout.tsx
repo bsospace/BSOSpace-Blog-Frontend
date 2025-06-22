@@ -54,7 +54,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     const fetchLatestVersion = async () => {
       try {
         const response = await axios.get(
-          "https://api.github.com/repos/bsospace/BSOSpace-Blog-Frontend/releases/latest"
+          "https://api.github.com/repos/bsospace/blog-bsospace-mono-repo/releases/latest"
         );
         setVersion(response.data.tag_name || "unknown");
       } catch (error) {
@@ -112,7 +112,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               >
                 YouTube
               </a>
-              <NotificationDropdown/>
+              <NotificationDropdown />
             </nav>
 
             {/* Divider - only show on desktop */}
@@ -142,9 +142,12 @@ export default function Layout({ children }: { children: ReactNode }) {
                       <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     </>
                   ) : (
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800">
-                      <User className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    </div>
+                    <>
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800">
+                        <User className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </>
                   )}
                 </button>
 
