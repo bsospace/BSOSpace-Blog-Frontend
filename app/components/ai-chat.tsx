@@ -224,7 +224,7 @@ const BlogAIChat: React.FC<AIProps> = ({
 
     const userMessage = {
       id: messages.length + 1,
-      type: 'user',
+      type: 'user' as const,
       content: inputText,
       timestamp: new Date(),
     };
@@ -237,7 +237,7 @@ const BlogAIChat: React.FC<AIProps> = ({
     const botMessageId = messages.length + 2;
     setMessages((prev) => [...prev, {
       id: botMessageId,
-      type: 'bot',
+      type: 'bot' as const,
       content: '',
       timestamp: new Date(),
     }]);
@@ -327,6 +327,14 @@ const BlogAIChat: React.FC<AIProps> = ({
     }
   };
 
+  const handleClose = () => {
+    setIsOpen(false);
+    // Reset fullscreen when closing
+    if (isFullscreen) {
+      setIsFullscreen(false);
+    }
+  };
+
   function getUserAvatar() {
     if (user?.avatar) {
       return <img src={user.avatar} alt="User Avatar" className="h-6 w-6 rounded-full" />;
@@ -334,11 +342,23 @@ const BlogAIChat: React.FC<AIProps> = ({
     return <User className="h-3 w-3" />;
   }
 
+  // Fixed positioning logic
+  const getContainerClasses = () => {
+    if (isFullscreen) {
+      return 'fixed inset-0 z-50 p-4';
+    }
+    return 'fixed z-50 bottom-8 right-4';
+  };
+
+  const getChatWindowClasses = () => {
+    if (isFullscreen) {
+      return 'bg-background border border-border rounded-lg shadow-lg flex flex-col w-full h-full max-w-none max-h-none';
+    }
+    return 'bg-background border border-border rounded-lg shadow-lg flex flex-col w-80 h-96';
+  };
+
   return (
-    <div className={`fixed z-50 ${isFullscreen
-      ? 'inset-0 p-4'
-      : 'bottom-8 right-4'
-      }`}>
+    <div className={getContainerClasses()}>
       {/* Chat Toggle Button */}
       {!isOpen && (
         <button
@@ -351,10 +371,7 @@ const BlogAIChat: React.FC<AIProps> = ({
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`bg-background border border-border rounded-lg shadow-lg flex flex-col ${isFullscreen
-          ? 'w-full h-full max-w-none max-h-none'
-          : 'w-80 h-96'
-          }`}>
+        <div className={getChatWindowClasses()}>
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-border">
             <div className="flex items-center space-x-2">
@@ -388,7 +405,7 @@ const BlogAIChat: React.FC<AIProps> = ({
                 <Minimize2 className="h-4 w-4" />
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="inline-flex items-center justify-center rounded-md w-8 h-8 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 title="ปิด"
               >
@@ -431,7 +448,7 @@ const BlogAIChat: React.FC<AIProps> = ({
               </div>
             ))}
 
-            {/* Typing Indicator */}
+            {/* Typing Indicator - แสดงเฉพาะเมื่อกำลัง typing และไม่มี content ใน bot message ล่าสุด */}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="flex mr-2">
