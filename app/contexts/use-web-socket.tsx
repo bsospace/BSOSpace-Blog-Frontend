@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect } from "react"
 import {
@@ -24,7 +25,7 @@ export const useWebSocket = (
 
     addWSListener(listener)
     return () => removeWSListener(listener)
-  }, [onMessage])
+  }, [])
 
   return { sendWSMessage }
 }
