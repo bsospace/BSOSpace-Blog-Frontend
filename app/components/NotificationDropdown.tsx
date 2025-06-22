@@ -1,15 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { Bell, X } from "lucide-react";
 import { useWebSocket } from "../contexts/use-web-socket";
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  isRead: boolean;
-}
+import { axiosInstance } from "../utils/api";
+import { useAuth } from "../contexts/authContext";
+import { Notification } from '../interfaces/index';
 
 interface NotificationDropdownProps {
   className?: string;
@@ -19,24 +15,82 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
-  const markAsRead = (id: number) => {
+  // Get initial notifications from API
+  const fetchNotifications = async () => {
+    try {
+      const response = await axiosInstance.get("/notifications");
+      const data: Notification[] = response?.data?.data?.notification.map((n: any) => ({
+        id: n.id,
+        title: n.title || "📣 New notification.",
+        content: n.content || "",
+        created_at: new Date(n.seen_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        seen: n.seen || false,
+        updated_at: n.seen_at || new Date().toISOString(),
+        link: n.link || "",
+        user_id: ""
+      }));
+
+      setNotifications(data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  }
+
+  // Mark notification as read or unread
+  const toggleReadStatus = (id: number) => {
     setNotifications(prev =>
       prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
     );
+
+    // Optionally, you can also update the server
+    try {
+      axiosInstance.post(`/notifications/${id}/mark-read`, {});
+    } catch (error) {
+      console.error("Error updating notification read status:", error);
+      // Optionally, revert the local state change if the server update fails
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, isRead: !n.seen } : n))
+      );
+
+    }
+  }
+
+  // Mark notification as read
+  const markAsReadToggle = () => {
+    setNotifications(prev =>
+      prev.map(n => ({ ...n, seen: true }))
+    );
+
+    // Optionally, update the server
+    try {
+      axiosInstance.post(`/notifications/mark-all-read`, {});
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      // Optionally, revert the local state change if the server update fails
+      setNotifications(prev =>
+        prev.map(n => ({ ...n, seen: false }))
+      );
+    }
+  }
+
+  const markAsRead = (id: number) => {
+    toggleReadStatus(id);
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    markAsReadToggle();
   };
 
   const removeNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter(n => !n.seen).length;
 
   // WebSocket: Listen for incoming noti
   useWebSocket((message) => {
@@ -50,11 +104,14 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
       }
 
       const newNoti: Notification = {
-        id: Date.now(),
         title: `📣${payload.title}` || "📣 New notification.",
-        message: content,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isRead: false,
+        content: content,
+        created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        seen: false,
+        updated_at: new Date().toISOString(),
+        id: payload.id || Date.now(), // Use payload id or fallback to timestamp
+        link: "",
+        user_id: ""
       };
 
       setNotifications(prev => [newNoti, ...prev]);
@@ -70,6 +127,11 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch initial notifications on mount
+  useEffect(() => {
+    fetchNotifications();
   }, []);
 
   return (
@@ -114,11 +176,10 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
                 notifications.map((n) => (
                   <div
                     key={n.id}
-                    className={`relative p-3 rounded-lg border cursor-pointer group transition-colors ${
-                      n.isRead
-                        ? "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                        : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
-                    }`}
+                    className={`relative p-3 rounded-lg border cursor-pointer group transition-colors ${n.seen
+                      ? "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                      : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                      }`}
                     onClick={() => markAsRead(n.id)}
                   >
                     <button
@@ -134,12 +195,12 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
                     <div className="pr-6">
                       <div className="flex items-start justify-between mb-1">
                         <h4 className="font-medium text-sm text-gray-900 dark:text-white">{n.title}</h4>
-                        {!n.isRead && (
+                        {!n.seen && (
                           <div className="w-2 h-2 bg-blue-500 rounded-full mt-1" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 normal-case">{n.message}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">{n.time}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 normal-case">{n.content}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">{n.created_at}</p>
                     </div>
                   </div>
                 ))
