@@ -45,7 +45,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
 
       const response = await axiosInstance.get(`/notifications?page=${page}&limit=${LIMIT}`);
       const apiData = response?.data?.data;
-      
+
       if (!apiData) {
         throw new Error('Invalid response format');
       }
@@ -89,7 +89,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const threshold = 50; // Load more when 50px from bottom
-    
+
     if (scrollHeight - scrollTop <= clientHeight + threshold) {
       loadMoreNotifications();
     }
@@ -142,6 +142,11 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
   const removeNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
     // Update meta total count
+    try {
+      axiosInstance.delete(`/notifications/${id}/delete`);
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
     if (meta) {
       setMeta(prev => prev ? { ...prev, total: prev.total - 1 } : null);
     }
@@ -154,7 +159,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
     if (message.event.split(":")[0] === "notification") {
       const payload = message.payload || {};
       let content = payload.content || "";
-      
+
       // Check if content is UUID format
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (payload.content && uuidRegex.test(payload.content)) {
@@ -194,10 +199,10 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
   // Fetch initial notifications on mount and when dropdown opens
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token && isOpen && notifications.length === 0) {
+    if (token) {
       fetchNotifications(1);
     }
-  }, [isOpen]);
+  }, []);
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -231,7 +236,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
               )}
             </div>
 
-            <div 
+            <div
               ref={scrollRef}
               className="mt-3 max-h-96 overflow-y-auto space-y-2"
               onScroll={handleScroll}
@@ -279,7 +284,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* Loading more indicator */}
                   {loadingMore && (
                     <div className="flex items-center justify-center py-4">
@@ -287,7 +292,7 @@ export default function NotificationDropdown({ className = "" }: NotificationDro
                       <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">กำลังโหลดเพิ่มเติม...</span>
                     </div>
                   )}
-                  
+
                   {/* End of list indicator */}
                   {meta && !meta.hasNextPage && notifications.length > 0 && (
                     <div className="text-center py-2">
