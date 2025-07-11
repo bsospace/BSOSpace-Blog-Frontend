@@ -249,6 +249,7 @@ const BlogAIChat: React.FC<AIProps> = ({
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ prompt: inputText }),
       });
 
