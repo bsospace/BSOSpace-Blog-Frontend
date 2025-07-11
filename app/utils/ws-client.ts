@@ -9,12 +9,13 @@ let listeners: WSListener[] = []
 
 export const connectWebSocket = () => {
   const loggedIn = localStorage.getItem('logged_in') === 'true'
-  if (!loggedIn){
+  const warp = localStorage.getItem('warp') || ''
+  if (!loggedIn || !warp) {
     console.log('[WS] Not logged in, skipping WebSocket connection')
     return
   }
 
-  socket = new WebSocket(`${envConfig.ws}`)
+  socket = new WebSocket(`${envConfig.ws}?warp=${warp}`)
 
   socket.onopen = () => {
     isConnected = true
