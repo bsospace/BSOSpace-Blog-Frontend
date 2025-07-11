@@ -13,6 +13,7 @@ import { getnerateId } from "@/lib/utils";
 import { FiCode, FiCpu } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import NotificationDropdown from "./NotificationDropdown";
+import { axiosInstance } from "../utils/api";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState<string>("unknown");
@@ -24,12 +25,22 @@ export default function Layout({ children }: { children: ReactNode }) {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsLoggedIn(false);
     setUser(null);
     setIsOpen(false);
-    localStorage.clear();
-    window.location.href = "/";
+    try {
+      const response = await axiosInstance.delete("/auth/logout");
+      if (response.data.success) {
+        // Clear local storage or any other state management
+        localStorage.removeItem("warp");
+        // Redirect to login page
+        window.location.href = "/home"
+      }
+    }
+    catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   const navigateToLogin = () => {
