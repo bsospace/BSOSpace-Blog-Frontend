@@ -40,25 +40,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
 
   const [user, setUser] = useState<User | null>(null);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
   useEffect(() => {
     // Check user authentication status
     const checkLogin = async () => {
-
-      if (!token) {
-        setIsLoggedIn(false);
-        setIsFetching(false);
-        setUser(null);
-        return;
-      }
-      
       try {
         const response = await axiosInstance.get('/auth/me');
         if (response.data.success) {
           setIsLoggedIn(true);
           setIsFetching(false);
           setUser(response.data.data);
+          localStorage.setItem("warp", response.data.data.warp_key || '');
         } else {
           setIsLoggedIn(false);
           setIsFetching(false);
@@ -70,6 +62,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         setUser(null);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('warp');
+        console.error("Error checking login status:", error);
       }
     };
 
