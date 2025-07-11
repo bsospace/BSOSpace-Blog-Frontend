@@ -7,10 +7,13 @@ import {
   removeWSListener,
   sendWSMessage,
 } from "../utils/ws-client"
+import { useAuth } from "./authContext"
 
 export const useWebSocket = (
   onMessage: (data: any) => void
 ) => {
+
+  const { user } = useAuth()
   useEffect(() => {
     connectWebSocket()
 
@@ -25,7 +28,7 @@ export const useWebSocket = (
 
     addWSListener(listener)
     return () => removeWSListener(listener)
-  }, [])
+  }, [user])
 
   return { sendWSMessage }
 }
