@@ -14,6 +14,7 @@ const Callback = () => {
 
             if (response.data.success) {
                 const redirectParam = localStorage.getItem('redirect') || null
+                localStorage.setItem("logged_in", "true");
                 if (redirectParam) {
                     window.location.href = redirectParam
                 } else {
@@ -22,6 +23,9 @@ const Callback = () => {
                 }
             } else {
                 console.error('Failed to exchange token:', response.data.message)
+                setIsFetching(false)
+                setIsLoggedIn(false)
+                localStorage.removeItem('logged_in')
             }
         } catch (error) {
             console.error('Error exchanging token:', error)
