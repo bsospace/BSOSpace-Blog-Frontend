@@ -22,6 +22,8 @@ import NotFound from "@/app/components/NotFound";
 import { SEOProvider, useSEO } from "@/app/contexts/seoContext";
 import Loading from "@/app/components/Loading";
 import BlogAIChat from "@/app/components/ai-chat";
+import Head from 'next/head';
+import { generateMetadata, generateStructuredData } from '@/app/utils/seo';
 
 
 export default function PostPage() {
@@ -50,6 +52,7 @@ export default function PostPage() {
 
 
     const [currentURL, setCurrentURL] = useState<string | null>(null);
+    const [structuredData, setStructuredData] = useState<string>('');
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -57,6 +60,24 @@ export default function PostPage() {
             setCurrentURL(fullURL);
         }
     }, [username, slug]);
+
+    // Generate structured data for the post
+    useEffect(() => {
+        if (metadata.title && metadata.description && currentURL) {
+            const data = generateStructuredData({
+                title: metadata.title,
+                description: metadata.description,
+                image: metadata.image,
+                url: currentURL,
+                type: 'article',
+                author: metadata.author,
+                publishedTime: post?.published_at ?? undefined,
+                modifiedTime: post?.updated_at ?? undefined,
+                tags: post?.tags?.map(tag => typeof tag === 'string' ? tag : tag.name || '') || [],
+            });
+            setStructuredData(JSON.stringify(data));
+        }
+    }, [metadata, currentURL, post]);
 
     const seoData = {
         title: metadata.title,
