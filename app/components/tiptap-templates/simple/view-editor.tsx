@@ -1,6 +1,7 @@
 "use client"
 import * as React from "react"
 import { EditorContent, useEditor, JSONContent } from "@tiptap/react"
+import dynamic from 'next/dynamic'
 
 // Core Extensions
 import { StarterKit } from "@tiptap/starter-kit"
@@ -18,6 +19,7 @@ import { Underline } from "@tiptap/extension-underline"
 import { Link } from "@/app/components/tiptap-extension/link-extension"
 import { Selection } from "@/app/components/tiptap-extension/selection-extension"
 import { TrailingNode } from "@/app/components/tiptap-extension/trailing-node-extension"
+import Loading from "../../Loading"
 
 interface PreviewEditorProps {
   content: JSONContent
@@ -26,6 +28,7 @@ interface PreviewEditorProps {
 export function PreviewEditor({ content }: PreviewEditorProps) {
   const editor = useEditor({
     editable: false,
+    immediatelyRender: false, // แก้ไข SSR error
     extensions: [
       StarterKit.configure({}),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -60,3 +63,13 @@ export function PreviewEditor({ content }: PreviewEditorProps) {
     </div>
   )
 }
+
+// Export dynamic version to prevent SSR issues
+export const DynamicPreviewEditor = dynamic(() => Promise.resolve(PreviewEditor), {
+  ssr: false,
+  loading: () => (
+    <div className="text-center text-gray-500 dark:text-gray-400 py-12">
+      <Loading />
+    </div>
+  ),
+})
