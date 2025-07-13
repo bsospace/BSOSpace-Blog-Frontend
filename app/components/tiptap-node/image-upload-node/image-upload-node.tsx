@@ -309,7 +309,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
         objectUrlRef.current = null
       }
     }
-  }, [file, fileItem?.status, fileItem?.url])
+  }, [file, fileItem?.status, fileItem?.url, onUploaded])
 
 
 
