@@ -16,6 +16,7 @@ import { SEOProvider } from "@/app/contexts/seoContext";
 import Loading from "@/app/components/Loading";
 import BlogAIChat from "@/app/components/ai-chat";
 import { generateStructuredData } from '@/app/utils/seo';
+import Image from "next/image";
 
 interface PostClientProps {
   post: Post;
@@ -102,8 +103,8 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
       setToc(generateTableOfContents(parsedContent));
     } catch (e) {
       // Fallback content แทนที่จะ setNotFound
-      setContentState({ 
-        type: 'doc', 
+      setContentState({
+        type: 'doc',
         content: [
           {
             type: 'paragraph',
@@ -114,7 +115,7 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
               }
             ]
           }
-        ] 
+        ]
       });
       setIsLoading(false);
       setNotFound(false); // ไม่ setNotFound เพื่อให้แสดง fallback content
@@ -152,7 +153,7 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
   if (!isClient || isLoading) {
     return <Loading label="Loading post..." />;
   }
-  
+
   if (notFound) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -160,7 +161,7 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
       </div>
     );
   }
-  
+
   return (
     <SEOProvider value={seoData}>
       <ScrollProgressBar />
@@ -196,8 +197,15 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
               </div>
             </div>
             <div className="mb-8">
+
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <img src={metadata.image} alt={metadata.title} className="w-full h-64 md:h-96 object-cover" />
+                <Image 
+                  src={metadata.image} 
+                  alt={metadata.title} 
+                  width={800}
+                  height={400}
+                  className="w-full h-64 md:h-96 object-cover" 
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
             </div>
@@ -259,7 +267,17 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
             <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-xl">
-                  {metadata.authorImage ? <img src={metadata.authorImage} alt={metadata.author} className="w-full h-full rounded-full object-cover" /> : (metadata.author?.charAt(0) || 'A')}
+                  {metadata.authorImage ? (
+                    <Image
+                      src={metadata.authorImage}
+                      alt={metadata.author}
+                      width={64}
+                      height={64}
+                      className="rounded-full object-cover"
+                    />
+                  ) : (
+                    metadata.author?.charAt(0) || 'A'
+                  )}
                 </div>
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About {metadata.author}</h4>

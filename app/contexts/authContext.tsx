@@ -63,7 +63,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('warp');
-        console.error("Error checking login status:", error);
       }
     };
 

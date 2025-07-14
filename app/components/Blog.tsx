@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { FC } from "react";
@@ -6,6 +5,7 @@ import Link from "next/link";
 import { Post } from "../interfaces";
 import { FiBookmark, FiClock, FiEye, FiHeart, FiMessageCircle, FiCpu } from "react-icons/fi";
 import { formatDate } from "@/lib/utils";
+import Image from "next/image";
 
 const BlogCard = ({ post }
   : {
@@ -25,11 +25,16 @@ const BlogCard = ({ post }
         {/* Thumbnail Section */}
         <div className="relative w-full md:w-2/5 flex-shrink-0">
           <div className="h-48 sm:h-56 md:h-72 overflow-hidden">
-            <img
-              src={post?.thumbnail || "/default-thumbnail.png"}
-              alt={post.title}
-              className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={post?.thumbnail || '/default-thumbnail.png'}
+                alt={post.title}
+                fill
+                className="object-cover transform group-hover:scale-110 transition-transform duration-700"
+                sizes="100vw"
+                priority={false}
+              />
+            </div>
             {/* Tech overlay */}
             <div className="absolute inset-0 bg-gradient-to-tr from-black/50 via-transparent to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -111,10 +116,12 @@ const BlogCard = ({ post }
             {/* Author info */}
             <div className="flex items-center gap-3">
               <div className="relative">
-                <img
-                  src={post.author?.avatar || `/default-avatar.png`}
-                  alt={post.author?.username || "Author"}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-orange-500/50 shadow-sm"
+                <Image
+                  src={post.author?.avatar || '/default-avatar.png'}
+                  alt={post.author?.username || 'Author'}
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover border-2 border-orange-500/50 shadow-sm"
                 />
                 <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-slate-900" />
               </div>
@@ -144,12 +151,12 @@ const BlogCard = ({ post }
                 <span>{post.likes || 0}</span>
               </div>
               {/* AI Chat Indicator in Stats */}
-                {post.ai_ready && post.ai_chat_open && (
+              {post.ai_ready && post.ai_chat_open && (
                 <div className="flex items-center gap-1 text-xs text-orange-400">
                   <FiCpu className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>AI</span>
                 </div>
-                )}
+              )}
             </div>
           </div>
 
