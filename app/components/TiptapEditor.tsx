@@ -71,12 +71,6 @@ export default function TiptapEditor() {
         },
     })
 
-    const handleSubmit = () => {
-        if (!editor) return
-        console.log('HTML:', editor.getHTML())
-        console.log('JSON:', editor.getJSON())
-    }
-
     const Toolbar = ({ editor }: { editor: Editor | null }) => {
         if (!editor) return null
 
