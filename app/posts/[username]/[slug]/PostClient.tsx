@@ -90,22 +90,17 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
 
   useEffect(() => {
     if (!post?.content) {
-      console.log('[PostClient] No post content found');
       setNotFound(true);
       setIsLoading(false);
       return;
     }
     try {
-      console.log('🔍 [PostClient] Raw content:', post.content.substring(0, 200) + '...');
       const parsedContent = JSON.parse(post.content);
-      console.log('[PostClient] Content parsed successfully:', parsedContent);
       setContentState(parsedContent);
       setIsLoading(false);
       setNotFound(false);
       setToc(generateTableOfContents(parsedContent));
     } catch (e) {
-      console.error('[PostClient] Content parse error:', e);
-      console.log('[PostClient] Content that failed to parse:', post.content);
       // Fallback content แทนที่จะ setNotFound
       setContentState({ 
         type: 'doc', 

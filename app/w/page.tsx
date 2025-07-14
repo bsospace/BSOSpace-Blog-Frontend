@@ -151,7 +151,6 @@ const PostsManagement = () => {
       // Fallback to clipboard
       try {
         await navigator.clipboard.writeText(shareUrl);
-        console.log('Link copied to clipboard');
         // You might want to show a toast notification here
       } catch (err) {
         console.error('Failed to copy link:', err);

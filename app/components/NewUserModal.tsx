@@ -68,7 +68,6 @@ export default function NewUserModal(): JSX.Element {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            console.log('NewUserModal user:', user);
 
             // Check if user has previously declined
             const hasDeclined = localStorage.getItem('userProfileDeclined');
@@ -137,7 +136,6 @@ export default function NewUserModal(): JSX.Element {
                 bio: profileData.bio
             });
             
-            console.log('Profile saved successfully:', response.data);
 
             setOpen(false);
         } catch (err) {
@@ -167,7 +165,6 @@ export default function NewUserModal(): JSX.Element {
             } else {
                 setErrors(prev => ({ ...prev, username: undefined }));
             }
-            console.log('Username check response:', resposne.data);
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const errorMessage = error.errors[0].message;

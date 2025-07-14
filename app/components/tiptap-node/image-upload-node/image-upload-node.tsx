@@ -423,7 +423,6 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
         const url = response?.data?.data?.image_url
 
-        console.log("Image URL:", url)
         if (!url) {
           throw new Error("No image_url returned from server")
         }

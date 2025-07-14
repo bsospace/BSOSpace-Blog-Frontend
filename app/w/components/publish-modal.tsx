@@ -73,7 +73,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
             if (response.status === 200) {
                 const url = response?.data?.data?.image_url;
-                console.log('Image uploaded successfully:', url);
                 handleMetadataChange('thumbnail', url);
             } else {
                 throw new Error('Failed to upload image');

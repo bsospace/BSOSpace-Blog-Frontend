@@ -370,8 +370,6 @@ export function SimpleEditor(
     if (editor) {
       const html = editor.getHTML()
       const json = editor.getJSON()
-      console.log("HTML:", html)
-      console.log("JSON:", json)
     }
   }
 
