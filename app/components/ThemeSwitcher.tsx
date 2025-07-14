@@ -9,8 +9,10 @@ export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Prevents hydration mismatch
+  // prevent flickering by ensuring the component is mounted before rendering
   useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex items-center space-x-2">
