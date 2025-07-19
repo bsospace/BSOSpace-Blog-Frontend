@@ -69,8 +69,11 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
     if (typeof window !== "undefined") {
       const fullURL = `${window.location.origin}/posts/${post.author?.username}/${post.slug}`;
       setCurrentURL(fullURL);
+
+      // set document title and meta tags
+      document.title = metadata.title;
     }
-  }, [post.author?.username, post.slug]);
+  }, [metadata.title, post.author?.username, post.slug]);
 
   useEffect(() => {
     if (metadata.title && metadata.description && currentURL) {
@@ -199,12 +202,12 @@ export default function PostClient({ post, isLoadingPost }: PostClientProps) {
             <div className="mb-8">
 
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <Image 
-                  src={metadata.image} 
-                  alt={metadata.title} 
+                <Image
+                  src={metadata.image}
+                  alt={metadata.title}
                   width={800}
                   height={400}
-                  className="w-full h-64 md:h-96 object-cover" 
+                  className="w-full h-64 md:h-96 object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
