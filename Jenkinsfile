@@ -79,6 +79,21 @@ pipeline {
             }
         }
 
+        stage("Run SonarQube") {
+            environment {
+                scannerHome = tool 'SonarQube-Scanner';
+            }
+            steps {
+                withSonarQubeEnv('SonarQube-Scanner') {  
+                    sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=bso-blog \
+                            -Dsonar.sources=. \
+                    """
+                }
+            }
+        }
+
         stage('Build & Deploy Docker') {
             when {
                 expression { env.ENVIRONMENT != 'other' && env.DOCKER_COMPOSE_FILE?.trim() }

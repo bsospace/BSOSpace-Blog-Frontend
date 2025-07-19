@@ -12,8 +12,6 @@ export default function ThemeSwitcher() {
   // Prevents hydration mismatch
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
-
   return (
     <div className="flex items-center space-x-2">
       {theme === "dark" ? (
