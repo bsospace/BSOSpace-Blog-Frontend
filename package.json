@@ -23,7 +23,7 @@
     "@types/quill": "^2.0.14",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/turndown": "^5.0.5",
-    "axios": "^1.7.5",
+    "axios": "^1.8.2",
     "bcryptjs": "^2.4.3",
     "cookie": "^1.0.1",
     "dotenv": "^16.4.5",
